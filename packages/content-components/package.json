@@ -1,0 +1,53 @@
+{
+  "name": "@lupinum/content-components",
+  "version": "0.1.0",
+  "description": "Reusable prose and MDC components for Nuxt content sites.",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "main": "./dist/module.mjs",
+  "types": "./dist/module.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.mts",
+      "development": "./src/module.ts",
+      "import": "./dist/module.mjs",
+      "default": "./dist/module.mjs"
+    },
+    "./tags": {
+      "types": "./dist/tags.d.mts",
+      "development": "./src/tags.ts",
+      "import": "./dist/tags.mjs",
+      "default": "./dist/tags.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vp exec nuxt-module-build build",
+    "prepack": "vp run build"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.4.7",
+    "@vueuse/core": "^14.2.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "comark": "^0.4.0",
+    "reka-ui": "^2.9.2",
+    "shiki": "^4.2.0",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "1.0.2",
+    "nuxt": "^4.4.7",
+    "unbuild": "^3.6.1",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.24",
+    "vue": "^3.5.35"
+  },
+  "peerDependencies": {
+    "@lupinum/ginko-content": ">=0.1.6",
+    "nuxt": ">=4.4.0",
+    "vue": "^3.5.0"
+  }
+}

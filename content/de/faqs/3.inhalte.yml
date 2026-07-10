@@ -1,0 +1,4 @@
+question: Wo pflegen wir Leistungen und Referenzen?
+answer: Leistungen und Referenzen liegen in Ginko Content. Komponenten und Navigation verwenden die von Ginko gelieferten Pfade statt eigene Slug-Tabellen zu bauen.
+category: content
+order: 3

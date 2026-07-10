@@ -1,0 +1,4 @@
+question: Does every project need a cookie banner?
+answer: No. If no consent-relevant optional services are active, the preset shows no banner and loads no optional tracking scripts.
+category: privacy
+order: 2

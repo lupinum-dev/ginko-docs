@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Vite+
+        run: npm install --global vite-plus@0.1.24
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Check
+        run: vp run check
+
+      - name: Test
+        run: vp test
+
+      - name: Build
+        run: vp run build
+
+      - name: Verify launch readiness
+        run: vp run check:launch
+
+      - name: Check public image ownership
+        run: vp run check:assets
