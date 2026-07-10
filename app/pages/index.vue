@@ -1,43 +1,27 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { definePageMeta, useI18n, useSeoMeta } from "#imports";
-import { defaultOgImage } from "@/lib/seo";
-import HomeAboutSection from "@/components/pages/home/HomeAboutSection.vue";
-import HomeCtaSection from "@/components/pages/home/HomeCtaSection.vue";
-import HomeFaqSection from "@/components/pages/home/HomeFaqSection.vue";
-import HomeHeroSection from "@/components/pages/home/HomeHeroSection.vue";
-import HomeOffersSection from "@/components/pages/home/HomeOffersSection.vue";
-import HomeProblemSection from "@/components/pages/home/HomeProblemSection.vue";
-import HomeProofStripSection from "@/components/pages/home/HomeProofStripSection.vue";
-import HomeProjectsSection from "@/components/pages/home/HomeProjectsSection.vue";
-import HomeSolutionSection from "@/components/pages/home/HomeSolutionSection.vue";
-
-definePageMeta({ layout: "marketing" });
+import { useI18n, useSeoMeta } from "#imports";
+import { useLocalizedPath } from "@/composables/useLocalizedPath";
+import { useSiteNavigation } from "@/composables/useSiteNavigation";
 
 const { t } = useI18n();
+const { site } = useSiteNavigation();
+const localizedPath = useLocalizedPath();
 
 useSeoMeta({
-  title: computed(() => t("pages.home.title")),
-  description: computed(() => t("pages.home.description")),
-  ogTitle: computed(() => t("pages.home.ogTitle")),
-  ogDescription: computed(() => t("pages.home.ogDescription")),
-  ogImage: defaultOgImage,
-  twitterCard: "summary_large_image",
+  title: computed(() => site.value.name),
+  description: computed(() => site.value.description),
 });
 </script>
 
 <template>
-  <div
-    class="bg-hero-bg font-sans text-gray-900 selection:bg-hero-yellow selection:text-gray-900 dark:text-hero-white"
-  >
-    <HomeHeroSection />
-    <HomeProofStripSection />
-    <HomeProblemSection />
-    <HomeSolutionSection />
-    <HomeProjectsSection />
-    <HomeOffersSection />
-    <HomeAboutSection />
-    <HomeFaqSection />
-    <HomeCtaSection />
+  <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-24 md:px-6">
+    <h1 class="text-3xl font-semibold tracking-tight text-foreground">{{ site.name }}</h1>
+    <p class="text-lg text-muted-foreground">{{ site.description }}</p>
+    <p class="text-sm text-muted-foreground">
+      <NuxtLink :to="localizedPath('docs')" class="underline underline-offset-4">
+        {{ t("nav.documentation") }}
+      </NuxtLink>
+    </p>
   </div>
 </template>

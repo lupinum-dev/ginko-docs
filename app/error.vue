@@ -31,16 +31,7 @@ const copy = computed(() => {
 });
 const docsPath = await useDocsEntryPath();
 const homePath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].home));
-const contactPath = computed(() =>
-  localizedPath(locale.value, localizedRoutes[locale.value].contact),
-);
 const title = computed(() => `${normalized.value.statusCode} - ${copy.value.title}`);
-
-function actionVariant(kind: string) {
-  return kind === "server" || kind === "unavailable" ? "contact" : "docs";
-}
-
-const secondaryAction = computed(() => actionVariant(normalized.value.kind));
 
 useHead(() => ({
   title: title.value,
@@ -75,15 +66,8 @@ const handleError = () => clearError({ redirect: homePath.value });
           <button class="error-action error-action-primary" type="button" @click="handleError">
             {{ messages[locale].errors.actions.home }}
           </button>
-          <a
-            v-if="secondaryAction === 'docs'"
-            class="error-action error-action-secondary"
-            :href="docsPath"
-          >
+          <a class="error-action error-action-secondary" :href="docsPath">
             {{ messages[locale].errors.actions.docs }}
-          </a>
-          <a v-else class="error-action error-action-secondary" :href="contactPath">
-            {{ messages[locale].errors.actions.contact }}
           </a>
         </div>
       </section>

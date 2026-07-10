@@ -139,10 +139,7 @@ describe("schema org", () => {
   });
 
   it("registers page-level schema only from pages that already own the source data", () => {
-    expect(readAppFile("app/pages/services/[...slug].vue")).toContain("createServiceSchema");
-    expect(readAppFile("app/pages/services/[...slug].vue")).toContain("createBreadcrumbSchema");
     expect(readAppFile("app/pages/blog/[slug].vue")).toContain("createArticleSchema");
     expect(readAppFile("app/pages/blog/[slug].vue")).toContain("createBreadcrumbSchema");
-    expect(readAppFile("app/components/marketing/FaqSection.vue")).toContain("createFaqSchema");
   });
 });

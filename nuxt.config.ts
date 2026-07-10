@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
-import { i18nPages, localizedRoutes } from "./i18n/routes";
+import { i18nPages } from "./i18n/routes";
 import {
   defaultLocale,
   localeCodes,
@@ -17,11 +17,6 @@ import { resolveSiteUrl } from "./app/config/site.utils";
 
 const isDev = process.env.NODE_ENV === "development";
 const siteUrl = resolveSiteUrl(siteConfig.site.url);
-const sitemapExcludedRoutes = localeCodes.flatMap((locale) =>
-  (["thank-you", "websiteClarity"] as const).map((routeKey) =>
-    localizedPath(locale, localizedRoutes[locale][routeKey]),
-  ),
-);
 const prerenderIgnoredRoutePrefixes = ["/_nuxt/", "/_vercel/image"];
 const contentLocaleFallback = Object.fromEntries(
   nonDefaultLocaleCodes.map((locale) => [locale, [defaultLocale]]),
@@ -47,9 +42,6 @@ export default defineNuxtConfig({
   },
   site: {
     url: siteUrl,
-  },
-  sitemap: {
-    exclude: sitemapExcludedRoutes,
   },
   robots: {
     groups: [
@@ -86,21 +78,16 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/icon",
     "@nuxt/fonts",
-    "@nuxt/scripts",
     "@nuxt/a11y",
     "@nuxt/hints",
     "@lupinum/content-components",
     "@nuxtjs/i18n",
     "@lupinum/ginko-content",
     "@nuxt/image",
-    "@nuxt-photo/nuxt",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
     "@nuxtjs/color-mode",
   ],
-  build: {
-    transpile: ["@nuxt-photo/vue"],
-  },
   icon: {
     clientBundle: {
       icons: localeIconNames,
@@ -123,22 +110,6 @@ export default defineNuxtConfig({
       webVitals: isDev,
       thirdPartyScripts: isDev,
       htmlValidate: isDev,
-    },
-  },
-  nuxtPhoto: {
-    css: "all",
-    image: {
-      thumb: {
-        sizes: "calc(100vw - 2rem) sm:calc(50vw - 2rem) lg:360px",
-        quality: 72,
-      },
-      slide: {
-        widths: [480, 720, 960, 1240],
-        maxWidth: 960,
-        maxDensity: 1.3,
-        sizes: "min(960px, calc(100vw - 2rem))",
-        quality: 78,
-      },
     },
   },
   image: {
@@ -199,35 +170,17 @@ export default defineNuxtConfig({
     autoImport: false,
   },
   components: {
-    dirs: [
-      {
-        path: "~/components/marketing",
-        pattern: "ConsentEmbed.vue",
-        prefix: "Business",
-        global: true,
-        pathPrefix: false,
-      },
-      {
-        path: "~/components/mdc",
-        global: true,
-        pathPrefix: false,
-      },
-    ],
+    dirs: [],
   },
   hooks: {
     "components:dirs"(dirs) {
       const appComponentsPath = "/app/components";
-      const allowedAppComponentPaths = [
-        `${appComponentsPath}/marketing`,
-        `${appComponentsPath}/mdc`,
-      ];
 
       const explicitDirs = dirs.filter((dir) => {
         const dirPath = typeof dir === "string" ? dir : dir.path;
         const normalizedPath = dirPath.replaceAll("\\", "/");
 
-        if (!normalizedPath.includes(appComponentsPath)) return true;
-        return allowedAppComponentPaths.some((allowedPath) => normalizedPath.endsWith(allowedPath));
+        return !normalizedPath.includes(appComponentsPath);
       });
 
       dirs.splice(0, dirs.length, ...explicitDirs);
@@ -239,20 +192,6 @@ export default defineNuxtConfig({
       locales: localeCodes,
       fallback: contentLocaleFallback,
       translatedSlugs: true,
-    },
-    links: {
-      main: {
-        services: { route: "services" },
-        references: { route: "references" },
-        contact: { route: "contact" },
-        projectBrief: {
-          route: "contact",
-          query: {
-            source: "docs",
-            intent: "brief",
-          },
-        },
-      },
     },
     markdown: {
       plugins: [
@@ -273,12 +212,6 @@ export default defineNuxtConfig({
       ],
       tags: {
         "code-group": "MdcCodeGroup",
-        chart: "MdcChart",
-        gallery: "MdcGallery",
-        "business-contact": "MdcBusinessContact",
-        "business-imprint": "MdcBusinessImprint",
-        "consent-embed": "BusinessConsentEmbed",
-        "privacy-services": "MdcPrivacyServices",
       },
       anchorLinks: {
         depth: 4,
@@ -287,7 +220,7 @@ export default defineNuxtConfig({
     },
     search: {
       engine: "minisearch",
-      collections: ["docs", "blog", "services", "references"],
+      collections: ["docs", "blog"],
     },
     sitemap: true,
     agent: {
@@ -312,7 +245,6 @@ export default defineNuxtConfig({
         "@vueuse/core",
         "class-variance-authority",
         "clsx",
-        "motion-v",
         "reka-ui",
         "tailwind-merge",
         "zod",

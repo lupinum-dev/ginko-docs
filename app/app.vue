@@ -7,8 +7,6 @@ import { useLocalizedRouteSwitch } from "@/composables/useLocalizedRouteSwitch";
 import { useCanonicalUrl } from "@/composables/useCanonicalUrl";
 import { useSchemaJsonLd } from "@/composables/useSchemaJsonLd";
 import { locales } from "../i18n/locales";
-import SiteServiceLoader from "@/components/site/ServiceLoader.vue";
-import CookieConsentManager from "@/components/site/cookie/CookieConsentManager.vue";
 
 const canonicalUrl = useCanonicalUrl();
 const { locale } = useI18n();
@@ -51,8 +49,4 @@ useHead(() => ({
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <ClientOnly>
-    <SiteServiceLoader />
-    <CookieConsentManager />
-  </ClientOnly>
 </template>

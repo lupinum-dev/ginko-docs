@@ -97,11 +97,7 @@ describe("errors", () => {
   });
 
   it("uses one canonical content not found helper for content detail pages", () => {
-    for (const file of [
-      "app/pages/services/[...slug].vue",
-      "app/pages/references/[...slug].vue",
-      "app/pages/[...slug].vue",
-    ]) {
+    for (const file of ["app/pages/[...slug].vue"]) {
       const source = readAppFile(file);
       expect(source).toContain("createContentNotFoundError");
       expect(source).toContain("throw createContentNotFoundError()");

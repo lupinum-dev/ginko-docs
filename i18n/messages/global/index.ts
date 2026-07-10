@@ -6,10 +6,6 @@ import { blog } from "./blog";
 import { theme } from "./theme";
 import { command } from "./command";
 import { feedback } from "./feedback";
-import { forms } from "./forms";
-import { chat } from "./chat";
-import { consentEmbed } from "./consentEmbed";
-import { cookie } from "./cookie";
 import { errors } from "./errors";
 
 export const globalMessages = {
@@ -21,9 +17,5 @@ export const globalMessages = {
   theme,
   command,
   feedback,
-  forms,
-  chat,
-  consentEmbed,
-  cookie,
   errors,
 } as const;

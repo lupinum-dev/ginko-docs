@@ -4,7 +4,6 @@ import { computed, watch } from "vue";
 import { navigateTo, useI18n, useRoute, useState } from "#imports";
 import { useLocalizedPath } from "@/composables/useLocalizedPath";
 import { useSiteNavigation } from "@/composables/useSiteNavigation";
-import { useTracking } from "@/composables/useTracking";
 import { getDocsNavigationGroups, type DocsNavigationItem } from "@/features/docs/docs-navigation";
 import { useDocsEntryPath } from "@/features/docs/composables/useDocsEntryPath";
 import { useDocsNavigation } from "@/features/docs/composables/useDocsNavigation";
@@ -33,7 +32,6 @@ const MAX_DEFAULT_DOC_ITEMS = 3;
 export function useCommandCenterState() {
   const open = useState<boolean>("site-command-center-open", () => false);
   const query = useState<string>("site-command-center-query", () => "");
-  const { trackSearch } = useTracking();
 
   function closeCommandCenter() {
     open.value = false;
@@ -44,7 +42,7 @@ export function useCommandCenterState() {
     const wasOpen = open.value;
     query.value = initialQuery;
     open.value = true;
-    if (!wasOpen) trackSearch("search_open", "command_center");
+    void wasOpen;
   }
 
   return {
@@ -77,7 +75,6 @@ export async function useCommandCenter() {
     closeCommandCenter: closeState,
   } = useCommandCenterState();
   const recentSelections = useLocalStorage<StoredRecentItem[]>("site-command-center-recent", []);
-  const { trackOutboundLink, trackSearch, trackSearchResult } = useTracking();
 
   const { mainNav, footerNav, socialLinks } = useSiteNavigation();
   const docsEntryPath = await useDocsEntryPath();
@@ -263,16 +260,11 @@ export async function useCommandCenter() {
   async function selectItem(item: CommandCenterItem) {
     const submittedQuery = query.value.trim();
     rememberSelection(item);
-    if (submittedQuery) {
-      trackSearch("search_submit", "command_center");
-    }
-    trackSearchResult(item.group, item.href ?? item.sourceId ?? item.id);
     closeCommandCenter();
 
     if (!item.href) return;
 
     if (item.external) {
-      trackOutboundLink("command_center", item.href, item.title);
       if (import.meta.client) {
         window.open(item.href, "_blank", "noopener,noreferrer");
       }

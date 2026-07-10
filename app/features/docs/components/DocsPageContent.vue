@@ -12,7 +12,6 @@ import { useScrollspy } from "@/features/docs/composables/useScrollspy";
 import PageMarkdownCopy from "@/components/content/PageMarkdownCopy.vue";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/site.config";
-import ContextualOfferCta from "@/components/marketing/ContextualOfferCta.vue";
 
 type DocsNavLink = {
   path: string;
@@ -105,7 +104,6 @@ useHead(() => ({
             <ContentRenderer :value="page" />
           </div>
 
-          <ContextualOfferCta compact />
           <DocsPageNav :prev="prev" :next="next" />
           <ContentFeedback :label="t('feedback.label')" />
         </article>

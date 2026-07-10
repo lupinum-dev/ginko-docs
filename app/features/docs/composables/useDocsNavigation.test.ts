@@ -216,8 +216,9 @@ describe("content UI adapters", () => {
       timeline: "MdcTimeline",
       "timeline-item": "MdcTimelineItem",
     });
-    expect(nuxtConfig).toContain('"consent-embed":');
-    expect(nuxtConfig).toContain("gallery:");
+    expect(nuxtConfig).toContain('"code-group": "MdcCodeGroup"');
+    expect(nuxtConfig).not.toContain('"consent-embed":');
+    expect(nuxtConfig).not.toContain("gallery:");
   });
 
   it("flattens nested toc links for the existing TOC component", () => {
@@ -266,10 +267,8 @@ describe("content UI adapters", () => {
       "utf8",
     );
 
-    expect(nuxtConfig).toContain('collections: ["docs", "blog", "services", "references"]');
-    expect(nuxtConfig).not.toContain(
-      'collections: ["docs", "blog", "services", "references", "authors"]',
-    );
+    expect(nuxtConfig).toContain('collections: ["docs", "blog"]');
+    expect(nuxtConfig).not.toContain('collections: ["docs", "blog", "authors"]');
     expect(nuxtConfig).not.toContain("testimonials");
     expect(nuxtConfig).not.toContain("faqs");
     expect(commandCenter).toContain("useSiteNavigation");
@@ -338,8 +337,6 @@ describe("content UI adapters", () => {
     expect(localeSwitcher).not.toContain('"/docs"');
     expect(localeSwitcher).toContain(":hreflang=");
     expect(localeSwitcher).toContain(":aria-current=");
-    expect(localeSwitcher).toContain("trackLanguageSwitch");
-    expect(localeSwitcher).toContain("trackNavigation");
   });
 
   it("formats content dates in the active locale", () => {

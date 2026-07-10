@@ -8,7 +8,6 @@ import { useI18n, useRoute } from "#imports";
 import { useLocalizedPath } from "@/composables/useLocalizedPath";
 import { useSiteNavigation } from "@/composables/useSiteNavigation";
 import { useCommandCenterState } from "@/features/search/useCommandCenter";
-import { useTracking } from "@/composables/useTracking";
 import ModeToggle from "@/components/site/ModeToggle.vue";
 import SiteLogoMark from "@/components/site/SiteLogoMark.vue";
 import SiteLocaleSwitcher from "@/components/site/SiteLocaleSwitcher.vue";
@@ -21,7 +20,6 @@ const isMobileMenuOpen = ref(false);
 const headerElement = ref<HTMLElement | null>(null);
 const mobileMenuTop = ref("var(--site-header-height)");
 const localizedPath = useLocalizedPath();
-const { trackNavigation } = useTracking();
 
 const isActive = (href: string) => route.path === href || route.path.startsWith(href + "/");
 
@@ -72,14 +70,6 @@ function openSearch() {
   openCommandCenter();
 }
 
-function trackHeaderNavigation(label: string, href: string) {
-  trackNavigation("header", label, href);
-}
-
-function trackMobileNavigation(label: string, href: string) {
-  trackNavigation("mobile_menu", label, href);
-}
-
 // Close on Escape
 onKeyStroke("Escape", () => {
   if (isMobileMenuOpen.value) {
@@ -127,7 +117,6 @@ watch(
               ? 'bg-muted text-foreground'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           "
-          @click="trackHeaderNavigation(item.label, item.href)"
         >
           {{ item.label }}
         </NuxtLink>
@@ -217,10 +206,7 @@ watch(
                 isActive(group.href) ? 'text-primary' : 'text-foreground',
                 index > 0 && 'border-t border-border',
               ]"
-              @click="
-                trackMobileNavigation(group.label, group.href);
-                isMobileMenuOpen = false;
-              "
+              @click="isMobileMenuOpen = false"
             >
               <span
                 class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"

@@ -1,4 +1,0 @@
-question: How do we start a new client project?
-answer: First adapt business config, real content, theme tokens, and required services. Then delete everything the concrete project does not need.
-category: setup
-order: 1

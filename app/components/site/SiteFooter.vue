@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { hasConfigurableOptionalServices } from "@/config/service-registry";
 import { computed } from "vue";
 import { useI18n } from "#imports";
 import { useLocalizedPath } from "@/composables/useLocalizedPath";
 import { useSiteNavigation } from "@/composables/useSiteNavigation";
-import { useCookieConsentUi } from "@/components/site/cookie/useCookieConsentUi";
-import { useTracking } from "@/composables/useTracking";
 import { useDocsEntryPath } from "@/features/docs/composables/useDocsEntryPath";
 import SiteLogoMark from "@/components/site/SiteLogoMark.vue";
 
@@ -13,11 +10,8 @@ const { site, footerNav, contact } = useSiteNavigation();
 const { t } = useI18n();
 const localizedPath = useLocalizedPath();
 const docsEntryPath = await useDocsEntryPath();
-const { trackContactLink, trackNavigation, trackOutboundLink } = useTracking();
 
 const currentYearDate = new Date();
-const { openCookieSettings } = useCookieConsentUi();
-const canManageConsent = computed(() => hasConfigurableOptionalServices());
 const footerNavigation = computed(() => ({
   ...footerNav.value,
   resources: [
@@ -25,14 +19,6 @@ const footerNavigation = computed(() => ({
     ...footerNav.value.resources,
   ],
 }));
-
-function trackFooterNavigation(label: string, href: string, external = false) {
-  if (external) {
-    trackOutboundLink("footer", href, label);
-    return;
-  }
-  trackNavigation("footer", label, href);
-}
 </script>
 
 <template>
@@ -54,11 +40,7 @@ function trackFooterNavigation(label: string, href: string, external = false) {
             <p>{{ contact.address.street }}</p>
             <p>{{ contact.address.postalCode }} {{ contact.address.city }}</p>
             <p>
-              <a
-                class="transition-colors hover:text-foreground"
-                :href="`mailto:${contact.email}`"
-                @click="trackContactLink('footer_email', `mailto:${contact.email}`)"
-              >
+              <a class="transition-colors hover:text-foreground" :href="`mailto:${contact.email}`">
                 {{ contact.email }}
               </a>
             </p>
@@ -66,9 +48,6 @@ function trackFooterNavigation(label: string, href: string, external = false) {
               <a
                 class="transition-colors hover:text-foreground"
                 :href="`tel:${contact.phone.replace(/\\s+/g, '')}`"
-                @click="
-                  trackContactLink('footer_phone', `tel:${contact.phone.replace(/\\s+/g, '')}`)
-                "
               >
                 {{ contact.phone }}
               </a>
@@ -82,7 +61,6 @@ function trackFooterNavigation(label: string, href: string, external = false) {
               <NuxtLink
                 :to="item.href"
                 class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                @click="trackFooterNavigation(item.label, item.href)"
               >
                 {{ item.label }}
               </NuxtLink>
@@ -98,7 +76,6 @@ function trackFooterNavigation(label: string, href: string, external = false) {
                 :target="item.external ? '_blank' : undefined"
                 :rel="item.external ? 'noopener noreferrer' : undefined"
                 class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                @click="trackFooterNavigation(item.label, item.href, item.external)"
               >
                 {{ item.label }}
                 <Icon
@@ -118,7 +95,6 @@ function trackFooterNavigation(label: string, href: string, external = false) {
               <NuxtLink
                 :to="item.href"
                 class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                @click="trackFooterNavigation(item.label, item.href)"
               >
                 {{ item.label }}
               </NuxtLink>
@@ -134,18 +110,6 @@ function trackFooterNavigation(label: string, href: string, external = false) {
           © <NuxtTime :datetime="currentYearDate" year="numeric" /> {{ site.name }}.
           {{ t("site.footer") }}
         </p>
-        <div
-          v-if="canManageConsent"
-          class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-end"
-        >
-          <button
-            type="button"
-            class="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            @click="openCookieSettings"
-          >
-            {{ t("cookie.settingsLink") }}
-          </button>
-        </div>
       </div>
     </div>
   </footer>

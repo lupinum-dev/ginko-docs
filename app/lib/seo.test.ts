@@ -16,7 +16,7 @@ describe("seo metadata", () => {
     expect(resolveOgImage("/custom.png")).toBe("/custom.png");
     expect(existsSync(join(appRoot, "public/og-image.svg"))).toBe(true);
 
-    for (const file of ["app/app.vue", "app/pages/index.vue", "app/pages/about.vue"]) {
+    for (const file of ["app/app.vue"]) {
       expect(readAppFile(file)).toContain("defaultOgImage");
       expect(readAppFile(file)).not.toContain("og-image.png");
     }
@@ -26,14 +26,11 @@ describe("seo metadata", () => {
     const packageJson = readAppFile("package.json");
     const docsPage = readAppFile("app/features/docs/components/DocsPageContent.vue");
     const blogPage = readAppFile("app/pages/blog/[slug].vue");
-    const servicePage = readAppFile("app/pages/services/[...slug].vue");
 
     expect(packageJson).not.toContain("nuxt-og-image");
     expect(docsPage).toContain("pageTitle");
     expect(docsPage).toContain("pageDescription");
     expect(blogPage).toContain("pageTitle");
     expect(blogPage).toContain("pageDescription");
-    expect(servicePage).toContain("pageTitle");
-    expect(servicePage).toContain("pageDescription");
   });
 });

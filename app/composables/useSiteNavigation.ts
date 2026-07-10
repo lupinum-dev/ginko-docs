@@ -57,29 +57,16 @@ export const useSiteNavigation = () => {
       ].filter(Boolean) as NavItem[],
   );
 
-  const mainNav = computed<NavItem[]>(() => {
-    const home = path("home");
-    return [
-      { label: t("nav.references"), href: `${home}#referenzen` },
-      { label: t("nav.offer"), href: `${home}#angebot` },
-      { label: t("nav.faq"), href: `${home}#faq` },
-    ];
-  });
+  const mainNav = computed<NavItem[]>(() => []);
 
   const footerNav = computed<{
     product: NavItem[];
     resources: NavItem[];
     company: NavItem[];
   }>(() => ({
-    product: [
-      { label: t("nav.services"), href: path("services") },
-      { label: t("nav.references"), href: path("references") },
-      { label: t("nav.features"), href: path("features") },
-    ],
+    product: [],
     resources: [...socialLinks.value],
     company: [
-      { label: t("nav.contact"), href: path("contact") },
-      { label: t("nav.about"), href: path("about") },
       { label: t("nav.privacy"), href: path("privacy") },
       { label: t("nav.terms"), href: path("terms") },
       { label: t("nav.imprint"), href: path("imprint") },

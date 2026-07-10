@@ -49,12 +49,6 @@ function contactMarkdown() {
     .join("\n");
 }
 
-function managingDirectorsMarkdown() {
-  return siteConfig.identity.managingDirectors.length
-    ? siteConfig.identity.managingDirectors.join(", ")
-    : "not configured";
-}
-
 export const docs = defineCollection({
   type: "page",
   source: "{1.docs,1.dokumentation}/**/*.md",
@@ -118,47 +112,6 @@ export const authors = defineCollection({
   sitemap: false,
 });
 
-export const services = defineCollection({
-  type: "page",
-  source: "{6.services,6.leistungen}/**/*.md",
-  i18n: true,
-  route: collectionRouteMap("services"),
-  agent: {
-    section: "services",
-    markdown: true,
-  },
-  strict: true,
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    icon: z.string(),
-    order: z.number(),
-    featured: z.boolean().optional(),
-    outcome: z.string(),
-  }),
-});
-
-export const references = defineCollection({
-  type: "page",
-  source: "{7.references,7.referenzen}/**/*.md",
-  i18n: true,
-  route: collectionRouteMap("references"),
-  agent: {
-    section: "references",
-    markdown: true,
-  },
-  strict: true,
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    client: z.string(),
-    industry: z.string(),
-    outcome: z.string(),
-    featured: z.boolean().optional(),
-    date: z.string(),
-  }),
-});
-
 export const legal = defineCollection({
   type: "page",
   source: "*.md",
@@ -189,35 +142,6 @@ export const legal = defineCollection({
   }),
 });
 
-export const testimonials = defineCollection({
-  type: "data",
-  source: "testimonials/**/*.yml",
-  i18n: true,
-  strict: true,
-  schema: z.object({
-    quote: z.string(),
-    name: z.string(),
-    role: z.string(),
-    company: z.string(),
-    featured: z.boolean().optional(),
-  }),
-  sitemap: false,
-});
-
-export const faqs = defineCollection({
-  type: "data",
-  source: "faqs/**/*.yml",
-  i18n: true,
-  strict: true,
-  schema: z.object({
-    question: z.string(),
-    answer: z.string(),
-    category: z.string().optional(),
-    order: z.number(),
-  }),
-  sitemap: false,
-});
-
 export default defineContentConfig({
   agent: {
     site: {
@@ -237,16 +161,6 @@ export default defineContentConfig({
     },
     sections: [
       defineAgentSection({ id: "business", title: { de: "Business", en: "Business" }, order: 10 }),
-      defineAgentSection({
-        id: "services",
-        title: { de: "Leistungen", en: "Services" },
-        order: 20,
-      }),
-      defineAgentSection({
-        id: "references",
-        title: { de: "Referenzen", en: "References" },
-        order: 30,
-      }),
       defineAgentSection({ id: "blog", title: "Blog", order: 40 }),
       defineAgentSection({ id: "legal", title: { de: "Rechtliches", en: "Legal" }, order: 90 }),
       defineAgentSection({ id: "content", title: { de: "Inhalte", en: "Content" }, order: 95 }),
@@ -284,97 +198,12 @@ export default defineContentConfig({
           ].join("\n");
         },
       }),
-      defineAgentAppPage({
-        id: "contact",
-        route: localizedRouteMap("contact"),
-        section: "business",
-        title: { de: "Kontakt", en: "Contact" },
-        description: {
-          de: "Direkte Kontaktwege fuer Projektanfragen und rechtliche Anliegen.",
-          en: "Direct contact paths for project inquiries and legal requests.",
-        },
-        updated: siteConfig.legal.lastUpdated,
-        metadata: metadataFields,
-        render: ({ locale }) =>
-          [
-            `# ${locale === "de" ? "Kontakt" : "Contact"}`,
-            "",
-            contactMarkdown(),
-            `Privacy email: <${siteConfig.contact.privacyEmail}>`,
-            `Legal email: <${siteConfig.contact.legalEmail}>`,
-          ].join("\n"),
-      }),
-      defineAgentAppPage({
-        id: "about",
-        route: localizedRouteMap("about"),
-        section: "business",
-        title: { de: "Ueber uns", en: "About" },
-        description: {
-          de: "Unternehmensprofil und Identitaet.",
-          en: "Company profile and identity.",
-        },
-        updated: siteConfig.legal.lastUpdated,
-        metadata: metadataFields,
-        render: ({ locale }) =>
-          [
-            `# ${locale === "de" ? "Ueber uns" : "About"}`,
-            "",
-            `Brand: ${siteConfig.identity.brandName}`,
-            `Legal name: ${siteConfig.identity.legalName}`,
-            `Founded: ${siteConfig.identity.foundingYear ?? "not specified"}`,
-            `Managing directors: ${managingDirectorsMarkdown()}`,
-          ].join("\n"),
-      }),
-      defineAgentAppPage({
-        id: "services-index",
-        route: localizedRouteMap("services"),
-        section: "services",
-        title: { de: "Leistungen", en: "Services" },
-        description: {
-          de: "Indexseite fuer die Ginko-gepflegten Leistungsseiten.",
-          en: "Index page for the Ginko-backed service pages.",
-        },
-        updated: siteConfig.legal.lastUpdated,
-        metadata: metadataFields,
-        render: ({ locale }) =>
-          [
-            `# ${locale === "de" ? "Leistungen" : "Services"}`,
-            "",
-            locale === "de"
-              ? "Die einzelnen Leistungen sind als eigene Markdown-Ressourcen verfuegbar."
-              : "Individual services are available as separate markdown resources.",
-          ].join("\n"),
-      }),
-      defineAgentAppPage({
-        id: "references-index",
-        route: localizedRouteMap("references"),
-        section: "references",
-        title: { de: "Referenzen", en: "References" },
-        description: {
-          de: "Indexseite fuer die Ginko-gepflegten Referenzen.",
-          en: "Index page for the Ginko-backed references.",
-        },
-        updated: siteConfig.legal.lastUpdated,
-        metadata: metadataFields,
-        render: ({ locale }) =>
-          [
-            `# ${locale === "de" ? "Referenzen" : "References"}`,
-            "",
-            locale === "de"
-              ? "Einzelne Referenzen sind als eigene Markdown-Ressourcen verfuegbar."
-              : "Individual references are available as separate markdown resources.",
-          ].join("\n"),
-      }),
     ],
   },
   collections: {
     docs,
     blog,
     authors,
-    services,
-    references,
     legal,
-    testimonials,
-    faqs,
   },
 });

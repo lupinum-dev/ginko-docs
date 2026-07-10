@@ -13,7 +13,6 @@ import { useCanonicalUrl } from "@/composables/useCanonicalUrl";
 import { useSchemaJsonLd } from "@/composables/useSchemaJsonLd";
 import DocumentPageShell from "@/components/content/DocumentPageShell.vue";
 import PageMarkdownCopy from "@/components/content/PageMarkdownCopy.vue";
-import ContextualOfferCta from "@/components/marketing/ContextualOfferCta.vue";
 
 definePageMeta({ layout: "blog" });
 
@@ -126,7 +125,6 @@ useSchemaJsonLd(() =>
     </div>
 
     <ContentFeedback :label="t('feedback.articleLabel')" />
-    <ContextualOfferCta compact />
 
     <div v-if="suggestions.length" class="mt-14">
       <h2 class="mb-6 text-sm font-semibold tracking-wider text-muted-foreground uppercase">

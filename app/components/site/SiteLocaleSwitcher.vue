@@ -12,7 +12,6 @@ import { siteConfig } from "@/site.config";
 import { computed } from "vue";
 import { useI18n } from "#imports";
 import { useLocalizedRouteSwitch } from "@/composables/useLocalizedRouteSwitch";
-import { useTracking } from "@/composables/useTracking";
 import { locales as configuredLocales } from "../../../i18n/locales";
 
 type LocaleSwitcherVariant = "dropdown" | "menu-row" | "menu-tile" | "segmented";
@@ -42,7 +41,6 @@ const emit = defineEmits<{
 
 const { locale, locales, t } = useI18n();
 const { switchPath } = useLocalizedRouteSwitch();
-const { trackLanguageSwitch, trackNavigation } = useTracking();
 
 type ConfiguredLocale = (typeof configuredLocales)[number];
 
@@ -95,11 +93,7 @@ const currentMobileLocaleLabel = computed(() => {
   return currentLocale.value?.name ?? code.toUpperCase();
 });
 
-function trackLocaleNavigation(entry: { code: string; current: boolean; to: string }) {
-  if (!entry.current) {
-    trackLanguageSwitch(entry.code);
-    trackNavigation("language_switcher", entry.code, entry.to);
-  }
+function trackLocaleNavigation(_entry: { code: string; current: boolean; to: string }) {
   emit("navigate");
 }
 </script>
