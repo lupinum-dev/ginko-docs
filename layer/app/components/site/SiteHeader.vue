@@ -9,8 +9,6 @@ import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
 import { useCommandCenterState } from "#ginko-docs/features/search/useCommandCenter";
 import ModeToggle from "#ginko-docs/components/site/ModeToggle.vue";
-import SiteLogoMark from "#ginko-docs/components/site/SiteLogoMark.vue";
-import SiteLocaleSwitcher from "#ginko-docs/components/site/SiteLocaleSwitcher.vue";
 
 const { mainNav } = useSiteNavigation();
 const { openCommandCenter } = useCommandCenterState();

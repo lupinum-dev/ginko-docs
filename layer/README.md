@@ -57,6 +57,21 @@ export default defineAppConfig({
 - `@lupinum/ginko-docs` — Nuxt layer entry
 - `@lupinum/ginko-docs/content` — typed content configuration factory
 - `@lupinum/ginko-docs/app-config` — application-configuration types
+- `@lupinum/ginko-docs/components` — default MDC tag map and related types
+
+## Customize
+
+Consumers use Nuxt's ordinary override rules. Add `app/pages/index.vue` or a layout to replace a
+page or layout. Add a same-named `SiteHeader`, `SiteFooter`, `SiteBanner`, `SiteLogoMark`,
+`SiteLocaleSwitcher`, `SiteInteractionLayer`, or `DocsSidebar` component to replace that shell
+piece. Import consumer theme CSS from an app plugin so it augments rather than replaces the layer's
+styles. Add or replace MDC components in `app/components/mdc` and extend
+`ginkoDocsComponentTags` from `@lupinum/ginko-docs/components` in `content.markdown.tags`. Register
+custom MDC components globally with a Nuxt plugin or Nuxt's `.global.vue` filename suffix, because
+MDC resolves tag targets dynamically.
+
+Custom agent Markdown is deliberately separate: register serializers through
+`@lupinum/ginko-content/agent-registry` in a Nitro plugin.
 
 ## Agent surfaces
 

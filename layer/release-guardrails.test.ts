@@ -60,11 +60,31 @@ describe("ginko docs release guardrails", () => {
     });
     expect(read("layer/content.js")).toContain("function defineGinkoDocsConfig(options)");
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
+    expect(manifest.exports["./components"]).toBe("./components.ts");
     expect(read("layer/README.md")).toContain("# Ginko Docs");
     expect(read("layer/LICENSE")).toContain("MIT License");
 
     const contentEntry = await import(pathToFileURL(join(root, "layer/content.js")).href);
     expect(contentEntry.defineGinkoDocsConfig).toBeTypeOf("function");
+  });
+
+  it("exposes Nuxt-native customization seams without parallel component lookup", async () => {
+    const config = read("layer/nuxt.config.ts");
+    expect(config).toContain('"SiteHeader.vue"');
+    expect(config).toContain('pattern: "DocsSidebar.vue"');
+
+    for (const layout of ["default", "docs", "blog"]) {
+      expect(read(`layer/app/layouts/${layout}.vue`)).not.toContain(
+        'from "#ginko-docs/components/site/',
+      );
+    }
+    expect(read("layer/app/layouts/docs.vue")).not.toContain(
+      'from "#ginko-docs/features/docs/components/DocsSidebar.vue"',
+    );
+
+    const componentsEntry = await import(pathToFileURL(join(root, "layer/components.ts")).href);
+    expect(componentsEntry.ginkoDocsComponentTags.callout).toBe("MdcCallout");
+    expect(componentsEntry.ginkoDocsComponentNames).toContain("MdcCallout");
   });
 
   it("uses the resolved blog collection as the only blog route authority", () => {

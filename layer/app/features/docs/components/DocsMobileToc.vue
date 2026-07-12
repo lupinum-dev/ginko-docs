@@ -9,7 +9,6 @@ import {
   SheetTrigger,
 } from "#ginko-docs/components/ui/sheet";
 import { cn } from "#ginko-docs/lib/utils";
-import DocsSidebar from "./DocsSidebar.vue";
 import type { TocItem } from "./DocsToc.vue";
 import DocsToc from "./DocsToc.vue";
 import { useI18n, useRoute } from "#imports";

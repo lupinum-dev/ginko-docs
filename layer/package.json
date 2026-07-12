@@ -28,6 +28,7 @@
     "shared",
     "content.js",
     "content.ts",
+    "components.ts",
     "index.d.ts",
     "nuxt.config.ts",
     "tags.ts",
@@ -42,7 +43,8 @@
       "import": "./content.js",
       "default": "./content.js"
     },
-    "./app-config": "./shared/types/app-config.ts"
+    "./app-config": "./shared/types/app-config.ts",
+    "./components": "./components.ts"
   },
   "publishConfig": {
     "access": "public"

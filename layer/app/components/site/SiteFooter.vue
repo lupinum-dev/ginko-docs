@@ -4,7 +4,6 @@ import { useI18n } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
 import { useDocsEntryPath } from "#ginko-docs/features/docs/composables/useDocsEntryPath";
-import SiteLogoMark from "#ginko-docs/components/site/SiteLogoMark.vue";
 
 const { site, footerNav } = useSiteNavigation();
 const { t } = useI18n();

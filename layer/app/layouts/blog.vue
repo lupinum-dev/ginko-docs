@@ -1,10 +1,3 @@
-<script setup lang="ts">
-import SiteBanner from "#ginko-docs/components/site/SiteBanner.vue";
-import SiteHeader from "#ginko-docs/components/site/SiteHeader.vue";
-import SiteFooter from "#ginko-docs/components/site/SiteFooter.vue";
-import SiteInteractionLayer from "#ginko-docs/components/site/SiteInteractionLayer.vue";
-</script>
-
 <template>
   <div class="flex min-h-dvh flex-col bg-background text-foreground selection:bg-primary/15">
     <SiteBanner />

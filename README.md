@@ -75,6 +75,49 @@ Nuxt's layer merge and hot reload deterministic; a single-language site only nee
 
 Content belongs to the consumer. A single-locale docs tree can start at `content/docs`; localized sites can use locale-prefixed trees configured through the collection factory.
 
+## Customize the presentation
+
+Use Nuxt's normal application directories. A consumer can replace `app/pages/index.vue`, its
+layouts, or any of these stable shell components by creating a component with the same name:
+
+- `SiteHeader`, `SiteFooter`, `SiteBanner`, `SiteLogoMark`
+- `SiteLocaleSwitcher`, `SiteInteractionLayer`, `DocsSidebar`
+
+Import consumer theme CSS from an app plugin so it is added after the layer styles without replacing
+Nuxt's merged `css` array. MDC components work the same way: place a replacement or a new component
+in `app/components/mdc`, then extend the layer's tag map instead of copying it:
+
+```ts
+import { ginkoDocsComponentTags } from "@lupinum/ginko-docs/components";
+
+export default defineNuxtConfig({
+  content: {
+    markdown: {
+      tags: {
+        ...ginkoDocsComponentTags,
+        "api-playground": "MdcApiPlayground",
+      },
+    },
+  },
+});
+```
+
+MDC renders tag targets dynamically, so register custom MDC components globally in a small Nuxt
+plugin (or use Nuxt's `.global.vue` filename suffix). No Docs-specific visual registry is needed:
+
+```ts
+import { defineNuxtPlugin } from "#app";
+import MdcApiPlayground from "../components/mdc/MdcApiPlayground.vue";
+
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.component("MdcApiPlayground", MdcApiPlayground);
+});
+```
+
+If a custom MDC component needs special copied or raw Markdown, register its serializer explicitly
+with Ginko Content's `agent-registry` server API. Visual discovery remains Nuxt-native; agent output
+remains explicit and testable.
+
 ## Public agent surfaces
 
 The layer exposes the same canonical content through:
@@ -90,3 +133,4 @@ The MCP tools read the canonical agent routes rather than maintaining a second c
 - `@lupinum/ginko-docs` — Nuxt layer entry
 - `@lupinum/ginko-docs/content` — collection factory
 - `@lupinum/ginko-docs/app-config` — app-config types and defaults
+- `@lupinum/ginko-docs/components` — default MDC tag map and related types

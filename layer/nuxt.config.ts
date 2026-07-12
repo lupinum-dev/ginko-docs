@@ -36,6 +36,25 @@ export default defineNuxtConfig({
   },
   components: {
     dirs: [
+      {
+        path: join(app, "components/site"),
+        pathPrefix: false,
+        global: true,
+        pattern: [
+          "SiteBanner.vue",
+          "SiteFooter.vue",
+          "SiteHeader.vue",
+          "SiteInteractionLayer.vue",
+          "SiteLocaleSwitcher.vue",
+          "SiteLogoMark.vue",
+        ],
+      },
+      {
+        path: join(app, "features/docs/components"),
+        pathPrefix: false,
+        global: true,
+        pattern: "DocsSidebar.vue",
+      },
       { path: join(app, "components/mdc"), pathPrefix: false, global: true },
       { path: join(app, "components/prose"), pathPrefix: false, global: true },
     ],
