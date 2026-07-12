@@ -1,7 +1,12 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { defaultLocale, localeFromPath, localizedPath } from "./i18n/locales";
+import { i18nPages, localizedRoutes } from "./i18n/routes";
+import { removeBlogPages } from "./modules/feature-routing";
 import { routeSlugs } from "./shared/route-slugs";
 
 const root = process.cwd();
@@ -19,14 +24,86 @@ describe("ginko docs release guardrails", () => {
   it("keeps translated route mounts in one shared source", () => {
     expect(routeSlugs.docs).toEqual({ en: "/docs", de: "/dokumentation" });
     expect(routeSlugs.blog).toEqual({ en: "/blog", de: "/blog" });
+    expect(localizedRoutes.en).toEqual({
+      home: routeSlugs.home.en,
+      docs: routeSlugs.docs.en,
+      blog: routeSlugs.blog.en,
+    });
+    expect(localizedRoutes.de).toEqual({
+      home: routeSlugs.home.de,
+      docs: routeSlugs.docs.de,
+      blog: routeSlugs.blog.de,
+    });
+    expect(i18nPages["docs-slug"]).toEqual({
+      en: `${routeSlugs.docs.en}/[...slug]`,
+      de: `${routeSlugs.docs.de}/[...slug]`,
+    });
   });
 
-  it("publishes source layer and typed consumer entrypoints", () => {
+  it("publishes source layer and typed consumer entrypoints", async () => {
     const manifest = JSON.parse(read("layer/package.json"));
     expect(manifest.name).toBe("@lupinum/ginko-docs");
+    expect(manifest.description).toBeTruthy();
+    expect(manifest.license).toBe("MIT");
+    expect(manifest.repository).toEqual({
+      type: "git",
+      url: "git+https://github.com/Mat4m0/lupinum-docs-shadcn.git",
+      directory: "layer",
+    });
+    expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
-    expect(manifest.exports["./content"]).toBe("./content.ts");
+    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0");
+    expect(manifest.exports["./content"]).toEqual({
+      types: "./content.ts",
+      import: "./content.js",
+      default: "./content.js",
+    });
+    expect(read("layer/content.js")).toContain("function defineGinkoDocsConfig(options)");
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
+    expect(read("layer/README.md")).toContain("# Ginko Docs");
+    expect(read("layer/LICENSE")).toContain("MIT License");
+
+    const contentEntry = await import(pathToFileURL(join(root, "layer/content.js")).href);
+    expect(contentEntry.defineGinkoDocsConfig).toBeTypeOf("function");
+  });
+
+  it("uses the resolved blog collection as the only blog route authority", () => {
+    const enabled = [{ path: "/" }, { path: "/blog" }, { path: "/blog/[slug]" }];
+    removeBlogPages(enabled, true);
+    expect(enabled.map((page) => page.path)).toEqual(["/", "/blog", "/blog/[slug]"]);
+
+    const disabled = [{ path: "/" }, { path: "/blog" }, { path: "/blog/[slug]" }];
+    removeBlogPages(disabled, false);
+    expect(disabled.map((page) => page.path)).toEqual(["/"]);
+
+    expect(read("layer/shared/types/app-config.ts")).not.toContain("blog: boolean");
+    expect(read("layer/app/composables/useSiteNavigation.ts")).toContain(
+      "router.resolve(linkHref).matched.length > 0",
+    );
+  });
+
+  it("keeps the generated content entry synchronized with its TypeScript source", () => {
+    const output = join(tmpdir(), `ginko-docs-content-${process.pid}.js`);
+    try {
+      execFileSync(
+        "vp",
+        [
+          "exec",
+          "esbuild",
+          "layer/content.ts",
+          "--bundle",
+          "--platform=node",
+          "--format=esm",
+          "--packages=external",
+          `--outfile=${output}`,
+        ],
+        { cwd: root, stdio: "pipe" },
+      );
+      execFileSync("vp", ["fmt", output], { cwd: root, stdio: "pipe" });
+      expect(readFileSync(output, "utf8")).toBe(read("layer/content.js"));
+    } finally {
+      rmSync(output, { force: true });
+    }
   });
 
   it("keeps strict output and agent routes enabled at the layer boundary", () => {
@@ -35,6 +112,7 @@ describe("ginko docs release guardrails", () => {
     expect(config).toContain("markdownNegotiation: true");
     expect(config).toContain('"/llms.txt"');
     expect(config).toContain('"/sitemap.xml"');
+    expect(config).toContain('excludeAppSources: ["nuxt:prerender"]');
   });
 
   it("does not redistribute the commercial Pressura font", () => {

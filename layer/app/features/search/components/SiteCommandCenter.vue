@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n, useRoute } from "#imports";
 import { useCommandCenter } from "#ginko-docs/features/search/useCommandCenter";
 import {
@@ -12,12 +12,11 @@ import {
   VisuallyHidden,
 } from "reka-ui";
 
-const { open, query, groupedItems, openCommandCenter, selectItem } = await useCommandCenter();
 const { t } = useI18n();
-
 const route = useRoute();
 const inputRef = useTemplateRef<HTMLInputElement>("input");
 const highlightedId = ref("");
+const { open, query, groupedItems, selectItem } = await useCommandCenter();
 
 const visibleItems = computed(() => groupedItems.value.flatMap((g) => g.items));
 
@@ -86,23 +85,6 @@ function itemLabel(item: { title: string; subtitle?: string; badge?: string }) {
   return [item.title, item.badge, item.subtitle].filter(Boolean).join(", ");
 }
 
-function handleGlobalShortcut(e: KeyboardEvent) {
-  const el = e.target as HTMLElement | null;
-  const typing =
-    el instanceof HTMLElement &&
-    (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
-
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-    e.preventDefault();
-    openCommandCenter();
-    return;
-  }
-  if (!open.value && !typing && e.key === "/") {
-    e.preventDefault();
-    openCommandCenter();
-  }
-}
-
 function handleListNavigation(e: KeyboardEvent) {
   if (e.key === "ArrowDown") {
     e.preventDefault();
@@ -142,8 +124,11 @@ watch(
   },
 );
 
-onMounted(() => window.addEventListener("keydown", handleGlobalShortcut));
-onBeforeUnmount(() => window.removeEventListener("keydown", handleGlobalShortcut));
+onMounted(async () => {
+  await nextTick();
+  syncHighlight();
+  inputRef.value?.focus();
+});
 </script>
 
 <template>

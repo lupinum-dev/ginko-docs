@@ -92,7 +92,7 @@ const currentMobileLocaleLabel = computed(() => {
   return currentLocale.value?.name ?? code.toUpperCase();
 });
 
-function trackLocaleNavigation(_entry: { code: string; current: boolean; to: string }) {
+function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unknown }) {
   emit("navigate");
 }
 </script>

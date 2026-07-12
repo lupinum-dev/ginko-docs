@@ -4,8 +4,8 @@ import { Checkbox } from "#ginko-docs/components/ui/checkbox";
 import { Input } from "#ginko-docs/components/ui/input";
 import { Textarea } from "#ginko-docs/components/ui/textarea";
 import { nextTick, ref } from "vue";
-import { useAppConfig, useI18n, useRoute } from "#imports";
-import type { GinkoDocsAppConfig } from "../../../shared/types/app-config";
+import { useI18n, useRoute } from "#imports";
+import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 
 withDefaults(
   defineProps<{
@@ -18,7 +18,7 @@ withDefaults(
 const { t, locale } = useI18n();
 const route = useRoute();
 
-const feedbackConfig = (useAppConfig().ginkoDocs as GinkoDocsAppConfig).feedback;
+const feedbackConfig = useGinkoDocsConfig().feedback;
 const enabled = feedbackConfig.enabled;
 
 type Sentiment = "positive" | "negative";

@@ -1,12 +1,12 @@
 export const blog = {
   title: { de: "Blog", en: "Blog" },
-  pageTitle: { de: "Blog | Lupinum", en: "Blog | Lupinum" },
+  pageTitle: { de: "Blog", en: "Blog" },
   description: {
-    de: "Praxisnahe Perspektiven zu Website-Strategie, Design, Inhalten und Umsetzung.",
-    en: "Practical perspectives on website strategy, design, content, and implementation.",
+    de: "Neuigkeiten, Anleitungen und technische Einblicke.",
+    en: "Updates, guides, and technical insights.",
   },
   fallbackTitle: { de: "Blog", en: "Blog" },
-  fallbackDescription: { de: "Artikel von Lupinum.", en: "An article from Lupinum." },
+  fallbackDescription: { de: "Ein Dokumentationsartikel.", en: "A documentation article." },
   back: { de: "Zurück zum Blog", en: "Back to Blog" },
   toc: { de: "Im Artikel", en: "In this article" },
   readMore: { de: "Weiterlesen", en: "Read more" },

@@ -25,10 +25,7 @@ const { t } = useI18n();
 
 <template>
   <div v-if="items.length" :class="cn('w-full', props.class)">
-    <h3
-      v-if="showTitle"
-      class="mb-4 flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase"
-    >
+    <h3 v-if="showTitle" class="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
       <Icon name="lucide:list" class="size-3.5 shrink-0" aria-hidden="true" />
       {{ t("docs.toc") }}
     </h3>

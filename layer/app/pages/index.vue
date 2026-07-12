@@ -35,18 +35,14 @@ useSeoMeta({
 </script>
 
 <template>
-  <main id="main-content" class="overflow-hidden">
+  <div class="overflow-hidden">
     <section class="relative border-b border-border">
-      <div
-        class="pointer-events-none absolute inset-0 opacity-50 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
-        aria-hidden="true"
-      />
-      <div class="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32 lg:py-40">
+      <div class="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
         <p v-if="landing.eyebrow" class="mb-6 text-sm font-semibold tracking-wide text-primary">
           {{ landing.eyebrow }}
         </p>
         <h1
-          class="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance text-foreground sm:text-7xl lg:text-[5.75rem]"
+          class="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-7xl lg:text-[5.75rem]"
         >
           {{ landing.title }}
         </h1>
@@ -73,11 +69,13 @@ useSeoMeta({
     </section>
 
     <section v-if="landing.features.length" class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
-      <div class="grid border-t border-l border-border md:grid-cols-3">
+      <div
+        class="grid gap-12 border-t border-border pt-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-border"
+      >
         <article
           v-for="feature in landing.features"
           :key="feature.title"
-          class="min-h-64 border-r border-b border-border p-7 sm:p-9"
+          class="min-w-0 md:px-9 md:first:pl-0 md:last:pr-0"
         >
           <Icon
             v-if="feature.icon"
@@ -85,12 +83,12 @@ useSeoMeta({
             class="size-6 text-primary"
             aria-hidden="true"
           />
-          <h2 class="mt-16 text-xl font-semibold tracking-tight text-foreground">
+          <h2 class="mt-8 text-xl font-semibold tracking-tight text-foreground">
             {{ feature.title }}
           </h2>
           <p class="mt-3 leading-7 text-muted-foreground">{{ feature.description }}</p>
         </article>
       </div>
     </section>
-  </main>
+  </div>
 </template>

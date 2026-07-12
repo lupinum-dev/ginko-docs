@@ -3,6 +3,14 @@ import { localeCodes } from "../locales";
 
 type LocalizedLeaf = Record<LocaleCode, string>;
 
+export type LocalizedMessages<T> = T extends LocalizedLeaf
+  ? string
+  : T extends readonly (infer TItem)[]
+    ? LocalizedMessages<TItem>[]
+    : T extends object
+      ? { [TKey in keyof T]: LocalizedMessages<T[TKey]> }
+      : T;
+
 function isLocalizedLeaf(value: unknown): value is LocalizedLeaf {
   return (
     !!value &&
@@ -13,13 +21,15 @@ function isLocalizedLeaf(value: unknown): value is LocalizedLeaf {
   );
 }
 
-export function localizeMessages(source: unknown, locale: LocaleCode): any {
-  if (isLocalizedLeaf(source)) return source[locale];
-  if (Array.isArray(source)) return source.map((item) => localizeMessages(item, locale));
+export function localizeMessages<T>(source: T, locale: LocaleCode): LocalizedMessages<T> {
+  if (isLocalizedLeaf(source)) return source[locale] as LocalizedMessages<T>;
+  if (Array.isArray(source)) {
+    return source.map((item) => localizeMessages(item, locale)) as LocalizedMessages<T>;
+  }
   if (source && typeof source === "object") {
     return Object.fromEntries(
       Object.entries(source).map(([key, value]) => [key, localizeMessages(value, locale)]),
-    );
+    ) as LocalizedMessages<T>;
   }
-  return source;
+  return source as LocalizedMessages<T>;
 }

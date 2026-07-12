@@ -1,8 +1,8 @@
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
-import { useAppConfig, useI18n } from "#imports";
+import { useI18n, useRouter } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { computed } from "vue";
-import type { GinkoDocsAppConfig } from "../../shared/types/app-config";
+import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
 
 export interface NavItem {
   label: string;
@@ -17,8 +17,9 @@ export interface SidebarSection {
 }
 
 export const useSiteNavigation = () => {
-  const config = useAppConfig().ginkoDocs as GinkoDocsAppConfig;
+  const config = useGinkoDocsConfig();
   const { locale, t } = useI18n();
+  const router = useRouter();
   const path = useLocalizedPath();
 
   const site = computed(() => ({
@@ -28,12 +29,16 @@ export const useSiteNavigation = () => {
     url: config.site.url,
   }));
 
-  const banner = computed(() => ({
-    show: config.blog,
-    text: t("banner.text"),
-    linkLabel: t("banner.linkLabel"),
-    linkHref: path("blog"),
-  }));
+  const banner = computed(() => {
+    const linkHref = path("blog");
+
+    return {
+      show: router.resolve(linkHref).matched.length > 0,
+      text: t("banner.text"),
+      linkLabel: t("banner.linkLabel"),
+      linkHref,
+    };
+  });
 
   const socialLinks = computed<NavItem[]>(
     () =>

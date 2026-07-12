@@ -34,14 +34,21 @@ export default defineNuxtConfig({
 });
 ```
 
-Define collections through the exported content factory:
+Define collections, locales, sitemap metadata, and agent surfaces through the exported content
+factory:
 
 ```ts
-import { defineContentConfig } from "@nuxt/content";
-import { createGinkoDocsCollections } from "@lupinum/ginko-docs/content";
+import { defineGinkoDocsConfig } from "@lupinum/ginko-docs/content";
 
-export default defineContentConfig({
-  collections: createGinkoDocsCollections({ locales: ["en"], blog: false }),
+export default defineGinkoDocsConfig({
+  site: {
+    name: "Example Docs",
+    description: "Documentation for Example.",
+    url: "https://docs.example.com",
+  },
+  locales: ["en", "de"],
+  defaultLocale: "en",
+  blog: false,
 });
 ```
 
@@ -52,14 +59,19 @@ export default {
   ginkoDocs: {
     site: {
       url: "https://docs.example.com",
-      name: "Example Docs",
-      description: "Documentation for Example.",
+      name: { en: "Example Docs", de: "Example-Dokumentation" },
+      description: {
+        en: "Documentation for Example.",
+        de: "Dokumentation für Example.",
+      },
       logo: { light: "/logo.svg", dark: "/logo.svg" },
     },
-    blog: false,
   },
 };
 ```
+
+Localized app-config values always use the same `{ en, de? }` shape. Keeping one stable shape makes
+Nuxt's layer merge and hot reload deterministic; a single-language site only needs the `en` value.
 
 Content belongs to the consumer. A single-locale docs tree can start at `content/docs`; localized sites can use locale-prefixed trees configured through the collection factory.
 

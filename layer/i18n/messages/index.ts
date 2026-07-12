@@ -11,5 +11,10 @@ export const messages = localeCodes.reduce(
     };
     return localizedMessages;
   },
-  {} as Record<LocaleCode, any>,
+  {} as Record<
+    LocaleCode,
+    ReturnType<typeof localizeMessages<typeof messageSource>> & {
+      routes: (typeof localizedRoutes)[LocaleCode];
+    }
+  >,
 );

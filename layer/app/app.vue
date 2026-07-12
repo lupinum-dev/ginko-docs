@@ -5,11 +5,12 @@ import { useAppConfig, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
+import { defaultLocale } from "../i18n/locales";
 
 const canonicalUrl = useCanonicalUrl();
 const { locale, locales } = useI18n();
 const route = useRoute();
-const { switchPath } = useLocalizedRouteSwitch();
+const { switchPathname } = useLocalizedRouteSwitch();
 const docsConfig = useAppConfig().ginkoDocs;
 const siteUrl = docsConfig.site.url;
 
@@ -43,9 +44,15 @@ useHead(() => ({
         key: `alternate-${code}`,
         rel: "alternate",
         hreflang: language,
-        href: new URL(switchPath(code) || route.path, siteUrl).toString(),
+        href: new URL(switchPathname(code) || route.path, siteUrl).toString(),
       };
     }),
+    {
+      key: "alternate-x-default",
+      rel: "alternate",
+      hreflang: "x-default",
+      href: new URL(switchPathname(defaultLocale) || route.path, siteUrl).toString(),
+    },
   ],
 }));
 </script>

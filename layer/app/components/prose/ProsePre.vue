@@ -2,6 +2,7 @@
 import type { HTMLAttributes } from "vue";
 import { computed, ref } from "vue";
 import { useClipboard } from "@vueuse/core";
+import { useI18n } from "#imports";
 import { cn } from "../../utils";
 
 const props = defineProps<{
@@ -16,6 +17,7 @@ const props = defineProps<{
 }>();
 
 const { copy, copied } = useClipboard();
+const { t } = useI18n();
 const codeElement = ref<HTMLElement | null>(null);
 
 const HIDDEN_LANGUAGES = new Set(["text", "plaintext", "txt", "plain"]);
@@ -161,7 +163,7 @@ async function copyCode() {
       <button
         type="button"
         class="content-codeblock-copy-button ml-auto"
-        :aria-label="copied ? 'Copied text' : 'Copy text'"
+        :aria-label="copied ? t('docs.copiedText') : t('docs.copyText')"
         @click="copyCode"
       >
         <Icon
@@ -177,7 +179,7 @@ async function copyCode() {
       <button
         type="button"
         class="content-codeblock-copy-button content-codeblock-copy-button-floating"
-        :aria-label="copied ? 'Copied text' : 'Copy text'"
+        :aria-label="copied ? t('docs.copiedText') : t('docs.copyText')"
         @click="copyCode"
       >
         <Icon

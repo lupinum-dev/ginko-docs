@@ -1,4 +1,4 @@
-export type GinkoDocsLocalizedText = string | { en: string; de?: string };
+export type GinkoDocsLocalizedText = { en: string; de?: string };
 
 export interface GinkoDocsLink {
   label: GinkoDocsLocalizedText;
@@ -18,10 +18,14 @@ export interface GinkoDocsAppConfig {
     github?: string;
     linkedin?: string;
   };
-  blog: boolean;
   feedback: {
     enabled: boolean;
     endpoint?: string;
+  };
+  repository?: {
+    url: string;
+    branch?: string;
+    contentDirectory?: string;
   };
   landing: {
     eyebrow?: GinkoDocsLocalizedText;

@@ -20,8 +20,6 @@ export const command = {
     pages: { de: "Navigation", en: "Navigation" },
     docs_nav: { de: "Docs-Navigation", en: "Docs Navigation" },
     blog: { de: "Blog-Ergebnisse", en: "Blog Results" },
-    services: { de: "Leistungen", en: "Services" },
-    references: { de: "Referenzen", en: "References" },
     docs: { de: "Docs-Ergebnisse", en: "Docs Results" },
     actions: { de: "Aktionen", en: "Actions" },
   },

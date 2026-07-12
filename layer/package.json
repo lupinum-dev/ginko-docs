@@ -1,6 +1,24 @@
 {
   "name": "@lupinum/ginko-docs",
   "version": "0.1.0",
+  "description": "A polished Nuxt documentation layer powered by Ginko Content.",
+  "keywords": [
+    "content",
+    "documentation",
+    "i18n",
+    "markdown",
+    "nuxt"
+  ],
+  "homepage": "https://github.com/Mat4m0/lupinum-docs-shadcn#readme",
+  "bugs": {
+    "url": "https://github.com/Mat4m0/lupinum-docs-shadcn/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mat4m0/lupinum-docs-shadcn.git",
+    "directory": "layer"
+  },
   "files": [
     "app",
     "i18n",
@@ -8,22 +26,34 @@
     "runtime",
     "server",
     "shared",
+    "content.js",
     "content.ts",
     "index.d.ts",
     "nuxt.config.ts",
-    "tags.ts"
+    "tags.ts",
+    "!**/*.test.ts"
   ],
   "type": "module",
   "main": "./nuxt.config.ts",
   "exports": {
     ".": "./nuxt.config.ts",
-    "./content": "./content.ts",
+    "./content": {
+      "types": "./content.ts",
+      "import": "./content.js",
+      "default": "./content.js"
+    },
     "./app-config": "./shared/types/app-config.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepack": "vp run --workspace-root build:content-entry"
   },
   "dependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.111",
-    "@lupinum/ginko-content": "0.1.6",
+    "@lupinum/ginko-content": "0.3.0",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.3",
     "@nuxt/image": "^2.0.0",
@@ -38,7 +68,7 @@
     "@vueuse/core": "^14.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jiti": "^2.7.0",
+    "h3": "^1.15.4",
     "reka-ui": "^2.9.2",
     "shiki": "^4.0.2",
     "tailwind-merge": "^3.5.0",

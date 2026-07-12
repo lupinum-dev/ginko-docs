@@ -47,7 +47,7 @@ const isSubmitted = ref(false);
 const { locale } = useI18n();
 
 const text = computed(() => {
-  const isGerman = locale.value === "de";
+  const isGerman = String(locale.value) === "de";
 
   return {
     check: props.checkLabel ?? (isGerman ? "Antwort pruefen" : "Check Answer"),

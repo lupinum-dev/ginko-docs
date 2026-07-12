@@ -42,10 +42,8 @@ export function useCommandCenterState() {
   }
 
   function openCommandCenter(initialQuery = "") {
-    const wasOpen = open.value;
     query.value = initialQuery;
     open.value = true;
-    void wasOpen;
   }
 
   return {
@@ -80,16 +78,16 @@ export async function useCommandCenter() {
   const recentSelections = useLocalStorage<StoredRecentItem[]>("site-command-center-recent", []);
 
   const { mainNav, footerNav, socialLinks } = useSiteNavigation();
-  const docsEntryPath = await useDocsEntryPath();
+  // Start every context-bound composable before the first await. Calling a
+  // Nuxt/i18n composable after an awaited operation loses the setup context.
+  const docsEntryPathResult = useDocsEntryPath();
   const docsNavigationResult = useDocsNavigation();
   const contentSearchResult = useContentSearch({
     limit: 12,
     locale: () => locale.value,
   });
-  const [{ sections }, { query: searchQuery, results: searchResults }] = await Promise.all([
-    docsNavigationResult,
-    contentSearchResult,
-  ]);
+  const [docsEntryPath, { sections }, { query: searchQuery, results: searchResults }] =
+    await Promise.all([docsEntryPathResult, docsNavigationResult, contentSearchResult]);
 
   const contentSearchItems = computed<CommandCenterItem[]>(() =>
     searchResults.value.map((hit: ContentSearchHit) => {
@@ -102,23 +100,9 @@ export async function useCommandCenter() {
         subtitle: hit.excerpt,
         href,
         group,
-        icon:
-          group === "blog"
-            ? "lucide:newspaper"
-            : group === "services"
-              ? "lucide:briefcase-business"
-              : group === "references"
-                ? "lucide:panel-top"
-                : "lucide:book-open",
+        icon: group === "blog" ? "lucide:newspaper" : "lucide:book-open",
         keywords: [group, hit.title, hit.excerpt ?? ""],
-        badge:
-          group === "blog"
-            ? t("nav.blog")
-            : group === "services"
-              ? t("nav.services")
-              : group === "references"
-                ? t("nav.references")
-                : t("docs.label"),
+        badge: group === "blog" ? t("nav.blog") : t("docs.label"),
       };
     }),
   );
@@ -252,7 +236,7 @@ export async function useCommandCenter() {
   });
 
   function rememberSelection(item: CommandCenterItem) {
-    recentSelections.value = rememberRecentItem(item, recentSelections.value, allItems.value);
+    recentSelections.value = rememberRecentItem(item, recentSelections.value);
   }
 
   function closeCommandCenter() {

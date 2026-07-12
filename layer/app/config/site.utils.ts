@@ -1,8 +1,8 @@
-import type { LocaleCode, LocalizedText } from "./site.schema";
-import { defaultLocale } from "../../i18n/locales";
+import type { GinkoDocsLocalizedText } from "../../shared/types/app-config";
+import { defaultLocale, type LocaleCode } from "../../i18n/locales";
 
 export function getLocalizedSiteText(
-  value: LocalizedText,
+  value: GinkoDocsLocalizedText | string,
   locale: string,
   fallbackLocale: LocaleCode = defaultLocale,
 ): string {

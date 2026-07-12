@@ -2,6 +2,7 @@
 import type { VNode } from "vue";
 import { Comment, cloneVNode, computed, h, ref, resolveComponent, useSlots } from "vue";
 import { useClipboard } from "@vueuse/core";
+import { useI18n } from "#imports";
 import { cn } from "../../utils";
 
 type CodeBlockProps = {
@@ -22,6 +23,7 @@ type CodeGroupItem = {
 const slots = useSlots();
 const activeValue = ref("");
 const { copy, copied } = useClipboard();
+const { t } = useI18n();
 
 const PACKAGE_ICONS: Record<string, string> = {
   bun: "logos:bun",
@@ -152,7 +154,7 @@ function renderCodeGroup() {
           {
             type: "button",
             class: "content-codeblock-copy-button content-codegroup-copy-button",
-            "aria-label": copied.value ? "Copied text" : "Copy text",
+            "aria-label": copied.value ? t("docs.copiedText") : t("docs.copyText"),
             onClick: copyActiveCode,
           },
           [

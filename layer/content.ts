@@ -4,6 +4,7 @@ import {
   defineAgentSection,
   defineCollection,
   defineContentConfig,
+  reference,
 } from "@lupinum/ginko-content/config";
 import { z } from "zod";
 import { routeSlugs } from "./shared/route-slugs";
@@ -44,6 +45,7 @@ export function defineGinkoDocsConfig(options: GinkoDocsContentOptions) {
       description: z.string(),
       icon: z.string().optional(),
       badge: z.string().optional(),
+      updated: z.string().optional(),
       sidebar: z.enum(["section", "group"]).optional(),
       navigation: z
         .object({
@@ -70,7 +72,7 @@ export function defineGinkoDocsConfig(options: GinkoDocsContentOptions) {
         badge: z.string().optional(),
         date: z.string(),
         readingTime: z.string(),
-        author: z.string(),
+        author: reference("authors"),
       }),
     });
     collections.authors = defineCollection({
@@ -95,8 +97,6 @@ export function defineGinkoDocsConfig(options: GinkoDocsContentOptions) {
         title: options.site.name,
         description: options.site.description,
         url: options.site.url,
-        defaultLocale,
-        locales,
       },
       markdown: { metadata: { enabled: true, defaultFields: metadata } },
       sections: [

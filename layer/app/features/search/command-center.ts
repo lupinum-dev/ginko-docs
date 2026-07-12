@@ -1,12 +1,4 @@
-export type CommandCenterGroup =
-  | "recent"
-  | "pages"
-  | "docs_nav"
-  | "services"
-  | "references"
-  | "blog"
-  | "docs"
-  | "actions";
+export type CommandCenterGroup = "recent" | "pages" | "docs_nav" | "blog" | "docs" | "actions";
 
 export interface CommandCenterItem {
   id: string;
@@ -21,7 +13,7 @@ export interface CommandCenterItem {
   badge?: string;
 }
 
-export type StoredRecentItem = CommandCenterItem | string;
+export type StoredRecentItem = string;
 
 export interface CommandCenterGroupResult {
   id: CommandCenterGroup;
@@ -36,11 +28,9 @@ const GROUP_PRIORITY: Record<CommandCenterGroup, number> = {
   recent: 0,
   pages: 1,
   docs_nav: 2,
-  services: 3,
-  references: 4,
-  blog: 5,
-  docs: 6,
-  actions: 7,
+  blog: 3,
+  docs: 4,
+  actions: 5,
 };
 
 function normalizeValue(value: string) {
@@ -92,8 +82,6 @@ export function scoreCommandCenterItem(item: CommandCenterItem, query: string) {
   if (item.href && !isAnchoredResult) score += 16;
   if (isAnchoredResult) score -= 12;
   if (item.group === "pages") score += 20;
-  if (item.group === "services") score += 36;
-  if (item.group === "references") score += 8;
   return score;
 }
 
@@ -144,10 +132,7 @@ export function resolveRecentItems(
   currentItems: CommandCenterItem[],
 ): CommandCenterItem[] {
   return storedItems
-    .map((storedItem) => {
-      const id = typeof storedItem === "string" ? storedItem : storedItem.id;
-      return currentItems.find((item) => item.id === id);
-    })
+    .map((id) => currentItems.find((item) => item.id === id))
     .filter((item): item is CommandCenterItem => Boolean(item))
     .slice(0, MAX_RECENT_ITEMS)
     .map((item) => ({
@@ -161,21 +146,11 @@ export function resolveRecentItems(
 export function rememberRecentItem(
   selectedItem: CommandCenterItem,
   storedItems: StoredRecentItem[],
-  currentItems: CommandCenterItem[],
 ): StoredRecentItem[] {
   const id = selectedItem.sourceId ?? selectedItem.id;
-  const sourceItem = currentItems.find((item) => item.id === id) ?? selectedItem;
-  return [
-    { ...sourceItem, id, sourceId: undefined },
-    ...storedItems.filter((item) => (typeof item === "string" ? item : item.id) !== id),
-  ].slice(0, MAX_RECENT_ITEMS);
+  return [id, ...storedItems.filter((item) => item !== id)].slice(0, MAX_RECENT_ITEMS);
 }
 
-export function contentSearchGroup(
-  collection: string,
-): "blog" | "docs" | "services" | "references" {
-  if (collection === "blog") return "blog";
-  if (collection === "services") return "services";
-  if (collection === "references") return "references";
-  return "docs";
+export function contentSearchGroup(collection: string): "blog" | "docs" {
+  return collection === "blog" ? "blog" : "docs";
 }

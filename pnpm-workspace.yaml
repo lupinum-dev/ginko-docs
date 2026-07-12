@@ -2,6 +2,8 @@ packages:
   - layer
   - playground
 
+autoInstallPeers: false
+
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true

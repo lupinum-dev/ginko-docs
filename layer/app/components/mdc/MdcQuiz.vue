@@ -63,7 +63,7 @@ const currentAnswered = computed(() => state.answers.has(activeIndex.value));
 const { locale } = useI18n();
 
 const text = computed(() => {
-  const isGerman = locale.value === "de";
+  const isGerman = String(locale.value) === "de";
 
   return {
     question: props.questionLabel ?? (isGerman ? "Frage" : "Question"),

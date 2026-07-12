@@ -1,24 +1,24 @@
 import { computed, watch } from "vue";
-import { useContentNavigation, useRoute, useState } from "#imports";
+import { useRoute, useState } from "#imports";
 import {
   docsNavigationItemContainsPath,
+  findDocsNavigationTrail,
   getDocsNavigationGroups,
   isDocsNavigationRoot,
   normalizeDocsNavigationItem,
   type DocsNavigationSection,
   type RawDocsTreeItem,
 } from "../docs-navigation";
+import { useDocsNavigationData } from "./useDocsNavigationData";
 
 export async function useDocsNavigation() {
   const route = useRoute();
   const selectedSectionId = useState<string>("docsSelectedSection", () => "");
   const selectedSectionRoute = useState<string>("docsSelectedSectionRoute", () => "");
-  const { data } = await useContentNavigation("docs", {
-    fields: ["icon", "badge", "sidebar"],
-  });
+  const { data } = await useDocsNavigationData();
 
   const roots = computed(() => {
-    const normalized = (data.value as RawDocsTreeItem[]).map(normalizeDocsNavigationItem);
+    const normalized = ((data.value ?? []) as RawDocsTreeItem[]).map(normalizeDocsNavigationItem);
     const root = normalized.find(isDocsNavigationRoot);
     return root?.children?.length ? root.children : normalized;
   });
@@ -61,10 +61,12 @@ export async function useDocsNavigation() {
   );
 
   const groups = computed(() => getDocsNavigationGroups(activeSectionItem.value));
+  const trail = computed(() => findDocsNavigationTrail(sections.value, route.path));
 
   return {
     sections,
     groups,
     activeSection,
+    trail,
   };
 }

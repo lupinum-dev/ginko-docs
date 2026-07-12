@@ -1,12 +1,23 @@
+import site from "./site.json" with { type: "json" };
+
 export default defineNuxtConfig({
   extends: ["../layer"],
-  site: { url: "https://docs.example.com" },
+  site: { url: site.url },
   i18n: {
-    baseUrl: "https://docs.example.com",
+    baseUrl: site.url,
     locales: [
       { code: "en", language: "en-US", name: "English" },
       { code: "de", language: "de-AT", name: "Deutsch" },
     ],
   },
-  nitro: { prerender: { routes: ["/de/llms.txt", "/de/llms-full.txt"] } },
+  content: {
+    i18n: {
+      fallback: { de: ["en"] },
+    },
+    markdown: {
+      tags: {
+        "release-status": "MdcReleaseStatus",
+      },
+    },
+  },
 });

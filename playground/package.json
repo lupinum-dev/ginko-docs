@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@lupinum/ginko-docs": "workspace:*",
-    "nuxt": "^4.4.6",
+    "nuxt": "^4.4.8",
     "vue": "^3.5.35",
     "vue-router": "^5.1.0"
   }

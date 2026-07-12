@@ -4,7 +4,6 @@ import { localizedRoutes } from "../../../i18n/routes";
 export type RawDocsTreeItem = {
   title?: string;
   path?: string;
-  _path?: string;
   icon?: string;
   badge?: string;
   sidebar?: "section" | "group";
@@ -26,12 +25,13 @@ export type DocsNavigationSection = DocsNavigationItem;
 export type DocsNavigationGroup = {
   id: string;
   title?: string;
+  path?: string;
   icon?: string;
   items: DocsNavigationItem[];
 };
 
 function itemId(item: RawDocsTreeItem): string {
-  return item._path ?? item.path ?? item.title ?? "docs-item";
+  return item.path ?? item.title ?? "docs-item";
 }
 
 export function normalizeDocsNavigationItem(item: RawDocsTreeItem): DocsNavigationItem {
@@ -69,6 +69,18 @@ export function docsNavigationItemContainsPath(item: DocsNavigationItem, path: s
   );
 }
 
+export function findDocsNavigationTrail(
+  items: DocsNavigationItem[],
+  path: string,
+): DocsNavigationItem[] {
+  for (const item of items) {
+    if (item.path === path) return [item];
+    const descendants = findDocsNavigationTrail(item.children, path);
+    if (descendants.length > 0) return [item, ...descendants];
+  }
+  return [];
+}
+
 export function getDocsNavigationGroups(
   navigationSection?: DocsNavigationSection,
 ): DocsNavigationGroup[] {
@@ -90,8 +102,9 @@ export function getDocsNavigationGroups(
     groups.push({
       id: child.id,
       title: child.title,
+      path: child.path,
       icon: child.icon,
-      items: child.path ? [withoutChildren(child), ...child.children] : child.children,
+      items: child.children,
     });
   }
 

@@ -6,13 +6,14 @@ import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { createArticleSchema, createBreadcrumbSchema } from "#ginko-docs/lib/schema-org";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import { flattenTocLinks, formatContentDate } from "#ginko-docs/utils/content";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import {
   definePageMeta,
   useAppConfig,
   useContentPage,
   useHead,
   useI18n,
+  useRoute,
   useSeoMeta,
 } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
@@ -20,18 +21,28 @@ import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import DocumentPageShell from "#ginko-docs/components/content/DocumentPageShell.vue";
 import PageMarkdownCopy from "#ginko-docs/components/content/PageMarkdownCopy.vue";
+import { syncContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
 
 definePageMeta({ layout: "blog" });
 
 const { locale, t } = useI18n();
 const config = useAppConfig().ginkoDocs;
+const route = useRoute();
 const localizedPath = useLocalizedPath();
-const { page: post, surround } = await useContentPage("blog", {
+const {
+  page: post,
+  previous,
+  next,
+  error,
+} = await useContentPage("blog", {
   locale: () => locale.value,
   fallback: true,
-  notFound: createContentNotFoundError,
+  populate: { author: "authors" },
   surround: true,
 });
+if (error.value) throw error.value;
+if (!post.value) throw createContentNotFoundError();
+syncContentRouteAlternates(post);
 
 const pageTitle = computed(() => post.value?.title ?? t("blog.fallbackTitle"));
 const pageDescription = computed(() => post.value?.description ?? t("blog.fallbackDescription"));
@@ -39,8 +50,8 @@ const canonicalUrl = useCanonicalUrl();
 const tocItems = computed(() => flattenTocLinks(post.value?.body?.toc?.links));
 const formattedDate = computed(() => formatContentDate(post.value?.date, locale.value));
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
-const articleAuthor = siteName;
-const suggestions = surround;
+const articleAuthor = computed(() => post.value?.author?.name ?? siteName.value);
+const suggestions = computed(() => [previous.value, next.value].filter((entry) => entry !== null));
 
 useSeoMeta({
   title: computed(() => `${pageTitle.value} - ${siteName.value}`),
@@ -61,11 +72,23 @@ useHead(() => ({
 useSchemaJsonLd(() =>
   post.value
     ? [
-        createBreadcrumbSchema([
-          { name: t("blog.title"), path: localizedPath("blog") },
-          { name: post.value.title, path: post.value.path },
-        ]),
-        createArticleSchema(post.value, canonicalUrl.value, articleAuthor.value, locale.value),
+        createBreadcrumbSchema(
+          [
+            { name: t("blog.title"), path: localizedPath("blog") },
+            { name: post.value.title, path: post.value.route.resolvedPath },
+          ],
+          config.site.url,
+        ),
+        createArticleSchema(
+          {
+            date: post.value.date,
+            description: post.value.description,
+            title: post.value.title,
+          },
+          canonicalUrl.value,
+          articleAuthor.value,
+          locale.value,
+        ),
       ]
     : [],
 );

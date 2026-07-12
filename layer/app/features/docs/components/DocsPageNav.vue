@@ -11,14 +11,14 @@ const { t } = useI18n();
 <template>
   <nav
     v-if="prev || next"
-    class="mt-12 grid grid-cols-2 gap-3 border-t border-border pt-8"
+    class="mt-12 grid grid-cols-1 gap-3 border-t border-border pt-8 sm:grid-cols-2"
     :aria-label="t('docs.pageNavigation')"
   >
     <!-- Previous -->
     <NuxtLink
       v-if="prev"
       :to="prev.path"
-      class="group col-start-1 flex flex-col gap-1.5 rounded-xl border border-border bg-card px-5 py-4 transition-all duration-150 hover:border-foreground/20 hover:bg-accent/50 hover:shadow-sm"
+      class="group flex min-h-20 flex-col gap-1.5 rounded-xl border border-border bg-card px-5 py-4 transition-[border-color,background-color] duration-200 hover:border-foreground/20 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-start-1"
     >
       <span
         class="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-foreground"
@@ -32,13 +32,13 @@ const { t } = useI18n();
       </span>
       <span class="text-sm leading-snug font-semibold text-foreground">{{ prev.title }}</span>
     </NuxtLink>
-    <div v-else />
+    <div v-else class="hidden sm:block" />
 
     <!-- Next -->
     <NuxtLink
       v-if="next"
       :to="next.path"
-      class="group col-start-2 flex flex-col items-end gap-1.5 rounded-xl border border-border bg-card px-5 py-4 text-right transition-all duration-150 hover:border-foreground/20 hover:bg-accent/50 hover:shadow-sm"
+      class="group flex min-h-20 flex-col items-end gap-1.5 rounded-xl border border-border bg-card px-5 py-4 text-right transition-[border-color,background-color] duration-200 hover:border-foreground/20 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-start-2"
     >
       <span
         class="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-foreground"
@@ -52,6 +52,6 @@ const { t } = useI18n();
       </span>
       <span class="text-sm leading-snug font-semibold text-foreground">{{ next.title }}</span>
     </NuxtLink>
-    <div v-else />
+    <div v-else class="hidden sm:block" />
   </nav>
 </template>

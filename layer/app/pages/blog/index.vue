@@ -1,29 +1,28 @@
 <script setup lang="ts">
 import { Badge } from "#ginko-docs/components/ui/badge";
+import { many } from "@lupinum/ginko-content/client";
 import { formatContentDate } from "#ginko-docs/utils/content";
 import { computed } from "vue";
-import { definePageMeta, useContentMany, useHead, useI18n, useSeoMeta } from "#imports";
+import { definePageMeta, useAsyncData, useHead, useI18n, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 
 definePageMeta({ layout: "blog" });
 
 const { locale, t } = useI18n();
-const [{ data: posts }, { data: authors }] = await Promise.all([
-  useContentMany("blog", {
-    locale: () => locale.value,
-    fallback: true,
-    sort: { date: "desc" },
-    limit: 50,
-  }),
-  useContentMany("authors", {
-    locale: () => locale.value,
-    fallback: true,
-    limit: 50,
-  }),
-]);
+const postsKey = computed(() => `blog-posts:${locale.value}`);
+const { data: posts } = await useAsyncData(
+  postsKey,
+  () =>
+    many("blog", {
+      locale: locale.value,
+      fallback: true,
+      populate: { author: "authors" },
+      sort: { date: "desc" },
+      limit: 50,
+    }),
+  { watch: [locale] },
+);
 const canonicalUrl = useCanonicalUrl();
-
-const authorBySlug = computed(() => new Map(authors.value.map((author) => [author.slug, author])));
 
 useSeoMeta({
   title: computed(() => t("blog.pageTitle")),
@@ -47,8 +46,8 @@ useHead(() => ({
     </div>
 
     <div class="divide-y divide-border">
-      <article v-for="post in posts" :key="post.path" class="group py-8">
-        <NuxtLink :to="post.path" class="block">
+      <article v-for="post in posts" :key="post.route.resolvedPath" class="group py-8">
+        <NuxtLink :to="post.route.resolvedPath" class="block">
           <div class="mb-3 flex items-center gap-2">
             <Badge v-if="post.badge" variant="secondary" class="text-xs">{{ post.badge }}</Badge>
             <span class="text-xs text-muted-foreground"
@@ -56,11 +55,8 @@ useHead(() => ({
               }}<template v-if="post.readingTime"> · {{ post.readingTime }}</template></span
             >
           </div>
-          <p
-            v-if="authorBySlug.get(post.author)"
-            class="mb-3 text-xs font-medium text-muted-foreground"
-          >
-            {{ authorBySlug.get(post.author)?.name }} · {{ authorBySlug.get(post.author)?.role }}
+          <p v-if="post.author" class="mb-3 text-xs font-medium text-muted-foreground">
+            {{ post.author.name }} · {{ post.author.role }}
           </p>
           <h2
             class="mb-2 text-xl font-semibold text-foreground transition-colors group-hover:text-primary"

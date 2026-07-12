@@ -13,7 +13,7 @@ const docsEntryPath = await useDocsEntryPath();
 
 const currentYearDate = new Date();
 const resources = computed(() => [
-  { label: t("nav.documentation"), href: docsEntryPath.value },
+  { label: t("nav.documentation"), href: docsEntryPath.value, external: false },
   ...footerNav.value.resources,
 ]);
 </script>

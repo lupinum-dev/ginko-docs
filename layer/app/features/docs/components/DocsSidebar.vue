@@ -6,7 +6,7 @@ import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
 import DocsSidebarList from "./DocsSidebarList.vue";
 import DocsSidebarTabs from "./DocsSidebarTabs.vue";
 import { computed } from "vue";
-import { useAppConfig, useI18n } from "#imports";
+import { navigateTo, useAppConfig, useI18n } from "#imports";
 
 const props = withDefaults(
   defineProps<{
@@ -17,12 +17,14 @@ const props = withDefaults(
   },
 );
 
-const { sections, groups, activeSection } = await useDocsNavigation();
 const sidebarSwitcher = useAppConfig().ginkoDocs.site.docsSidebarSwitcher;
 const { t } = useI18n();
+const { sections, groups, activeSection } = await useDocsNavigation();
 
 function setActiveSection(id: string) {
   activeSection.value = id;
+  const sectionPath = sections.value.find((section) => section.id === id)?.path;
+  if (sectionPath) void navigateTo(sectionPath);
 }
 
 const scrollViewportClass =
@@ -41,6 +43,7 @@ const asideClass = computed(() =>
 <template>
   <aside
     data-hovered="false"
+    :data-variant="variant"
     :id="variant === 'desktop' ? 'nd-sidebar' : undefined"
     :aria-label="t('docs.label')"
     :class="asideClass"
@@ -69,8 +72,16 @@ const asideClass = computed(() =>
     <div :class="scrollViewportClass">
       <div class="flex min-w-full flex-col gap-0.5">
         <template v-for="group in groups" :key="group.id">
+          <NuxtLink
+            v-if="group.title && group.path"
+            :to="group.path"
+            class="mt-6 mb-1 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0 empty:mb-0 [&_svg]:size-4 [&_svg]:shrink-0"
+          >
+            <Icon v-if="group.icon" :name="group.icon" class="size-4 shrink-0" aria-hidden="true" />
+            {{ group.title }}
+          </NuxtLink>
           <p
-            v-if="group.title"
+            v-else-if="group.title"
             class="mt-6 mb-1 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0 empty:mb-0 [&_svg]:size-4 [&_svg]:shrink-0"
           >
             <Icon v-if="group.icon" :name="group.icon" class="size-4 shrink-0" aria-hidden="true" />

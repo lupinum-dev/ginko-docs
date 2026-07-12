@@ -17,7 +17,7 @@
 .content-prose,
 .content-prose.content-prose {
   color: var(--content-prose-foreground);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.75;
   text-wrap: pretty;
 }
@@ -73,8 +73,8 @@
 }
 
 .content-prose h3 {
-  font-size: 1rem;
-  line-height: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.625rem;
   font-weight: 600;
   letter-spacing: 0;
 }

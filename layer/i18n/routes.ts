@@ -1,15 +1,16 @@
 import { type LocaleCode, localeCodes } from "./locales";
+import { routeSlugs } from "../shared/route-slugs";
 
 export const localizedRoutes = {
   en: {
-    home: "/",
-    docs: "/docs",
-    blog: "/blog",
+    home: routeSlugs.home.en,
+    docs: routeSlugs.docs.en,
+    blog: routeSlugs.blog.en,
   },
   de: {
-    home: "/",
-    docs: "/dokumentation",
-    blog: "/blog",
+    home: routeSlugs.home.de,
+    docs: routeSlugs.docs.de,
+    blog: routeSlugs.blog.de,
   },
 } as const satisfies Record<LocaleCode, Record<string, string>>;
 

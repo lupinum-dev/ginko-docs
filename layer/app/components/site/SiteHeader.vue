@@ -95,7 +95,7 @@ watch(
       {{ t("nav.skip") }}
     </a>
 
-    <div class="mx-auto flex w-full max-w-5xl flex-1 items-center gap-4 px-4 md:px-6">
+    <div class="mx-auto flex w-full max-w-screen-2xl flex-1 items-center gap-4 px-4 md:px-6">
       <NuxtLink
         :to="homePath"
         class="flex items-center gap-2 font-semibold text-foreground"
