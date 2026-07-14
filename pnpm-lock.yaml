@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lupinum/ginko-content': file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz
+  '@lupinum/ginko-content': 0.3.0-rc.1
 
 importers:
 
@@ -63,8 +63,8 @@ importers:
         specifier: ^1.2.111
         version: 1.2.111
       '@lupinum/ginko-content':
-        specifier: file:../../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz
-        version: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz(cc8aed8191df2de9e240ac6d5c0a2d08)
+        specifier: 0.3.0-rc.1
+        version: 0.3.0-rc.1(5138bbd2accb579d4a1313b5fdc97997)
       '@nuxt/fonts':
         specifier: ^0.14.0
         version: 0.14.0(db0@0.3.4)(ioredis@5.11.1)(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -1194,9 +1194,8 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz':
-    resolution: {integrity: sha512-FqLgpbfYP4dro+w/FFlorAh2W+92sNvfZJwL/JOXbw406cy1lNt8k988E7VKti96F2SV/JQxRyHM3r3vrJMTkA==, tarball: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz}
-    version: 0.3.0
+  '@lupinum/ginko-content@0.3.0-rc.1':
+    resolution: {integrity: sha512-Fwgd3AkUDYaV9LL3UpGS3txR/RuQGFIfVQ8/Vl/+eREWALbmQpjac2tjkYcvkBF1AUVSpUfuu4YoMQLLArthXg==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -6996,7 +6995,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0.tgz(cc8aed8191df2de9e240ac6d5c0a2d08)':
+  '@lupinum/ginko-content@0.3.0-rc.1(5138bbd2accb579d4a1313b5fdc97997)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
@@ -7023,6 +7022,7 @@ snapshots:
       ufo: 1.6.4
       unstorage: 1.17.5(db0@0.3.4)(ioredis@5.11.1)
       vue: 3.5.35(typescript@5.9.3)
+      vue-router: 5.1.0(@vue/compiler-sfc@3.5.35)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.9.3))
       ws: 8.21.0
       zod: 4.4.3
     optionalDependencies:
@@ -7039,11 +7039,13 @@ snapshots:
       - '@electric-sql/pglite'
       - '@libsql/client'
       - '@netlify/blobs'
+      - '@pinia/colada'
       - '@planetscale/database'
       - '@upstash/redis'
       - '@vercel/blob'
       - '@vercel/functions'
       - '@vercel/kv'
+      - '@vue/compiler-sfc'
       - aws4fetch
       - bare-abort-controller
       - bare-buffer
@@ -7059,6 +7061,7 @@ snapshots:
       - magicast
       - mysql2
       - oxc-parser
+      - pinia
       - react-native-b4a
       - rolldown
       - sqlite3
@@ -7066,6 +7069,7 @@ snapshots:
       - supports-color
       - uploadthing
       - utf-8-validate
+      - vite
       - xml2js
 
   '@mapbox/node-pre-gyp@2.0.3':
@@ -8688,7 +8692,7 @@ snapshots:
       '@oxc-project/runtime': 0.133.0
       '@oxc-project/types': 0.133.0
       lightningcss: 1.32.0
-      postcss: 8.5.15
+      postcss: 8.5.17
     optionalDependencies:
       '@types/node': 25.9.2
       esbuild: 0.28.0

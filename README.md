@@ -92,6 +92,19 @@ import { ginkoDocsComponentTags } from "@lupinum/ginko-docs/components";
 
 export default defineNuxtConfig({
   content: {
+    componentPolicy: {
+      components: {
+        "api-playground": {
+          kind: "block",
+          props: {
+            method: { type: "string", required: true },
+            path: { type: "string", required: true },
+          },
+          slots: ["default"],
+          media: null,
+        },
+      },
+    },
     markdown: {
       tags: {
         ...ginkoDocsComponentTags,
@@ -101,6 +114,11 @@ export default defineNuxtConfig({
   },
 });
 ```
+
+The policy is the public render-safety boundary for authored Markdown. Nuxt merges the consumer's
+component entry with the policies supplied by Ginko Docs, so consumers define only their own tags.
+Dynamic Vue bindings remain rejected in public Markdown; declare the narrowest static prop and slot
+contract the component needs.
 
 MDC renders tag targets dynamically, so register custom MDC components globally in a small Nuxt
 plugin (or use Nuxt's `.global.vue` filename suffix). No Docs-specific visual registry is needed:

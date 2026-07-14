@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
-import { contentComponentTags } from "./tags";
+import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -78,6 +78,7 @@ export default defineNuxtConfig({
     vueI18n: join(root, "i18n/i18n.config.ts"),
   },
   content: {
+    componentPolicy: contentComponentPolicy,
     i18n: {
       translatedSlugs: true,
     },

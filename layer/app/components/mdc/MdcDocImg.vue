@@ -13,7 +13,9 @@ import { computed } from "vue";
  */
 const props = withDefaults(defineProps<{ bleed?: boolean | string }>(), { bleed: undefined });
 
-const shouldBleed = computed(() => props.bleed === true || props.bleed === "true");
+const shouldBleed = computed(
+  () => props.bleed === true || props.bleed === "true" || props.bleed === "outside",
+);
 </script>
 
 <template>

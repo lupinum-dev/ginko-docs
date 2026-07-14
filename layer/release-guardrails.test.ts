@@ -8,6 +8,7 @@ import { defaultLocale, localeFromPath, localizedPath } from "./i18n/locales";
 import { i18nPages, localizedRoutes } from "./i18n/routes";
 import { removeBlogPages } from "./modules/feature-routing";
 import { routeSlugs } from "./shared/route-slugs";
+import { contentComponentPolicy, contentComponentTags } from "./tags";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
@@ -52,7 +53,7 @@ describe("ginko docs release guardrails", () => {
     });
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
-    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0");
+    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0-rc.1");
     expect(manifest.exports["./content"]).toEqual({
       types: "./content.ts",
       import: "./content.js",
@@ -85,6 +86,12 @@ describe("ginko docs release guardrails", () => {
     const componentsEntry = await import(pathToFileURL(join(root, "layer/components.ts")).href);
     expect(componentsEntry.ginkoDocsComponentTags.callout).toBe("MdcCallout");
     expect(componentsEntry.ginkoDocsComponentNames).toContain("MdcCallout");
+    expect(componentsEntry.ginkoDocsComponentPolicy).toBe(contentComponentPolicy);
+  });
+
+  it("declares an explicit render policy for every custom MDC tag", () => {
+    const customTags = Object.keys(contentComponentTags).filter((tag) => tag !== "img");
+    expect(Object.keys(contentComponentPolicy.components).sort()).toEqual(customTags.sort());
   });
 
   it("uses the resolved blog collection as the only blog route authority", () => {

@@ -11,6 +11,19 @@ export default defineNuxtConfig({
     ],
   },
   content: {
+    componentPolicy: {
+      components: {
+        "release-status": {
+          kind: "block",
+          props: {
+            channel: { type: "string", required: true },
+            available: { type: "boolean", required: false },
+          },
+          slots: ["default"],
+          media: null,
+        },
+      },
+    },
     i18n: {
       fallback: { de: ["en"] },
     },

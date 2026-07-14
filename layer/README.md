@@ -68,7 +68,9 @@ piece. Import consumer theme CSS from an app plugin so it augments rather than r
 styles. Add or replace MDC components in `app/components/mdc` and extend
 `ginkoDocsComponentTags` from `@lupinum/ginko-docs/components` in `content.markdown.tags`. Register
 custom MDC components globally with a Nuxt plugin or Nuxt's `.global.vue` filename suffix, because
-MDC resolves tag targets dynamically.
+MDC resolves tag targets dynamically. Each new tag must also declare its narrow static prop and slot
+contract in `content.componentPolicy`; Nuxt merges that consumer entry with the layer's built-in
+policy.
 
 Custom agent Markdown is deliberately separate: register serializers through
 `@lupinum/ginko-content/agent-registry` in a Nitro plugin.

@@ -15,7 +15,9 @@ const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const shouldBleed = computed(() => props.bleed === true || props.bleed === "true");
+const shouldBleed = computed(
+  () => props.bleed === true || props.bleed === "true" || props.bleed === "outside",
+);
 
 const aspectClass = computed(() => {
   return {

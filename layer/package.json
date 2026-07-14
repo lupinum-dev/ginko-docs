@@ -55,7 +55,7 @@
   "dependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.111",
-    "@lupinum/ginko-content": "0.3.0",
+    "@lupinum/ginko-content": "0.3.0-rc.1",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.3",
     "@nuxt/image": "^2.0.0",
