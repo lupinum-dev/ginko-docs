@@ -34,6 +34,13 @@ function run(command, args, cwd) {
   execFileSync(command, args, { cwd, stdio: "inherit" });
 }
 
+function replaceRequired(source, search, replacement, label) {
+  if (!source.includes(search)) {
+    throw new Error(`Could not prepare ${label}: expected source text was not found.`);
+  }
+  return source.replace(search, replacement);
+}
+
 function copyFixture(variant, directory) {
   mkdirSync(directory, { recursive: true });
   for (const entry of [
@@ -63,30 +70,46 @@ function copyFixture(variant, directory) {
   const appConfigPath = resolve(directory, "app/app.config.ts");
   writeFileSync(
     appConfigPath,
-    readFileSync(appConfigPath, "utf8").replace(
+    replaceRequired(
+      readFileSync(appConfigPath, "utf8"),
       'docsSidebarSwitcher: "tabs"',
       `docsSidebarSwitcher: "${variant.switcher}"`,
+      `${variant.name} sidebar configuration`,
     ),
   );
 
   const nuxtConfigPath = resolve(directory, "nuxt.config.ts");
-  let nuxtConfig = readFileSync(nuxtConfigPath, "utf8").replace(
+  let nuxtConfig = replaceRequired(
+    readFileSync(nuxtConfigPath, "utf8"),
     'extends: ["../layer"]',
     'extends: ["@lupinum/ginko-docs"]',
+    `${variant.name} layer dependency`,
   );
   if (variant.singleLocale) {
-    nuxtConfig = nuxtConfig.replace(
+    nuxtConfig = replaceRequired(
+      nuxtConfig,
       '      { code: "de", language: "de-AT", name: "Deutsch" },\n',
       "",
+      `${variant.name} locale registry`,
     );
-    nuxtConfig = nuxtConfig.replace('    i18n: {\n      fallback: { de: ["en"] },\n    },\n', "");
+    nuxtConfig = replaceRequired(
+      nuxtConfig,
+      '    i18n: {\n      fallback: { de: ["en"] },\n    },\n',
+      "",
+      `${variant.name} locale fallback`,
+    );
   }
   writeFileSync(nuxtConfigPath, nuxtConfig);
 
   const contentConfigPath = resolve(directory, "content.config.ts");
   let contentConfig = readFileSync(contentConfigPath, "utf8");
   if (variant.singleLocale) {
-    contentConfig = contentConfig.replace('locales: ["en", "de"]', 'locales: ["en"]');
+    contentConfig = replaceRequired(
+      contentConfig,
+      'locales: ["en", "de"]',
+      'locales: ["en"]',
+      `${variant.name} content locales`,
+    );
   }
   writeFileSync(contentConfigPath, contentConfig);
 
