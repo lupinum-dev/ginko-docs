@@ -6,6 +6,7 @@ import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
+import { includeIconNames, layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const app = join(root, "app");
@@ -61,6 +62,33 @@ export default defineNuxtConfig({
   },
   imports: { autoImport: false },
   colorMode: { classSuffix: "" },
+  icon: {
+    provider: "none",
+    fallbackToApi: false,
+    customCollections: layerIconCollections,
+    clientBundle: {
+      icons: [...layerIconNames],
+      includeCustomCollections: false,
+      scan: {
+        globInclude: [
+          "**/*.{vue,js,mjs,cjs,ts,jsx,tsx,md,mdc,mdx,yml,yaml}",
+          "**/.navigation.{yml,yaml}",
+        ],
+        globExclude: [
+          ".git",
+          ".nuxt",
+          ".output",
+          ".cache",
+          "node_modules",
+          "dist",
+          "build",
+          "coverage",
+          "test",
+          "tests",
+        ],
+      },
+    },
+  },
   fonts: {
     defaults: {
       weights: [400, 500, 600, 700],
@@ -109,11 +137,15 @@ export default defineNuxtConfig({
   app: {
     head: {
       charset: "utf-8",
+      htmlAttrs: { lang: "en" },
       viewport: "width=device-width, initial-scale=1",
       meta: [{ name: "color-scheme", content: "light dark" }],
     },
   },
   hooks: {
+    "icon:clientBundleIcons"(icons) {
+      includeIconNames(icons);
+    },
     "components:dirs"(dirs) {
       const defaultComponentsDir = join(app, "components").replaceAll("\\", "/");
       const filtered = dirs.filter((entry) => {
@@ -141,6 +173,9 @@ export default defineNuxtConfig({
         "tailwind-merge",
         "zod",
       ],
+    },
+    resolve: {
+      dedupe: ["vue", "vue-router"],
     },
     plugins: [tailwindcss()],
   },

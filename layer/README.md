@@ -40,7 +40,7 @@ The content configuration is the source of truth for whether the optional blog e
 Add public presentation settings in `app/app.config.ts`:
 
 ```ts
-export default defineAppConfig({
+export default {
   ginkoDocs: {
     site: {
       name: { en: "Example Docs" },
@@ -49,7 +49,7 @@ export default defineAppConfig({
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
     },
   },
-});
+};
 ```
 
 ## Public exports

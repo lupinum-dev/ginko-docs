@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, rmSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -9,9 +9,18 @@ import { i18nPages, localizedRoutes } from "./i18n/routes";
 import { removeBlogPages } from "./modules/feature-routing";
 import { routeSlugs } from "./shared/route-slugs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
+import { resolveIconifyIcon } from "./app/components/mdc/icons";
+import { layerIconNames } from "./icon-bundle";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
+
+function sourceFiles(path: string): string[] {
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = join(path, entry.name);
+    return entry.isDirectory() ? sourceFiles(entryPath) : [entryPath];
+  });
+}
 
 describe("ginko docs release guardrails", () => {
   it("uses English as the canonical unprefixed locale", () => {
@@ -54,6 +63,10 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0-rc.1");
+    expect(manifest.dependencies.vue).toBeUndefined();
+    expect(manifest.dependencies["vue-router"]).toBeUndefined();
+    expect(manifest.peerDependencies.vue).toBe("^3.5.35");
+    expect(manifest.peerDependencies["vue-router"]).toBe("^5.1.0");
     expect(manifest.exports["./content"]).toEqual({
       types: "./content.ts",
       import: "./content.js",
@@ -62,6 +75,7 @@ describe("ginko docs release guardrails", () => {
     expect(read("layer/content.js")).toContain("function defineGinkoDocsConfig(options)");
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
     expect(manifest.exports["./components"]).toBe("./components.ts");
+    expect(manifest.files).toContain("icon-bundle.ts");
     expect(read("layer/README.md")).toContain("# Ginko Docs");
     expect(read("layer/LICENSE")).toContain("MIT License");
 
@@ -94,6 +108,12 @@ describe("ginko docs release guardrails", () => {
     expect(Object.keys(contentComponentPolicy.components).sort()).toEqual(customTags.sort());
   });
 
+  it("accepts both Iconify and Nuxt icon names in MDC props", () => {
+    expect(resolveIconifyIcon("lucide:server")).toBe("lucide:server");
+    expect(resolveIconifyIcon("server")).toBe("lucide:server");
+    expect(resolveIconifyIcon("i-lucide-server")).toBe("lucide:server");
+  });
+
   it("uses the resolved blog collection as the only blog route authority", () => {
     const enabled = [{ path: "/" }, { path: "/blog" }, { path: "/blog/[slug]" }];
     removeBlogPages(enabled, true);
@@ -105,7 +125,7 @@ describe("ginko docs release guardrails", () => {
 
     expect(read("layer/shared/types/app-config.ts")).not.toContain("blog: boolean");
     expect(read("layer/app/composables/useSiteNavigation.ts")).toContain(
-      "router.resolve(linkHref).matched.length > 0",
+      "router.getRoutes().some((route) => route.path === linkHref)",
     );
   });
 
@@ -140,6 +160,34 @@ describe("ginko docs release guardrails", () => {
     expect(config).toContain('"/llms.txt"');
     expect(config).toContain('"/sitemap.xml"');
     expect(config).toContain('excludeAppSources: ["nuxt:prerender"]');
+  });
+
+  it("keeps Vue and its router as singletons across linked consumers", () => {
+    expect(read("layer/nuxt.config.ts")).toContain('dedupe: ["vue", "vue-router"]');
+  });
+
+  it("bundles layer and consumer icons without a runtime service", () => {
+    const config = read("layer/nuxt.config.ts");
+    expect(config).toContain('provider: "none"');
+    expect(config).toContain("fallbackToApi: false");
+    expect(config).toContain("icons: [...layerIconNames]");
+    expect(config).toContain("vue,js,mjs,cjs,ts,jsx,tsx,md,mdc,mdx,yml,yaml");
+    expect(config).toContain('"**/.navigation.{yml,yaml}"');
+    expect(config).toContain('".git"');
+    expect(config).not.toContain('".*"');
+
+    const iconPattern = /\b(?:i-)?(circle-flags|logos|lucide)[:-]([a-z0-9-]+)\b/g;
+    const sourceRoots = ["app", "i18n", "shared"].map((path) => join(root, "layer", path));
+    const source = [...sourceRoots.flatMap(sourceFiles), join(root, "layer/tags.ts")].map((path) =>
+      readFileSync(path, "utf8"),
+    );
+    const referenced = new Set(
+      source.flatMap((contents) =>
+        [...contents.matchAll(iconPattern)].map((match) => `${match[1]}:${match[2]}`),
+      ),
+    );
+
+    expect([...referenced].filter((icon) => !layerIconNames.includes(icon as never))).toEqual([]);
   });
 
   it("does not redistribute the commercial Pressura font", () => {

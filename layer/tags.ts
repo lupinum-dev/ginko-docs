@@ -21,6 +21,7 @@ export const contentComponentTags = {
   idea: "MdcIdea",
   img: "ProseImg",
   info: "MdcInfo",
+  kbd: "MdcShortcut",
   layout: "MdcLayout",
   note: "MdcNote",
   passage: "MdcPassage",
@@ -59,6 +60,7 @@ const inline = (props: ComponentProps = {}): ComponentDefinition => ({
 });
 
 const notice = block({ title: optional("string"), icon: optional("string") });
+const shortcut = inline({ value: optional("string"), size: optional("string") });
 
 export const contentComponentPolicy = {
   components: {
@@ -138,6 +140,7 @@ export const contentComponentPolicy = {
     ),
     idea: notice,
     info: notice,
+    kbd: shortcut,
     layout: block({ type: optional("string") }),
     note: notice,
     passage: block({ label: optional("string") }),
@@ -178,7 +181,7 @@ export const contentComponentPolicy = {
       [],
     ),
     "read-more-group": block(),
-    shortcut: inline({ value: optional("string"), size: optional("string") }),
+    shortcut,
     step: block({ title: optional("string"), icon: optional("string") }),
     steps: block({ variant: optional("string") }),
     success: notice,

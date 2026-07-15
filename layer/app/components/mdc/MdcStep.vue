@@ -2,6 +2,7 @@
 import type { ComputedRef, HTMLAttributes } from "vue";
 import { computed, inject } from "vue";
 import { cn } from "../../utils";
+import { resolveIconifyIcon } from "./icons";
 
 type StepsVariant = "icons" | "numbered";
 
@@ -21,7 +22,7 @@ const isNumbered = computed(() => stepsVariant.value === "numbered");
 const iconName = computed(() => {
   const icon = props.icon?.trim();
   if (!icon) return "lucide:circle";
-  return icon.includes(":") ? icon : `lucide:${icon}`;
+  return resolveIconifyIcon(icon) ?? "lucide:circle";
 });
 </script>
 

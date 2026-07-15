@@ -33,7 +33,7 @@ export const useSiteNavigation = () => {
     const linkHref = path("blog");
 
     return {
-      show: router.resolve(linkHref).matched.length > 0,
+      show: router.getRoutes().some((route) => route.path === linkHref),
       text: t("banner.text"),
       linkLabel: t("banner.linkLabel"),
       linkHref,

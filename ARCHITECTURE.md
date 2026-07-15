@@ -23,3 +23,9 @@ Both files are published deliberately: the package export maps TypeScript toolin
 The `layer` directory is the npm package root. Its README, license, manifest, explicit file allowlist, and export map are part of the public contract. Release verification must inspect the package file list and execute public exports from an isolated packed installation rather than relying on workspace hoisting.
 
 The current repository is a personal development location. Documentation avoids coupling the API to that location so the repository can transfer to the Lupinum organization without a consumer migration.
+
+## Static icon delivery
+
+Ginko Docs does not require a runtime icon endpoint or the public Iconify API. Nuxt Icon scans consumer-authored Vue, script, content, and navigation files, while `layer/icon-bundle.ts` lists icons owned by the installed layer because Nuxt Icon does not scan layer source outside the consumer root. A release guard verifies that every literal layer icon is present in that inventory. Dynamic consumer icon names must be written literally in a scanned consumer file or added through Nuxt Icon's `clientBundle.icons` option.
+
+Vue and Vue Router are Vite singletons. The layer explicitly deduplicates both packages so linked workspace consumers cannot create distinct injection symbols when their dependency graph contains multiple peer-resolution contexts.

@@ -1,6 +1,7 @@
 export function resolveIconifyIcon(name?: string | null): string | undefined {
   if (!name?.trim()) return undefined;
   const n = name.trim();
+  if (n.startsWith("i-lucide-")) return `lucide:${n.slice("i-lucide-".length)}`;
   return n.includes(":") ? n : `lucide:${n.replace(/_/g, "-").toLowerCase()}`;
 }
 
