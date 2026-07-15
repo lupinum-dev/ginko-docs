@@ -150,7 +150,7 @@ export async function useCommandCenter() {
   });
 
   const docsItems = computed<CommandCenterItem[]>(() => {
-    const sectionEntries = sections.value.flatMap((section) =>
+    const navigationEntries = sections.value.flatMap((section) =>
       getDocsNavigationGroups(section).flatMap((group) =>
         flattenNavItems(group.items)
           .filter((item) => item.path)
@@ -161,25 +161,29 @@ export async function useCommandCenter() {
             href: item.path,
             group: "docs_nav",
             icon: item.icon ?? "lucide:book-open",
-            keywords: [section.title, group.title ?? "", item.badge ?? "", item.title],
+            keywords: [section.title ?? "", group.title ?? "", item.badge ?? "", item.title],
             badge: item.badge,
           })),
       ),
     );
 
-    const switcherEntries = sections.value
-      .filter((section) => section.path)
-      .map<CommandCenterItem>((section) => ({
-        id: `doc-switcher-${section.path}`,
-        title: section.title,
-        subtitle: t("command.pages.documentation"),
-        href: section.path,
-        group: "docs",
-        icon: section.icon ?? "lucide:book-open",
-        keywords: [section.title],
-      }));
+    const sectionIndexEntries = sections.value.flatMap<CommandCenterItem>((section) =>
+      section.path && section.title
+        ? [
+            {
+              id: `doc-section-${section.path}`,
+              title: section.title,
+              subtitle: t("command.pages.documentation"),
+              href: section.path,
+              group: "docs",
+              icon: section.icon ?? "lucide:book-open",
+              keywords: [section.title],
+            },
+          ]
+        : [],
+    );
 
-    return dedupeCommandCenterItems([...switcherEntries, ...sectionEntries]);
+    return dedupeCommandCenterItems([...sectionIndexEntries, ...navigationEntries]);
   });
 
   const actionItems = computed<CommandCenterItem[]>(() => {

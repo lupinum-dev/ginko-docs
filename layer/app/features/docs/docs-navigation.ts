@@ -20,7 +20,13 @@ export type DocsNavigationItem = {
   children: DocsNavigationItem[];
 };
 
-export type DocsNavigationSection = DocsNavigationItem;
+export type DocsNavigationSection = {
+  id: string;
+  title?: string;
+  path?: string;
+  icon?: string;
+  items: DocsNavigationItem[];
+};
 
 export type DocsNavigationGroup = {
   id: string;
@@ -46,11 +52,8 @@ export function normalizeDocsNavigationItem(item: RawDocsTreeItem): DocsNavigati
   };
 }
 
-function withoutChildren(item: DocsNavigationItem): DocsNavigationItem {
-  return {
-    ...item,
-    children: [],
-  };
+export function normalizeDocsNavigationPath(path: string): string {
+  return path.length > 1 ? path.replace(/\/+$/, "") : path;
 }
 
 export function isDocsNavigationRoot(item: DocsNavigationItem): boolean {
@@ -64,8 +67,10 @@ export function isDocsNavigationRoot(item: DocsNavigationItem): boolean {
 }
 
 export function docsNavigationItemContainsPath(item: DocsNavigationItem, path: string): boolean {
+  const normalizedPath = normalizeDocsNavigationPath(path);
   return (
-    item.path === path || item.children.some((child) => docsNavigationItemContainsPath(child, path))
+    (item.path !== undefined && normalizeDocsNavigationPath(item.path) === normalizedPath) ||
+    item.children.some((child) => docsNavigationItemContainsPath(child, normalizedPath))
   );
 }
 
@@ -73,27 +78,61 @@ export function findDocsNavigationTrail(
   items: DocsNavigationItem[],
   path: string,
 ): DocsNavigationItem[] {
+  const normalizedPath = normalizeDocsNavigationPath(path);
   for (const item of items) {
-    if (item.path === path) return [item];
-    const descendants = findDocsNavigationTrail(item.children, path);
+    if (item.path && normalizeDocsNavigationPath(item.path) === normalizedPath) return [item];
+    const descendants = findDocsNavigationTrail(item.children, normalizedPath);
     if (descendants.length > 0) return [item, ...descendants];
   }
   return [];
 }
 
-export function getDocsNavigationGroups(
-  navigationSection?: DocsNavigationSection,
-): DocsNavigationGroup[] {
-  if (!navigationSection) return [];
+export function getDocsNavigationSections(items: DocsNavigationItem[]): DocsNavigationSection[] {
+  if (!items.some((item) => item.sidebar === "section")) {
+    return [{ id: "docs:main", items: [...items] }];
+  }
 
+  const sections: DocsNavigationSection[] = [];
+  let current: DocsNavigationSection | undefined;
+
+  for (const item of items) {
+    if (item.sidebar === "section") {
+      current = {
+        id: item.id,
+        title: item.title,
+        path: item.path,
+        icon: item.icon,
+        items: [...item.children],
+      };
+      sections.push(current);
+      continue;
+    }
+
+    if (!current) {
+      current = { id: "docs:main", items: [] };
+      sections.push(current);
+    }
+    current.items.push(item);
+  }
+
+  return sections;
+}
+
+export function getDocsNavigationGroups(section: DocsNavigationSection): DocsNavigationGroup[] {
   const groups: DocsNavigationGroup[] = [];
   const ungrouped: DocsNavigationItem[] = [];
 
-  if (navigationSection.path) {
-    ungrouped.push(withoutChildren(navigationSection));
+  if (section.path) {
+    ungrouped.push({
+      id: section.id,
+      title: section.title ?? "Overview",
+      path: section.path,
+      icon: section.icon,
+      children: [],
+    });
   }
 
-  for (const child of navigationSection.children) {
+  for (const child of section.items) {
     if (child.sidebar !== "group") {
       ungrouped.push(child);
       continue;
@@ -110,7 +149,7 @@ export function getDocsNavigationGroups(
 
   if (ungrouped.length) {
     groups.unshift({
-      id: `${navigationSection.id}:main`,
+      id: `${section.id}:main`,
       items: ungrouped,
     });
   }

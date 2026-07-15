@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import {
   docsNavigationItemContainsPath,
+  normalizeDocsNavigationPath,
   type DocsNavigationItem,
 } from "#ginko-docs/features/docs/docs-navigation";
 import { Badge } from "#ginko-docs/components/ui/badge";
@@ -20,7 +21,9 @@ const props = defineProps<{
 const route = useRoute();
 
 function itemIsExactActive(path: string, item: DocsNavigationItem): boolean {
-  return Boolean(item.path && path === item.path);
+  return Boolean(
+    item.path && normalizeDocsNavigationPath(path) === normalizeDocsNavigationPath(item.path),
+  );
 }
 
 function folderShouldBeOpen(path: string, item: DocsNavigationItem): boolean {

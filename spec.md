@@ -1637,7 +1637,6 @@ docs/
     DocsPageNav.vue
     DocsSidebar.vue
     DocsSidebarItem.vue
-    DocsSidebarTabs.vue
     DocsToc.vue
   composables/
     useDocsNavigation.ts
