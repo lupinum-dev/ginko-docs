@@ -20,7 +20,7 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
-const { chatGptUrl, copyMarkdown, copyValue, mcpUrl, rawPath, rawUrl, result } =
+const { actions, chatGptUrl, claudeUrl, copyMarkdown, copyValue, mcpUrl, rawPath, rawUrl, result } =
   usePageMarkdownActions();
 const label = computed(() => props.label ?? t("docs.copyMarkdown"));
 const copiedLabel = computed(() => props.copiedLabel ?? t("docs.copied"));
@@ -76,17 +76,25 @@ const statusMessage = computed(() => {
             {{ t("docs.viewMarkdown") }}
           </a>
         </DropdownMenuItem>
-        <DropdownMenuItem as-child>
+        <DropdownMenuItem v-if="actions.claude" as-child>
+          <a :href="claudeUrl" target="_blank" rel="noopener noreferrer">
+            <Icon name="lucide:sparkles" />
+            {{ t("docs.askClaude") }}
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem v-if="actions.chatGpt" as-child>
           <a :href="chatGptUrl" target="_blank" rel="noopener noreferrer">
             <Icon name="lucide:message-circle" />
             {{ t("docs.askChatGpt") }}
           </a>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem @select="copyValue(mcpUrl, 'mcp')">
-          <Icon :name="actionSucceeded('mcp') ? 'lucide:check' : 'lucide:plug'" />
-          {{ actionSucceeded("mcp") ? t("docs.copied") : t("docs.copyMcpUrl") }}
-        </DropdownMenuItem>
+        <template v-if="actions.mcp">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem @select="copyValue(mcpUrl, 'mcp')">
+            <Icon :name="actionSucceeded('mcp') ? 'lucide:check' : 'lucide:plug'" />
+            {{ actionSucceeded("mcp") ? t("docs.copied") : t("docs.copyMcpUrl") }}
+          </DropdownMenuItem>
+        </template>
       </DropdownMenuContent>
     </DropdownMenu>
     <span class="sr-only" role="status" aria-live="polite">{{ statusMessage }}</span>

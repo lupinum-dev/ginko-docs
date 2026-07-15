@@ -49,4 +49,8 @@ export function flattenTocLinks(links?: TocLinkLike[] | null): FlatTocItem[] {
   visit(links ?? undefined);
   return output;
 }
+
+export function filterTocByDepth(items: FlatTocItem[], maxDepth: number): FlatTocItem[] {
+  return items.filter((item) => (item.depth ?? 2) <= maxDepth);
+}
 import { defaultLocale } from "../../i18n/locales";

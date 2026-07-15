@@ -26,14 +26,19 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@lupinum/ginko-content",
     "@nuxt/image",
+    "@nuxt/scripts",
+    "nuxt-og-image",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
     "@nuxtjs/color-mode",
     "@nuxtjs/mcp-toolkit",
   ],
+  ogImage: {
+    zeroRuntime: true,
+  },
   mcp: {
     name: "Ginko Docs",
-    version: "0.1.0",
+    version: "0.2.0",
   },
   components: {
     dirs: [
@@ -48,6 +53,7 @@ export default defineNuxtConfig({
           "SiteInteractionLayer.vue",
           "SiteLocaleSwitcher.vue",
           "SiteLogoMark.vue",
+          "SiteSkipLink.vue",
         ],
       },
       {
@@ -95,7 +101,7 @@ export default defineNuxtConfig({
       styles: ["normal"],
       subsets: ["latin", "latin-ext"],
     },
-    families: [{ name: "Public Sans", provider: "google" }],
+    families: [{ name: "Public Sans", provider: "google", global: true }],
   },
   i18n: {
     customRoutes: "config",
@@ -120,7 +126,7 @@ export default defineNuxtConfig({
             themes: { light: lightPlus, dark: darkPlus },
           },
         ],
-        ["toc", { depth: 3, searchDepth: 3 }],
+        ["toc", { depth: 4, searchDepth: 4 }],
         "summary",
         ["footnotes", { label: "" }],
       ],

@@ -74,6 +74,7 @@ function defineGinkoDocsConfig(options) {
         date: z.string(),
         readingTime: z.string(),
         author: reference("authors"),
+        image: z.string().optional(),
       }),
     });
     collections.authors = defineCollection({

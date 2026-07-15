@@ -13,6 +13,7 @@ export default {
       docsSidebarSwitcher: "tabs",
     },
     social: { github: "https://github.com/lupinum-dev/ginko-docs" },
+    feedback: { enabled: true },
     repository: {
       url: "https://github.com/lupinum-dev/ginko-docs",
       branch: "main",
@@ -37,6 +38,22 @@ export default {
         to: {
           en: "https://github.com/lupinum-dev/ginko-docs",
           de: "https://github.com/lupinum-dev/ginko-docs",
+        },
+      },
+      hero: {
+        media: {
+          type: "code",
+          filename: "app.config.ts",
+          code: [
+            "export default {",
+            "  ginkoDocs: {",
+            '    site: { name: { en: "My Docs" } },',
+            '    nav: { links: "auto" },',
+            '    docsSidebarSwitcher: "tabs",',
+            '    analytics: { plausible: { domain: "docs.example.com" } },',
+            "  },",
+            "};",
+          ].join("\n"),
         },
       },
       features: [

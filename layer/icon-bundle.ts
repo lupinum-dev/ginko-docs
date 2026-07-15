@@ -62,6 +62,7 @@ export const layerIconNames = [
   "lucide:plug",
   "lucide:search",
   "lucide:server",
+  "lucide:sparkles",
   "lucide:sun",
   "lucide:table",
   "lucide:terminal",

@@ -26,6 +26,7 @@ const routeMap = <T>(getRoute: (locale: LocaleCode) => T): Record<LocaleCode, T>
 
 export const i18nPages = {
   index: routeMap((locale) => localizedRoutes[locale].home),
+  docs: routeMap((locale) => localizedRoutes[locale].docs),
   "docs-slug": routeMap((locale) => catchAllPage(localizedRoutes[locale].docs)),
   blog: routeMap((locale) => localizedRoutes[locale].blog),
   "blog-slug": routeMap((locale) => singleSlugPage(localizedRoutes[locale].blog)),

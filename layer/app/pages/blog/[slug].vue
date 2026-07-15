@@ -5,7 +5,7 @@ import { Button } from "#ginko-docs/components/ui/button";
 import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { createArticleSchema, createBreadcrumbSchema } from "#ginko-docs/lib/schema-org";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
-import { flattenTocLinks, formatContentDate } from "#ginko-docs/utils/content";
+import { filterTocByDepth, flattenTocLinks, formatContentDate } from "#ginko-docs/utils/content";
 import { computed, watch } from "vue";
 import {
   definePageMeta,
@@ -18,6 +18,7 @@ import {
 } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
+import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import DocumentPageShell from "#ginko-docs/components/content/DocumentPageShell.vue";
 import PageMarkdownCopy from "#ginko-docs/components/content/PageMarkdownCopy.vue";
@@ -47,7 +48,9 @@ syncContentRouteAlternates(post);
 const pageTitle = computed(() => post.value?.title ?? t("blog.fallbackTitle"));
 const pageDescription = computed(() => post.value?.description ?? t("blog.fallbackDescription"));
 const canonicalUrl = useCanonicalUrl();
-const tocItems = computed(() => flattenTocLinks(post.value?.body?.toc?.links));
+const tocItems = computed(() =>
+  filterTocByDepth(flattenTocLinks(post.value?.body?.toc?.links), config.toc?.depth ?? 3),
+);
 const formattedDate = computed(() => formatContentDate(post.value?.date, locale.value));
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
 const articleAuthor = computed(() => post.value?.author?.name ?? siteName.value);
@@ -62,6 +65,13 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
   twitterDescription: pageDescription,
+});
+
+// Social card with the raw post title (no site-name suffix baked in).
+useGinkoOgImage({
+  title: pageTitle.value,
+  description: pageDescription.value,
+  locale: locale.value,
 });
 
 useHead(() => ({
@@ -104,7 +114,7 @@ useSchemaJsonLd(() =>
     </Button>
 
     <div v-if="post" class="mb-12">
-      <div class="mb-12 flex items-center justify-between gap-4">
+      <div class="mb-8 flex items-center justify-between gap-4">
         <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
           <Badge v-if="post.badge" variant="secondary">{{ post.badge }}</Badge>
           <span class="text-sm text-muted-foreground"
@@ -112,7 +122,16 @@ useSchemaJsonLd(() =>
             }}<template v-if="post.readingTime"> · {{ post.readingTime }}</template></span
           >
           <span class="hidden text-sm text-muted-foreground sm:inline" aria-hidden="true"> · </span>
-          <span class="text-sm text-muted-foreground">{{ articleAuthor }}</span>
+          <span class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <img
+              v-if="post.author?.avatar"
+              :src="post.author.avatar"
+              :alt="articleAuthor"
+              class="size-5 shrink-0 rounded-full border border-border object-cover"
+              loading="lazy"
+            />
+            {{ articleAuthor }}
+          </span>
         </div>
         <PageMarkdownCopy />
       </div>
@@ -143,7 +162,13 @@ useSchemaJsonLd(() =>
             </span>
             <span
               class="text-sm leading-6 text-foreground/80 transition-colors group-hover:text-foreground"
-              :class="item.depth === 3 ? 'pl-3 text-muted-foreground' : ''"
+              :class="
+                item.depth === 3
+                  ? 'pl-3 text-muted-foreground'
+                  : (item.depth ?? 2) >= 4
+                    ? 'pl-6 text-muted-foreground'
+                    : ''
+              "
             >
               {{ item.label }}
             </span>

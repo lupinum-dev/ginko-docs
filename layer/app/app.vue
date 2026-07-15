@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
-import { defaultOgImage } from "#ginko-docs/lib/seo";
 import { useAppConfig, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
+import { useGinkoAnalytics } from "#ginko-docs/composables/useGinkoAnalytics";
+import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import { defaultLocale } from "../i18n/locales";
 
@@ -15,11 +16,14 @@ const docsConfig = useAppConfig().ginkoDocs;
 const siteUrl = docsConfig.site.url;
 
 useSeoMeta({
-  ogImage: defaultOgImage,
   ogUrl: canonicalUrl,
   twitterCard: "summary_large_image",
-  twitterImage: defaultOgImage,
 });
+
+// Site-wide baseline: every route gets a generated PNG social card, with the
+// title/description auto-derived from the page's own useSeoMeta values.
+useGinkoOgImage({ locale: locale.value });
+useGinkoAnalytics();
 
 useSchemaJsonLd(() => [
   {

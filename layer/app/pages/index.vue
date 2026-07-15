@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useAppConfig, useI18n, useSeoMeta } from "#imports";
+import { useI18n, useSeoMeta } from "#imports";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
+import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 
-const config = useAppConfig().ginkoDocs;
+const config = useGinkoDocsConfig();
 const { locale } = useI18n();
 const localize = (value: string | { en: string; de?: string }) =>
   getLocalizedSiteText(value, locale.value);
@@ -26,7 +27,12 @@ const landing = computed(() => ({
     title: localize(feature.title),
     description: localize(feature.description),
   })),
+  heroMedia: config.landing.hero?.media,
 }));
+
+const heroCodeLines = computed(() =>
+  landing.value.heroMedia?.type === "code" ? landing.value.heroMedia.code.split("\n") : [],
+);
 
 useSeoMeta({
   title: computed(() => localize(config.site.name)),
@@ -37,33 +43,70 @@ useSeoMeta({
 <template>
   <div class="overflow-hidden">
     <section class="relative border-b border-border">
-      <div class="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
-        <p v-if="landing.eyebrow" class="mb-6 text-sm font-semibold tracking-wide text-primary">
-          {{ landing.eyebrow }}
-        </p>
-        <h1
-          class="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-7xl lg:text-[5.75rem]"
-        >
-          {{ landing.title }}
-        </h1>
-        <p class="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
-          {{ landing.description }}
-        </p>
-        <div class="mt-10 flex flex-wrap items-center gap-3">
-          <NuxtLink
-            :to="landing.primary.to"
-            class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+      <div
+        class="relative mx-auto flex max-w-6xl flex-col gap-14 px-5 py-24 sm:px-8 sm:py-32 lg:flex-row lg:items-center"
+      >
+        <div class="min-w-0 flex-1">
+          <p v-if="landing.eyebrow" class="mb-6 text-sm font-semibold tracking-wide text-primary">
+            {{ landing.eyebrow }}
+          </p>
+          <h1
+            class="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-7xl"
+            :class="landing.heroMedia ? 'lg:text-6xl' : 'lg:text-[5.75rem]'"
           >
-            {{ landing.primary.label }}
-            <Icon name="lucide:arrow-right" class="size-4" aria-hidden="true" />
-          </NuxtLink>
-          <NuxtLink
-            v-if="landing.secondary"
-            :to="landing.secondary.to"
-            class="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-background px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            {{ landing.title }}
+          </h1>
+          <p class="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
+            {{ landing.description }}
+          </p>
+          <div class="mt-10 flex flex-wrap items-center gap-3">
+            <NuxtLink
+              :to="landing.primary.to"
+              class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+            >
+              {{ landing.primary.label }}
+              <Icon name="lucide:arrow-right" class="size-4" aria-hidden="true" />
+            </NuxtLink>
+            <NuxtLink
+              v-if="landing.secondary"
+              :to="landing.secondary.to"
+              class="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-background px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              {{ landing.secondary.label }}
+            </NuxtLink>
+          </div>
+        </div>
+
+        <div v-if="landing.heroMedia" class="hidden w-[26rem] max-w-full shrink-0 lg:block">
+          <NuxtImg
+            v-if="landing.heroMedia.type === 'image'"
+            :src="landing.heroMedia.src"
+            :alt="landing.heroMedia.alt"
+            class="w-full rounded-xl border border-border object-cover shadow-sm"
+            width="416"
+            loading="lazy"
+          />
+          <div
+            v-else-if="landing.heroMedia.type === 'code'"
+            class="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
           >
-            {{ landing.secondary.label }}
-          </NuxtLink>
+            <div
+              v-if="landing.heroMedia.filename"
+              class="flex h-9 items-center gap-2 border-b border-border bg-muted/50 px-4"
+            >
+              <span class="flex gap-1.5" aria-hidden="true">
+                <span class="size-2.5 rounded-full bg-border" />
+                <span class="size-2.5 rounded-full bg-border" />
+                <span class="size-2.5 rounded-full bg-border" />
+              </span>
+              <span class="text-xs font-medium text-muted-foreground">
+                {{ landing.heroMedia.filename }}
+              </span>
+            </div>
+            <pre
+              class="overflow-x-auto p-4 font-mono text-[13px] leading-6 text-foreground/90"
+            ><code><span v-for="(line, index) in heroCodeLines" :key="index" class="block">{{ line }}</span></code></pre>
+          </div>
         </div>
       </div>
     </section>

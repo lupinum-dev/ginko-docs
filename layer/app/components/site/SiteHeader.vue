@@ -23,6 +23,7 @@ const isActive = (href: string) => route.path === href || route.path.startsWith(
 
 function mobileNavIcon(href: string) {
   if (href.includes("blog")) return "lucide:file-text";
+  if (href.includes("dok") || href.includes("doc")) return "lucide:book-open";
   return "lucide:circle";
 }
 
@@ -86,13 +87,6 @@ watch(
     ref="headerElement"
     class="sticky top-0 z-50 flex h-14 w-full shrink-0 items-center border-b border-border bg-background/90 backdrop-blur-md"
   >
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md"
-    >
-      {{ t("nav.skip") }}
-    </a>
-
     <div class="mx-auto flex w-full max-w-screen-2xl flex-1 items-center gap-4 px-4 md:px-6">
       <NuxtLink
         :to="homePath"
@@ -187,7 +181,7 @@ watch(
       :style="{ top: mobileMenuTop }"
     >
       <div class="px-5 pt-9 pb-12">
-        <nav class="space-y-4" :aria-label="t('nav.mobile')">
+        <nav v-if="mobileNavItems.length" class="space-y-4" :aria-label="t('nav.mobile')">
           <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
             {{ t("nav.navigationSection") }}
           </p>
@@ -218,7 +212,7 @@ watch(
           </div>
         </nav>
 
-        <div class="mt-9 space-y-4">
+        <div class="space-y-4" :class="mobileNavItems.length ? 'mt-9' : ''">
           <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
             {{ t("nav.settingsHelp") }}
           </p>

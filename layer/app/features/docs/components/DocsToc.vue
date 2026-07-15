@@ -47,7 +47,7 @@ const { t } = useI18n();
         :href="`#${item.id}`"
         class="block truncate py-0.5 leading-5 transition-colors"
         :class="[
-          item.depth === 3 ? 'pl-3' : '',
+          item.depth === 3 ? 'pl-3' : (item.depth ?? 2) >= 4 ? 'pl-6' : '',
           activeId === item.id
             ? 'font-medium text-primary'
             : 'text-muted-foreground hover:text-foreground',

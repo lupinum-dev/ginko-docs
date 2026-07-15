@@ -82,6 +82,71 @@ without replacing the footer component.
 
 Content belongs to the consumer. A single-locale docs tree can start at `content/docs`; localized sites can use locale-prefixed trees configured through the collection factory.
 
+### Configuration reference
+
+Every feature ships with a safe default; consumers override only what they need under `ginkoDocs`:
+
+```ts
+export default {
+  ginkoDocs: {
+    // Header + mobile menu navigation. "auto" derives Docs (and Blog when a
+    // blog collection exists); pass an array of localized links to override.
+    nav: { links: "auto" },
+    // nav: { links: [{ label: { en: "Guides" }, to: { en: "/docs" } }] },
+
+    // Announcement banner. "auto" shows it when a blog exists (links to the
+    // blog); set explicit text/link for release announcements. Dismissal is
+    // persisted per `id` — bump the id to re-show after an update.
+    banner: {
+      enabled: "auto",
+      id: "default",
+      showOnLanding: true,
+      // text: { en: "v2 is out!" },
+      // link: { label: { en: "Changelog" }, to: { en: "/blog/v2" } },
+    },
+
+    // Plausible analytics (loaded via Nuxt Scripts). Fully disabled until a
+    // domain is set — nothing is injected without it.
+    // analytics: { plausible: { domain: "docs.example.com" } },
+    // Self-hosted: { domain, scriptSrc: "https://plausible.acme.dev/js/script.js" }
+    // Extensions default to ["outbound-links"].
+
+    // "Was this page helpful?" widget (thumbs up/down). Votes are sent as the
+    // Plausible event `docs-feedback` with { path, helpful, locale } props;
+    // a "no" vote offers a prefilled GitHub issue when `repository` is set.
+    feedback: { enabled: false },
+
+    // Social cards are generated as PNGs at build time (nuxt-og-image, satori).
+    // Override the template by shadowing app/components/OgImage/GinkoDocs.satori.vue
+    // or point `component` at your own OgImage template.
+    ogImage: { enabled: true, component: "GinkoDocs" },
+
+    // AI/agent entries in the "Copy Markdown" split menu.
+    markdownActions: { chatGpt: true, claude: true, mcp: true },
+
+    // Click-to-zoom lightbox for prose images (rendered via <NuxtImg>).
+    images: { zoom: true },
+
+    // "On this page" depth: 2 (h2 only) to 4 (h2–h4).
+    toc: { depth: 3 },
+
+    // Optional landing hero visual (right column on large screens).
+    landing: {
+      hero: {
+        media: { type: "code", filename: "app.config.ts", code: "export default { /* … */ }" },
+        // or: media: { type: "image", src: "/hero.png", alt: "Product screenshot" },
+      },
+    },
+  },
+};
+```
+
+Notes:
+
+- The bare docs root (`/docs`, `/de/dokumentation`) redirects to the first documentation page.
+- No static `/public/og-image.svg` is needed anymore; social images are prerendered per page.
+- The 404 page renders with the full site chrome and localized actions.
+
 ## Customize the presentation
 
 Use Nuxt's normal application directories. A consumer can replace `app/pages/index.vue`, its

@@ -1,14 +1,15 @@
 import { agentRawPathForRoute } from "@lupinum/ginko-content/agent-paths";
 import { useClipboard } from "@vueuse/core";
 import { computed, onBeforeUnmount, ref } from "vue";
-import { useAppConfig, useRoute } from "#imports";
+import { useRoute } from "#imports";
+import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
 
 export type PageMarkdownAction = "markdown" | "link" | "mcp";
 export type PageMarkdownActionResult = "success" | "error";
 
 export function usePageMarkdownActions() {
   const route = useRoute();
-  const config = useAppConfig().ginkoDocs;
+  const config = useGinkoDocsConfig();
   const { copy } = useClipboard({ legacy: true });
   const result = ref<{ action: PageMarkdownAction; status: PageMarkdownActionResult } | null>(null);
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
@@ -20,6 +21,15 @@ export function usePageMarkdownActions() {
     () =>
       `https://chatgpt.com/?hints=search&q=${encodeURIComponent(`Read ${rawUrl.value} so I can ask questions about it.`)}`,
   );
+  const claudeUrl = computed(
+    () =>
+      `https://claude.ai/new?q=${encodeURIComponent(`Read ${rawUrl.value} so I can ask questions about it.`)}`,
+  );
+  const actions = computed(() => ({
+    chatGpt: config.markdownActions?.chatGpt !== false,
+    claude: config.markdownActions?.claude !== false,
+    mcp: config.markdownActions?.mcp !== false,
+  }));
 
   function setResult(action: PageMarkdownAction, status: PageMarkdownActionResult) {
     if (resetTimer) clearTimeout(resetTimer);
@@ -55,5 +65,15 @@ export function usePageMarkdownActions() {
     if (resetTimer) clearTimeout(resetTimer);
   });
 
-  return { chatGptUrl, copyMarkdown, copyValue, mcpUrl, rawPath, rawUrl, result };
+  return {
+    actions,
+    chatGptUrl,
+    claudeUrl,
+    copyMarkdown,
+    copyValue,
+    mcpUrl,
+    rawPath,
+    rawUrl,
+    result,
+  };
 }

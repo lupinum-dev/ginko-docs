@@ -3,13 +3,7 @@ import { useI18n, useRouter } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { computed } from "vue";
 import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
-
-export interface NavItem {
-  label: string;
-  href: string;
-  external?: boolean;
-  icon?: string;
-}
+import { resolveBanner, resolveMainNav, type NavItem } from "./site-navigation.utils";
 
 export interface SidebarSection {
   title: string;
@@ -30,16 +24,20 @@ export const useSiteNavigation = () => {
     lupinumAttribution: config.site.lupinumAttribution,
   }));
 
-  const banner = computed(() => {
-    const linkHref = path("blog");
+  const blogPath = computed(() => path("blog"));
+  const blogExists = computed(() =>
+    router.getRoutes().some((route) => route.path === blogPath.value),
+  );
 
-    return {
-      show: router.getRoutes().some((route) => route.path === linkHref),
-      text: t("banner.text"),
-      linkLabel: t("banner.linkLabel"),
-      linkHref,
-    };
-  });
+  const banner = computed(() =>
+    resolveBanner(config.banner, {
+      locale: locale.value,
+      blogPath: blogPath.value,
+      blogExists: blogExists.value,
+      defaultText: t("banner.text"),
+      defaultLinkLabel: t("banner.linkLabel"),
+    }),
+  );
 
   const socialLinks = computed<NavItem[]>(
     () =>
@@ -63,7 +61,16 @@ export const useSiteNavigation = () => {
       ].filter(Boolean) as NavItem[],
   );
 
-  const mainNav = computed<NavItem[]>(() => []);
+  const mainNav = computed<NavItem[]>(() =>
+    resolveMainNav(config.nav.links, {
+      locale: locale.value,
+      docsPath: path("docs"),
+      blogPath: blogPath.value,
+      blogExists: blogExists.value,
+      docsLabel: t("nav.documentation"),
+      blogLabel: t("nav.blog"),
+    }),
+  );
 
   const footerNav = computed<{
     product: NavItem[];

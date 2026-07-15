@@ -194,6 +194,7 @@ async function copyCode() {
     <div
       role="region"
       tabindex="0"
+      :aria-label="label ? `${t('docs.codeSample')}: ${label}` : t('docs.codeSample')"
       :class="
         cn(
           'fd-scroll-container max-h-[600px] overflow-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset',

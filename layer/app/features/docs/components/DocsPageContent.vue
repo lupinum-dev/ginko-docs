@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createContentNotFoundError } from "#ginko-docs/lib/errors";
-import { flattenTocLinks } from "#ginko-docs/utils/content";
+import { filterTocByDepth, flattenTocLinks } from "#ginko-docs/utils/content";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
 import DocsMobileToc from "./DocsMobileToc.vue";
 import DocsPageNav from "./DocsPageNav.vue";
@@ -9,6 +9,7 @@ import DocsContributeLinks from "./DocsContributeLinks.vue";
 import { computed, watch } from "vue";
 import { useAppConfig, useContentPage, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
+import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useScrollspy } from "#ginko-docs/features/docs/composables/useScrollspy";
 import PageMarkdownCopy from "#ginko-docs/components/content/PageMarkdownCopy.vue";
 import { Separator } from "#ginko-docs/components/ui/separator";
@@ -50,7 +51,9 @@ const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.va
 const pageTitle = computed(() => page.value?.title ?? t("docs.fallbackTitle"));
 const pageDescription = computed(() => page.value?.description ?? t("docs.fallbackDescription"));
 const canonicalUrl = useCanonicalUrl();
-const tocItems = computed(() => flattenTocLinks(page.value?.body?.toc?.links));
+const tocItems = computed(() =>
+  filterTocByDepth(flattenTocLinks(page.value?.body?.toc?.links), config.toc?.depth ?? 3),
+);
 const prev = computed(() => toDocsNavLink(previous.value));
 const next = computed(() => toDocsNavLink(nextContent.value));
 const visibleTrail = computed(() => trail.value.slice(0, -1));
@@ -60,13 +63,6 @@ const schemaBreadcrumbs = computed(() => [
     .filter((item) => item.path)
     .map((item) => ({ name: item.title, path: item.path! })),
 ]);
-const ogImage = computed(() => {
-  const url = new URL("/api/og", config.site.url);
-  url.searchParams.set("site", siteName.value);
-  url.searchParams.set("title", pageTitle.value);
-  url.searchParams.set("description", pageDescription.value);
-  return url.toString();
-});
 const { activeId, refresh } = useScrollspy(computed(() => tocItems.value.map((item) => item.id)));
 
 watch(tocItems, () => {
@@ -79,11 +75,16 @@ useSeoMeta({
   ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
   ogDescription: pageDescription,
   ogUrl: canonicalUrl,
-  ogImage,
   twitterCard: "summary_large_image",
   twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
   twitterDescription: pageDescription,
-  twitterImage: ogImage,
+});
+
+// Social card with the raw page title (no site-name suffix baked in).
+useGinkoOgImage({
+  title: pageTitle.value,
+  description: pageDescription.value,
+  locale: locale.value,
 });
 
 useSchemaJsonLd(() => [

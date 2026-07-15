@@ -12,13 +12,19 @@ export function useScrollspy(ids: MaybeRefOrGetter<string[]>, offset = 112) {
   const activeId = ref("");
   let observed: HTMLElement[] = [];
 
+  // Headings use `scroll-margin-top: 7rem` (= offset), so after an anchor jump
+  // a heading sits at exactly `offset` — with sub-pixel layout it can land a
+  // fraction below. The tolerance keeps that heading active instead of the
+  // previous section.
+  const tolerance = 8;
+
   function updateFromScroll() {
     const candidates = observed
       .map((element) => ({
         id: element.id,
         top: element.getBoundingClientRect().top,
       }))
-      .filter((item) => item.top <= offset)
+      .filter((item) => item.top <= offset + tolerance)
       .sort((a, b) => b.top - a.top);
 
     activeId.value = candidates[0]?.id ?? observed[0]?.id ?? "";

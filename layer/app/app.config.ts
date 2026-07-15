@@ -13,8 +13,18 @@ export default {
       docsSidebarSwitcher: "tabs",
       lupinumAttribution: true,
     },
+    nav: { links: "auto" },
+    banner: {
+      enabled: "auto",
+      id: "default",
+      showOnLanding: true,
+    },
     social: {},
     feedback: { enabled: false },
+    ogImage: { enabled: true, component: "GinkoDocs" },
+    markdownActions: { chatGpt: true, claude: true, mcp: true },
+    images: { zoom: true },
+    toc: { depth: 3 },
     repository: undefined,
     landing: {
       eyebrow: {

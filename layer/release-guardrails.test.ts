@@ -125,7 +125,7 @@ describe("ginko docs release guardrails", () => {
 
     expect(read("layer/shared/types/app-config.ts")).not.toContain("blog: boolean");
     expect(read("layer/app/composables/useSiteNavigation.ts")).toContain(
-      "router.getRoutes().some((route) => route.path === linkHref)",
+      "router.getRoutes().some((route) => route.path === blogPath.value)",
     );
   });
 
@@ -201,8 +201,44 @@ describe("ginko docs release guardrails", () => {
     expect(read("playground/app/app.config.ts")).toContain("ginkoDocs");
   });
 
-  it("keeps feedback disabled unless a consumer supplies an endpoint", () => {
+  it("keeps feedback disabled until a consumer opts in", () => {
     const defaults = read("layer/app/app.config.ts");
     expect(defaults).toContain("feedback: { enabled: false }");
+  });
+
+  it("ships safe defaults for navigation, banner, and integrations", () => {
+    const defaults = read("layer/app/app.config.ts");
+    expect(defaults).toContain('nav: { links: "auto" }');
+    expect(defaults).toContain('enabled: "auto"');
+    expect(defaults).toContain("showOnLanding: true");
+    expect(defaults).toContain('ogImage: { enabled: true, component: "GinkoDocs" }');
+    expect(defaults).toContain("markdownActions: { chatGpt: true, claude: true, mcp: true }");
+    expect(defaults).toContain("images: { zoom: true }");
+    expect(defaults).toContain("toc: { depth: 3 }");
+    // Analytics stays off unless a consumer configures a Plausible domain.
+    expect(defaults).not.toContain("analytics:");
+  });
+
+  it("generates social images at build time instead of serving SVG at runtime", () => {
+    const config = read("layer/nuxt.config.ts");
+    expect(config).toContain('"nuxt-og-image"');
+    expect(config).toContain('"@nuxt/scripts"');
+    expect(config).toContain("zeroRuntime: true");
+    // Satori requires the renderer suffix and a globally registered font.
+    expect(readdirSync(join(root, "layer/app/components/OgImage"))).toContain(
+      "GinkoDocs.satori.vue",
+    );
+    expect(config).toContain('name: "Public Sans", provider: "google", global: true');
+    // The legacy SVG endpoint must stay deleted: SVG og:images never render on
+    // social platforms.
+    expect(() => read("layer/server/api/og.ts")).toThrow();
+  });
+
+  it("registers the bare docs root as a localized redirect page", () => {
+    expect(i18nPages.docs).toEqual({
+      en: routeSlugs.docs.en,
+      de: routeSlugs.docs.de,
+    });
+    expect(read("layer/app/pages/docs/index.vue")).toContain("useDocsEntryPath");
   });
 });

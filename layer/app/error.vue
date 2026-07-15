@@ -32,6 +32,9 @@ const copy = computed(() => {
 const docsPath = await useDocsEntryPath();
 const homePath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].home));
 const title = computed(() => `${normalized.value.statusCode} - ${copy.value.title}`);
+// Keep the full site chrome for content-level errors (404 and friends); hard
+// server failures fall back to the bare page so the error screen cannot crash.
+const showChrome = computed(() => normalized.value.kind !== "server");
 
 useHead(() => ({
   title: title.value,
@@ -43,6 +46,10 @@ const handleError = () => clearError({ redirect: homePath.value });
 
 <template>
   <div class="flex min-h-dvh flex-col bg-background text-foreground">
+    <template v-if="showChrome">
+      <SiteSkipLink />
+      <SiteHeader />
+    </template>
     <main id="main-content" class="flex flex-1 items-center justify-center px-4 py-24">
       <section class="w-full max-w-xl text-center">
         <p
@@ -72,6 +79,7 @@ const handleError = () => clearError({ redirect: homePath.value });
         </div>
       </section>
     </main>
+    <SiteFooter v-if="showChrome" />
   </div>
 </template>
 

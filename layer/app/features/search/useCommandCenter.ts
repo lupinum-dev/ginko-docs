@@ -204,12 +204,18 @@ export async function useCommandCenter() {
       : [];
   });
 
-  const allItems = computed(() => [
-    ...pageItems.value,
-    ...docsItems.value,
-    ...contentSearchItems.value,
-    ...actionItems.value,
-  ]);
+  // Cross-group dedupe: a page reachable via nav can also appear as a content
+  // search hit with the same href. First occurrence wins, so nav entries
+  // (higher group priority) shadow duplicate search results while anchored
+  // hits (#section) stay distinct.
+  const allItems = computed(() =>
+    dedupeCommandCenterItems([
+      ...pageItems.value,
+      ...docsItems.value,
+      ...contentSearchItems.value,
+      ...actionItems.value,
+    ]),
+  );
 
   const recentItems = computed<CommandCenterItem[]>(() => {
     if (query.value) return [];

@@ -75,6 +75,29 @@ policy.
 Custom agent Markdown is deliberately separate: register serializers through
 `@lupinum/ginko-content/agent-registry` in a Nitro plugin.
 
+## Configuration
+
+All features are configured under the `ginkoDocs` key in `app/app.config.ts` and ship with safe
+defaults:
+
+- `nav.links` — `"auto"` (Docs + Blog when present) or an array of localized links.
+- `banner` — announcement bar with persisted dismissal (`enabled: "auto" | boolean`, `id`, `text`,
+  `link`, `showOnLanding`).
+- `analytics.plausible` — Plausible via Nuxt Scripts; disabled until `domain` is set
+  (`scriptSrc` for self-hosted, `extensions` default `["outbound-links"]`).
+- `feedback.enabled` — "Was this page helpful?" widget; votes fire the `docs-feedback` Plausible
+  event and negative votes link to a prefilled GitHub issue when `repository` is configured.
+- `ogImage` — build-time PNG social cards (`enabled`, `component`); override the template by
+  shadowing `app/components/OgImage/GinkoDocs.satori.vue`.
+- `markdownActions` — toggle ChatGPT / Claude / MCP entries in the Copy Markdown menu.
+- `images.zoom` — click-to-zoom lightbox for prose images.
+- `toc.depth` — table-of-contents depth (2–4).
+- `landing.hero.media` — optional hero visual (`{ type: "code" }` or `{ type: "image" }`).
+- `repository` — enables "Edit this page" / "Report an issue" links.
+
+The bare docs root (e.g. `/docs`) redirects to the first documentation page, and the 404 page
+renders with the full site chrome.
+
 ## Agent surfaces
 
 The layer can expose canonical content through raw Markdown negotiation, `/raw/**`, `/llms.txt`, `/llms-full.txt`, and read-only MCP tools. These surfaces use the same Ginko Content route and document model as rendered pages.

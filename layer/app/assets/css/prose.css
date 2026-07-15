@@ -403,6 +403,13 @@
   border-bottom: 0;
 }
 
+/* Inside tables the wrapper scrolls horizontally, so inline code chips must
+   not break mid-token (e.g. "content.confi / g.ts" on narrow viewports). */
+.content-table :where(th, td) :where(code, .content-code) {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 html.dark .shiki span {
   background-color: var(--shiki-dark-bg, transparent);
   color: var(--shiki-dark) !important;
@@ -443,7 +450,8 @@ html.dark .shiki span {
   gap: 0.5rem;
   padding-right: 0.25rem;
   padding-left: 0.5rem;
-  color: var(--muted-foreground);
+  /* Strong enough against the caption's muted background for WCAG AA. */
+  color: color-mix(in oklab, var(--foreground) 80%, var(--muted-foreground));
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1rem;
