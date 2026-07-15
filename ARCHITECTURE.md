@@ -14,7 +14,7 @@ The layer consumes Ginko Content’s public hooks and exports. It does not execu
 
 ## Generated content entry
 
-`layer/content.ts` is the canonical typed source for the consumer content factory. `layer/content.js` is its derived JavaScript runtime entry because ordinary package consumers must not depend on a TypeScript loader. The workspace build regenerates it deterministically with esbuild and the repository formatter. A release guard rebuilds it in a temporary location and requires byte-for-byte equality.
+`layer/content.ts` is the canonical typed source for the consumer content factory. `layer/content.js` is its derived JavaScript runtime entry because ordinary package consumers must not depend on a TypeScript loader. The workspace build regenerates it deterministically with Vite+'s Rolldown-backed library packer and the repository formatter. A release guard rebuilds it in a temporary location and requires byte-for-byte equality.
 
 Both files are published deliberately: the package export maps TypeScript tooling to the source type entry and JavaScript runtimes to the generated entry. Do not edit `content.js` directly.
 

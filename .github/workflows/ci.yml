@@ -23,6 +23,8 @@ jobs:
         run: vp exec playwright-core install --with-deps chromium
 
       - name: Verify release
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
         run: vp run release:verify
 
       - name: Upload release candidate

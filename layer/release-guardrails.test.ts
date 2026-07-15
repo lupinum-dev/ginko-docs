@@ -132,26 +132,14 @@ describe("ginko docs release guardrails", () => {
   });
 
   it("keeps the generated content entry synchronized with its TypeScript source", () => {
-    const output = join(tmpdir(), `ginko-docs-content-${process.pid}.js`);
+    const outputDir = join(tmpdir(), `ginko-docs-content-${process.pid}`);
+    const output = join(outputDir, "content.js");
     try {
-      execFileSync(
-        "vp",
-        [
-          "exec",
-          "esbuild",
-          "layer/content.ts",
-          "--bundle",
-          "--platform=node",
-          "--format=esm",
-          "--packages=external",
-          `--outfile=${output}`,
-        ],
-        { cwd: root, stdio: "pipe" },
-      );
+      execFileSync("vp", ["pack", "--out-dir", outputDir], { cwd: root, stdio: "pipe" });
       execFileSync("vp", ["fmt", output], { cwd: root, stdio: "pipe" });
       expect(readFileSync(output, "utf8")).toBe(read("layer/content.js"));
     } finally {
-      rmSync(output, { force: true });
+      rmSync(outputDir, { force: true, recursive: true });
     }
   });
 

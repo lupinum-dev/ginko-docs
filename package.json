@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:content-entry": "vp exec esbuild layer/content.ts --bundle --platform=node --format=esm --packages=external --outfile=layer/content.js && vp fmt layer/content.js",
+    "build:content-entry": "vp pack && vp fmt layer/content.js",
     "build": "vp run ginko-docs-playground#build",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
     "dev": "vp run ginko-docs-playground#dev",
@@ -25,7 +25,6 @@
     "@nuxt/icon": "^2.2.3",
     "@types/node": "^25.9.1",
     "@vue/language-core": "^3.2.6",
-    "esbuild": "0.28.0",
     "eslint": "^10.4.1",
     "eslint-plugin-vue": "^10.9.2",
     "jiti": "^2.7.0",
