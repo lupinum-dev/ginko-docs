@@ -62,7 +62,7 @@ describe("ginko docs release guardrails", () => {
     });
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
-    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0-rc.1");
+    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0-rc.2");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { cn } from "#ginko-docs/lib/utils";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
+import { findFirstNavigationPage } from "@lupinum/ginko-content/client";
 import {
   docsNavigationSectionContainsPath,
   getDocsNavigationGroups,
@@ -54,7 +55,10 @@ watch(
 
 function setActiveSection(id: string) {
   selectedSectionId.value = id;
-  const path = sections.value.find((section) => section.id === id)?.path;
+  const section = sections.value.find((entry) => entry.id === id);
+  // Structural sections have no page of their own — land on their first page
+  // instead of only swapping the sidebar contents.
+  const path = section?.path ?? findFirstNavigationPage(section?.items)?.path;
   if (path) void navigateTo(path);
 }
 

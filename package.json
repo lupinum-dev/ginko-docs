@@ -35,7 +35,7 @@
   "packageManager": "pnpm@10.32.1",
   "pnpm": {
     "overrides": {
-      "@lupinum/ginko-content": "0.3.0-rc.1"
+      "@lupinum/ginko-content": "0.3.0-rc.2"
     }
   }
 }

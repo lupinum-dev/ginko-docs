@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lupinum/ginko-content': 0.3.0-rc.1
+  '@lupinum/ginko-content': 0.3.0-rc.2
 
 importers:
 
@@ -75,8 +75,8 @@ importers:
         specifier: ^1.2.111
         version: 1.2.111
       '@lupinum/ginko-content':
-        specifier: 0.3.0-rc.1
-        version: 0.3.0-rc.1(d4ff452fe392fc85cec3a8e998c62f67)
+        specifier: 0.3.0-rc.2
+        version: 0.3.0-rc.2(d4ff452fe392fc85cec3a8e998c62f67)
       '@nuxt/fonts':
         specifier: ^0.14.0
         version: 0.14.0(db0@0.3.4)(ioredis@5.11.1)(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -1234,8 +1234,8 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@0.3.0-rc.1':
-    resolution: {integrity: sha512-Fwgd3AkUDYaV9LL3UpGS3txR/RuQGFIfVQ8/Vl/+eREWALbmQpjac2tjkYcvkBF1AUVSpUfuu4YoMQLLArthXg==}
+  '@lupinum/ginko-content@0.3.0-rc.2':
+    resolution: {integrity: sha512-1PIhLmBVfHD1DFUcTXsz1cTNrfSQb7OsRsuEQninbcGDuxVuOuHHtYxULriM5EFSaqEz/7B/BXbnwJA6TqDUhg==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -7532,7 +7532,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@0.3.0-rc.1(d4ff452fe392fc85cec3a8e998c62f67)':
+  '@lupinum/ginko-content@0.3.0-rc.2(d4ff452fe392fc85cec3a8e998c62f67)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
