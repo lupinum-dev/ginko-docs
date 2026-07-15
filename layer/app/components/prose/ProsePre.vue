@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
@@ -19,6 +19,9 @@ const props = defineProps<{
 const { copy, copied } = useClipboard();
 const { t } = useI18n();
 const codeElement = ref<HTMLElement | null>(null);
+// Landmarks with role="region" need unique accessible names; the same
+// filename can appear in several code blocks on one page.
+const regionId = useId();
 
 const HIDDEN_LANGUAGES = new Set(["text", "plaintext", "txt", "plain"]);
 const FALLBACK_FILE_ICON = "lucide:file";
@@ -194,7 +197,9 @@ async function copyCode() {
     <div
       role="region"
       tabindex="0"
-      :aria-label="label ? `${t('docs.codeSample')}: ${label}` : t('docs.codeSample')"
+      :aria-label="
+        (label ? `${t('docs.codeSample')}: ${label}` : t('docs.codeSample')) + ` (${regionId})`
+      "
       :class="
         cn(
           'fd-scroll-container max-h-[600px] overflow-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset',

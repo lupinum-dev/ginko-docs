@@ -35,6 +35,9 @@ export default defineNuxtConfig({
   ],
   ogImage: {
     zeroRuntime: true,
+    // Satori renders queue up behind page prerendering on modest build
+    // machines; the default 15s budget is too tight under that contention.
+    security: { renderTimeout: 120_000 },
   },
   mcp: {
     name: "Ginko Docs",
@@ -163,6 +166,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
+      concurrency: 4,
       crawlLinks: true,
       failOnError: true,
       routes: ["/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"],

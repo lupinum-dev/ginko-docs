@@ -104,7 +104,10 @@ useSeoMeta({
               </span>
             </div>
             <pre
-              class="overflow-x-auto p-4 font-mono text-[13px] leading-6 text-foreground/90"
+              role="region"
+              tabindex="0"
+              :aria-label="landing.heroMedia.filename ?? 'Code'"
+              class="overflow-x-auto p-4 font-mono text-[13px] leading-6 text-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             ><code><span v-for="(line, index) in heroCodeLines" :key="index" class="block">{{ line }}</span></code></pre>
           </div>
         </div>

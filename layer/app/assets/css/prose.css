@@ -6,7 +6,8 @@
   --content-prose-inline-code-background: var(--background);
   --content-prose-inline-code-foreground: var(--foreground);
   --content-prose-code-highlight-border: var(--code-border);
-  --content-prose-code-highlight-background: color-mix(in oklab, var(--primary) 8%, transparent);
+  /* Kept light enough that Shiki's light-plus tokens stay WCAG AA on top. */
+  --content-prose-code-highlight-background: color-mix(in oklab, var(--primary) 5%, transparent);
   --content-prose-code-add-background: color-mix(in oklab, var(--chart-2) 22%, transparent);
   --content-prose-code-remove-background: color-mix(in oklab, var(--destructive) 18%, transparent);
   --content-media-bleed-md: 2rem;
