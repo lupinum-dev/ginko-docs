@@ -9,6 +9,7 @@
     "typecheck": "vp exec nuxi typecheck"
   },
   "dependencies": {
+    "@lupinum/ginko-content": "0.3.0-rc.2",
     "@lupinum/ginko-docs": "workspace:*",
     "nuxt": "^4.4.8",
     "vue": "^3.5.35",

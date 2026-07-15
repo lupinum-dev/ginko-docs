@@ -41,7 +41,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.2.1",
+    version: "0.2.2",
   },
   components: {
     dirs: [
@@ -188,7 +188,7 @@ export default defineNuxtConfig({
       ],
     },
     resolve: {
-      dedupe: ["vue", "vue-router"],
+      dedupe: ["@lupinum/ginko-content", "vue", "vue-router"],
     },
     plugins: [tailwindcss()],
   },

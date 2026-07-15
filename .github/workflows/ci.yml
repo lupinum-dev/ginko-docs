@@ -19,17 +19,17 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - name: Check
-        run: vp run check
+      - name: Install Chromium
+        run: vp exec playwright-core install --with-deps chromium
 
-      - name: Test
-        run: vp test
+      - name: Verify release
+        run: vp run release:verify
 
-      - name: Build
-        run: vp run build
-
-      - name: Verify launch readiness
-        run: vp run check:launch
-
-      - name: Check public image ownership
-        run: vp run check:assets
+      - name: Upload release candidate
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ginko-docs-release
+          path: |
+            layer/.pack/*.tgz
+            layer/.pack/release-artifact.json

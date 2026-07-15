@@ -1,6 +1,6 @@
 {
   "name": "@lupinum/ginko-docs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A polished Nuxt documentation layer powered by Ginko Content.",
   "keywords": [
     "content",
@@ -57,7 +57,6 @@
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/logos": "^1.2.11",
     "@iconify-json/lucide": "^1.2.111",
-    "@lupinum/ginko-content": "0.3.0-rc.2",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.3",
     "@nuxt/image": "^2.0.0",
@@ -86,6 +85,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
+    "@lupinum/ginko-content": ">=0.3.0-rc.2 <0.4.0",
     "nuxt": "^4.4.6",
     "vue": "^3.5.35",
     "vue-router": "^5.1.0"

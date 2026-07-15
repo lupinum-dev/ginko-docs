@@ -62,7 +62,9 @@ describe("ginko docs release guardrails", () => {
     });
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
-    expect(manifest.dependencies["@lupinum/ginko-content"]).toBe("0.3.0-rc.2");
+    expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
+    expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.0-rc.2 <0.4.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -163,7 +165,9 @@ describe("ginko docs release guardrails", () => {
   });
 
   it("keeps Vue and its router as singletons across linked consumers", () => {
-    expect(read("layer/nuxt.config.ts")).toContain('dedupe: ["vue", "vue-router"]');
+    expect(read("layer/nuxt.config.ts")).toContain(
+      'dedupe: ["@lupinum/ginko-content", "vue", "vue-router"]',
+    );
   });
 
   it("bundles layer and consumer icons without a runtime service", () => {

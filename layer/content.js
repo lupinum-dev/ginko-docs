@@ -17,6 +17,39 @@ var routeSlugs = {
 };
 
 // layer/content.ts
+var docsSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  icon: z.string().optional(),
+  badge: z.string().optional(),
+  updated: z.string().optional(),
+  sidebar: z.enum(["section", "group"]).optional(),
+  navigation: z
+    .object({
+      title: z.string().optional(),
+      icon: z.string().optional(),
+      badge: z.string().optional(),
+      sidebar: z.enum(["section", "group"]).optional(),
+    })
+    .optional(),
+});
+var blogSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  badge: z.string().optional(),
+  date: z.string(),
+  readingTime: z.string(),
+  author: reference("authors"),
+  image: z.string().optional(),
+});
+var authorsSchema = z.object({
+  slug: z.string(),
+  name: z.string(),
+  role: z.string(),
+  bio: z.string(),
+  avatar: z.string(),
+  links: z.array(z.object({ label: z.string(), href: z.string() })).optional(),
+});
 function defineGinkoDocsConfig(options) {
   const locales = options.locales ?? ["en"];
   const defaultLocale = options.defaultLocale ?? locales[0] ?? "en";
@@ -41,59 +74,26 @@ function defineGinkoDocsConfig(options) {
     route: i18n ? routeMap("docs") : routeSlugs.docs[defaultLocale],
     agent: { section: "optional", markdown: true },
     strict: true,
-    schema: z.object({
-      title: z.string(),
-      description: z.string(),
-      icon: z.string().optional(),
-      badge: z.string().optional(),
-      updated: z.string().optional(),
-      sidebar: z.enum(["section", "group"]).optional(),
-      navigation: z
-        .object({
-          title: z.string().optional(),
-          icon: z.string().optional(),
-          badge: z.string().optional(),
-          sidebar: z.enum(["section", "group"]).optional(),
-        })
-        .optional(),
-    }),
+    schema: docsSchema,
   });
-  const collections = { docs };
-  if (options.blog) {
-    collections.blog = defineCollection({
-      type: "page",
-      source: "2.blog/**/*.md",
-      i18n: i18n ? true : void 0,
-      route: i18n ? routeMap("blog") : routeSlugs.blog[defaultLocale],
-      agent: { section: "blog", markdown: true },
-      strict: true,
-      schema: z.object({
-        title: z.string(),
-        description: z.string(),
-        badge: z.string().optional(),
-        date: z.string(),
-        readingTime: z.string(),
-        author: reference("authors"),
-        image: z.string().optional(),
-      }),
-    });
-    collections.authors = defineCollection({
-      type: "data",
-      source: "authors/**/*.json",
-      i18n: i18n ? true : void 0,
-      strict: true,
-      sitemap: false,
-      schema: z.object({
-        slug: z.string(),
-        name: z.string(),
-        role: z.string(),
-        bio: z.string(),
-        avatar: z.string(),
-        links: z.array(z.object({ label: z.string(), href: z.string() })).optional(),
-      }),
-    });
-  }
-  return defineContentConfig({
+  const blog = defineCollection({
+    type: "page",
+    source: "2.blog/**/*.md",
+    i18n: i18n ? true : void 0,
+    route: i18n ? routeMap("blog") : routeSlugs.blog[defaultLocale],
+    agent: { section: "blog", markdown: true },
+    strict: true,
+    schema: blogSchema,
+  });
+  const authors = defineCollection({
+    type: "data",
+    source: "authors/**/*.json",
+    i18n: i18n ? true : void 0,
+    strict: true,
+    sitemap: false,
+    schema: authorsSchema,
+  });
+  const config = {
     agent: {
       site: {
         title: options.site.name,
@@ -121,7 +121,13 @@ function defineGinkoDocsConfig(options) {
         }),
       ],
     },
-    collections,
-  });
+  };
+  if (options.blog) {
+    return defineContentConfig({
+      ...config,
+      collections: { docs, blog, authors },
+    });
+  }
+  return defineContentConfig({ ...config, collections: { docs } });
 }
 export { defineGinkoDocsConfig };
