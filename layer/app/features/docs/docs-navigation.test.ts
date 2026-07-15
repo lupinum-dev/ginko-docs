@@ -3,6 +3,7 @@ import {
   findDocsNavigationTrail,
   getDocsNavigationGroups,
   getDocsNavigationSections,
+  docsNavigationSectionContainsPath,
   normalizeDocsNavigationItem,
   type DocsNavigationItem,
 } from "./docs-navigation";
@@ -51,7 +52,7 @@ describe("docs navigation trails", () => {
     ).toEqual(["Guides", "Authentication", "API keys"]);
   });
 
-  it("uses a group index as the heading target without duplicating it in the item list", () => {
+  it("keeps a navigable group index as the first item below its heading", () => {
     const [section] = getDocsNavigationSections([
       normalizeDocsNavigationItem({
         title: "Essentials",
@@ -81,8 +82,15 @@ describe("docs navigation trails", () => {
       {
         id: "/docs/essentials/content-rendering",
         title: "Content Rendering",
-        path: "/docs/essentials/content-rendering",
-        items: [expect.objectContaining({ title: "Component Tags" })],
+        icon: undefined,
+        items: [
+          expect.objectContaining({
+            title: "Content Rendering",
+            path: "/docs/essentials/content-rendering",
+            children: [],
+          }),
+          expect.objectContaining({ title: "Component Tags" }),
+        ],
       },
     ]);
   });
@@ -115,7 +123,6 @@ describe("docs navigation trails", () => {
     expect(getDocsNavigationGroups(section!)).toContainEqual({
       id: "Operations",
       title: "Operations",
-      path: undefined,
       icon: undefined,
       items: [
         expect.objectContaining({ title: "Deployment Checklist" }),
@@ -158,6 +165,8 @@ describe("docs navigation trails", () => {
       "Concepts",
     ]);
     expect(sections[1]!.items.map((item) => item.title)).toEqual(["Components", "Project"]);
+    expect(docsNavigationSectionContainsPath(sections[0]!, "/docs/concepts/identity/")).toBe(true);
+    expect(docsNavigationSectionContainsPath(sections[1]!, "/docs/concepts/identity")).toBe(false);
 
     const visiblePaths = sections.flatMap((section) =>
       getDocsNavigationGroups(section).flatMap((group) =>

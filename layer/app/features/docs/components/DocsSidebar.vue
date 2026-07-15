@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { cn } from "#ginko-docs/lib/utils";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
-import { getDocsNavigationGroups } from "#ginko-docs/features/docs/docs-navigation";
+import {
+  docsNavigationSectionContainsPath,
+  getDocsNavigationGroups,
+  type DocsNavigationSection,
+} from "#ginko-docs/features/docs/docs-navigation";
 import DocsSidebarItem from "./DocsSidebarItem.vue";
-import { computed } from "vue";
-import { useI18n } from "#imports";
+import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
+import DocsSidebarList from "./DocsSidebarList.vue";
+import DocsSidebarTabs from "./DocsSidebarTabs.vue";
+import { computed, ref, watch } from "vue";
+import { navigateTo, useAppConfig, useI18n, useRoute } from "#imports";
 
 const props = withDefaults(
   defineProps<{
@@ -16,16 +23,43 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
+const route = useRoute();
+const sidebarSwitcher = useAppConfig().ginkoDocs.site.docsSidebarSwitcher;
 const { sections } = await useDocsNavigation();
-const sidebarSections = computed(() =>
-  sections.value.map((section) => ({
-    ...section,
-    groups: getDocsNavigationGroups(section),
-  })),
+const switcherSections = computed(() =>
+  sections.value.filter((section): section is DocsNavigationSection & { title: string } =>
+    Boolean(section.title),
+  ),
+);
+const selectedSectionId = ref("");
+const routeSection = computed(() =>
+  sections.value.find((section) => docsNavigationSectionContainsPath(section, route.path)),
+);
+const activeSectionId = computed(
+  () => selectedSectionId.value || routeSection.value?.id || sections.value[0]?.id || "",
+);
+const activeSection = computed(
+  () => sections.value.find((section) => section.id === activeSectionId.value) ?? sections.value[0],
+);
+const groups = computed(() =>
+  activeSection.value ? getDocsNavigationGroups(activeSection.value) : [],
 );
 
+watch(
+  () => route.path,
+  () => {
+    selectedSectionId.value = "";
+  },
+);
+
+function setActiveSection(id: string) {
+  selectedSectionId.value = id;
+  const path = sections.value.find((section) => section.id === id)?.path;
+  if (path) void navigateTo(path);
+}
+
 const scrollViewportClass =
-  "min-h-0 flex-1 overflow-y-auto p-4 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
+  "min-h-0 flex-1 overflow-y-auto px-4 pb-4 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
 
 const asideClass = computed(() =>
   cn(
@@ -45,43 +79,37 @@ const asideClass = computed(() =>
     :aria-label="t('docs.label')"
     :class="asideClass"
   >
-    <div :class="scrollViewportClass">
-      <section
-        v-for="(section, sectionIndex) in sidebarSections"
-        :key="section.id"
-        class="flex min-w-full flex-col gap-0.5"
-        :class="sectionIndex > 0 ? 'mt-7 border-t border-border pt-6' : undefined"
-      >
-        <NuxtLink
-          v-if="section.title && section.path"
-          :to="section.path"
-          class="mb-2 inline-flex items-center gap-2 px-2 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase transition-colors hover:text-foreground"
-        >
-          <Icon v-if="section.icon" :name="section.icon" class="size-3.5" aria-hidden="true" />
-          {{ section.title }}
-        </NuxtLink>
-        <p
-          v-else-if="section.title"
-          class="mb-2 inline-flex items-center gap-2 px-2 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase"
-        >
-          <Icon v-if="section.icon" :name="section.icon" class="size-3.5" aria-hidden="true" />
-          {{ section.title }}
-        </p>
+    <div v-if="switcherSections.length > 1" class="flex flex-col gap-3 p-4 pb-2">
+      <DocsSidebarTabs
+        v-if="sidebarSwitcher === 'tabs'"
+        :sections="switcherSections"
+        :active-id="activeSectionId"
+        @update:active-id="setActiveSection"
+      />
+      <DocsSidebarDropdown
+        v-else-if="sidebarSwitcher === 'dropdown'"
+        :sections="switcherSections"
+        :active-id="activeSectionId"
+        @update:active-id="setActiveSection"
+      />
+      <DocsSidebarList
+        v-else
+        :sections="switcherSections"
+        :active-id="activeSectionId"
+        @update:active-id="setActiveSection"
+      />
+    </div>
 
-        <template v-for="group in section.groups" :key="group.id">
-          <NuxtLink
-            v-if="group.title && group.path"
-            :to="group.path"
-            class="mt-5 mb-1 inline-flex items-center gap-2 px-2 text-sm font-semibold text-foreground first:mt-0 [&_svg]:size-4 [&_svg]:shrink-0"
-          >
-            <Icon v-if="group.icon" :name="group.icon" class="size-4" aria-hidden="true" />
-            {{ group.title }}
-          </NuxtLink>
+    <div
+      :class="[scrollViewportClass, switcherSections.length > 1 ? 'pt-2' : 'pt-4']"
+      :data-switcher="switcherSections.length > 1"
+    >
+      <div class="flex min-w-full flex-col gap-0.5">
+        <template v-for="group in groups" :key="group.id">
           <p
-            v-else-if="group.title"
-            class="mt-5 mb-1 inline-flex items-center gap-2 px-2 text-sm font-semibold text-foreground first:mt-0 [&_svg]:size-4 [&_svg]:shrink-0"
+            v-if="group.title"
+            class="mt-6 mb-1 inline-flex items-center gap-2 px-2 text-sm font-semibold text-foreground first:mt-0"
           >
-            <Icon v-if="group.icon" :name="group.icon" class="size-4" aria-hidden="true" />
             {{ group.title }}
           </p>
           <DocsSidebarItem
@@ -91,7 +119,7 @@ const asideClass = computed(() =>
             :depth="0"
           />
         </template>
-      </section>
+      </div>
     </div>
   </aside>
 </template>

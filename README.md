@@ -65,6 +65,8 @@ export default {
         de: "Dokumentation für Example.",
       },
       logo: { light: "/logo.svg", dark: "/logo.svg" },
+      localeSwitcher: "dropdown",
+      docsSidebarSwitcher: "tabs",
     },
   },
 };
@@ -72,6 +74,8 @@ export default {
 
 Localized app-config values always use the same `{ en, de? }` shape. Keeping one stable shape makes
 Nuxt's layer merge and hot reload deterministic; a single-language site only needs the `en` value.
+`docsSidebarSwitcher` accepts `tabs`, `dropdown`, or `list`. It changes only the section selector;
+sections and groups continue to come from the canonical content tree.
 
 Content belongs to the consumer. A single-locale docs tree can start at `content/docs`; localized sites can use locale-prefixed trees configured through the collection factory.
 

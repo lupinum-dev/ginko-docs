@@ -10,6 +10,7 @@ export default {
       url: "http://localhost:3000",
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
       localeSwitcher: "dropdown",
+      docsSidebarSwitcher: "tabs",
     },
     social: {},
     feedback: { enabled: false },

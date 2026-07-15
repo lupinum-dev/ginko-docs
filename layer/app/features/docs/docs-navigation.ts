@@ -31,7 +31,6 @@ export type DocsNavigationSection = {
 export type DocsNavigationGroup = {
   id: string;
   title?: string;
-  path?: string;
   icon?: string;
   items: DocsNavigationItem[];
 };
@@ -71,6 +70,17 @@ export function docsNavigationItemContainsPath(item: DocsNavigationItem, path: s
   return (
     (item.path !== undefined && normalizeDocsNavigationPath(item.path) === normalizedPath) ||
     item.children.some((child) => docsNavigationItemContainsPath(child, normalizedPath))
+  );
+}
+
+export function docsNavigationSectionContainsPath(
+  section: DocsNavigationSection,
+  path: string,
+): boolean {
+  const normalizedPath = normalizeDocsNavigationPath(path);
+  return (
+    (section.path !== undefined && normalizeDocsNavigationPath(section.path) === normalizedPath) ||
+    section.items.some((item) => docsNavigationItemContainsPath(item, normalizedPath))
   );
 }
 
@@ -138,12 +148,21 @@ export function getDocsNavigationGroups(section: DocsNavigationSection): DocsNav
       continue;
     }
 
+    const items = child.path
+      ? [
+          {
+            ...child,
+            children: [],
+          },
+          ...child.children,
+        ]
+      : child.children;
+
     groups.push({
       id: child.id,
       title: child.title,
-      path: child.path,
       icon: child.icon,
-      items: child.children,
+      items,
     });
   }
 

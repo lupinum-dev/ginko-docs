@@ -10,6 +10,7 @@ export default {
         de: "Ein vollständiges Nuxt-Dokumentationstheme auf Basis von ginko-content.",
       },
       logo: { light: "/lupinum_light.svg", dark: "/lupinum_dark.svg" },
+      docsSidebarSwitcher: "tabs",
     },
     social: { github: "https://github.com/lupinum-dev/ginko-docs" },
     repository: {

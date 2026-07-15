@@ -12,6 +12,7 @@ export interface GinkoDocsAppConfig {
     url: string;
     logo: { light: string; dark: string };
     localeSwitcher: "dropdown" | "segmented";
+    docsSidebarSwitcher: "dropdown" | "list" | "tabs";
   };
   social: {
     github?: string;
