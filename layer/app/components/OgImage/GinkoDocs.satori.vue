@@ -53,7 +53,7 @@ const displayDescription = computed(() => (props.description ?? "").slice(0, 180
     }"
   >
     <div :style="{ display: 'flex', alignItems: 'center', gap: '20px' }">
-      <img v-if="resolvedLogo" :src="resolvedLogo" width="48" height="48" alt="" />
+      <img v-if="resolvedLogo" :src="resolvedLogo" :width="48" :height="48" alt="" />
       <div
         :style="{
           display: 'flex',

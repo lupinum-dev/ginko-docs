@@ -166,7 +166,10 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      concurrency: 4,
+      // OG images render through a Resvg worker. Parallel prerenders can
+      // terminate that worker under load and leave otherwise valid pages with
+      // 408/500 social-image routes, so package builds must stay serialized.
+      concurrency: 1,
       crawlLinks: true,
       failOnError: true,
       routes: ["/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"],

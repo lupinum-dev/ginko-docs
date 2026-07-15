@@ -229,6 +229,7 @@ describe("ginko docs release guardrails", () => {
       "GinkoDocs.satori.vue",
     );
     expect(config).toContain('name: "Public Sans", provider: "google", global: true');
+    expect(config).toContain("concurrency: 1");
     // The legacy SVG endpoint must stay deleted: SVG og:images never render on
     // social platforms.
     expect(() => read("layer/server/api/og.ts")).toThrow();
