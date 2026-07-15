@@ -55,6 +55,20 @@ export function normalizeDocsNavigationPath(path: string): string {
   return path.length > 1 ? path.replace(/\/+$/, "") : path;
 }
 
+/**
+ * Depth-first search for the first navigable page in the docs tree. Structural
+ * sections and groups have no `path` of their own, so the entry page can sit
+ * one or more levels deep.
+ */
+export function firstDocsNavigationPath(items: RawDocsTreeItem[] | undefined): string | undefined {
+  for (const item of items ?? []) {
+    if (item.path) return item.path;
+    const nested = firstDocsNavigationPath(item.children);
+    if (nested) return nested;
+  }
+  return undefined;
+}
+
 export function isDocsNavigationRoot(item: DocsNavigationItem): boolean {
   const docsRoots = new Set(
     localeCodes.flatMap((locale) => [

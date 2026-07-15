@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
   findDocsNavigationTrail,
+  firstDocsNavigationPath,
   getDocsNavigationGroups,
   getDocsNavigationSections,
   docsNavigationSectionContainsPath,
@@ -30,6 +31,27 @@ function collectPaths(item: DocsNavigationItem): string[] {
     ...item.children.flatMap((child) => collectPaths(child)),
   ];
 }
+
+describe("firstDocsNavigationPath", () => {
+  it("returns the first direct page path", () => {
+    expect(firstDocsNavigationPath(navigation)).toBe("/docs/guides");
+  });
+
+  it("descends through structural sections without their own page", () => {
+    expect(
+      firstDocsNavigationPath([
+        { title: "Guides", children: [{ title: "Overview", path: "/docs/overview" }] },
+        { title: "Reference", path: "/docs/reference" },
+      ]),
+    ).toBe("/docs/overview");
+  });
+
+  it("returns undefined for an empty or page-less tree", () => {
+    expect(firstDocsNavigationPath([])).toBeUndefined();
+    expect(firstDocsNavigationPath([{ title: "Empty", children: [] }])).toBeUndefined();
+    expect(firstDocsNavigationPath(undefined)).toBeUndefined();
+  });
+});
 
 describe("docs navigation trails", () => {
   it("derives the full hierarchy from the canonical navigation tree", () => {

@@ -1,11 +1,11 @@
 import { computed } from "vue";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
+import { firstDocsNavigationPath } from "../docs-navigation";
 import { useDocsNavigationData } from "./useDocsNavigationData";
 
 export async function useDocsEntryPath() {
   const localizedPath = useLocalizedPath();
   const { data } = await useDocsNavigationData();
-  const firstPage = computed(() => data.value?.[0]);
 
-  return computed(() => firstPage.value?.path ?? localizedPath("docs"));
+  return computed(() => firstDocsNavigationPath(data.value ?? undefined) ?? localizedPath("docs"));
 }
