@@ -305,6 +305,7 @@ Rules:
 Rules:
 
 - The shell may read business config and site navigation config.
+- The shared footer credits Lupinum by default; consumers may disable that attribution through app config without replacing the component.
 - The shell may call tracking helpers for navigation events.
 - The shell may mount global client-only helpers such as the service loader and command center.
 - The shell must not own feature-specific page layout.

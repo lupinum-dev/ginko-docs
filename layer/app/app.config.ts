@@ -11,6 +11,7 @@ export default {
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
       localeSwitcher: "dropdown",
       docsSidebarSwitcher: "tabs",
+      lupinumAttribution: true,
     },
     social: {},
     feedback: { enabled: false },

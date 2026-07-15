@@ -13,6 +13,7 @@ export interface GinkoDocsAppConfig {
     logo: { light: string; dark: string };
     localeSwitcher: "dropdown" | "segmented";
     docsSidebarSwitcher: "dropdown" | "list" | "tabs";
+    lupinumAttribution: boolean;
   };
   social: {
     github?: string;

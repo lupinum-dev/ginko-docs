@@ -67,6 +67,7 @@ export default {
       logo: { light: "/logo.svg", dark: "/logo.svg" },
       localeSwitcher: "dropdown",
       docsSidebarSwitcher: "tabs",
+      lupinumAttribution: true,
     },
   },
 };
@@ -76,6 +77,8 @@ Localized app-config values always use the same `{ en, de? }` shape. Keeping one
 Nuxt's layer merge and hot reload deterministic; a single-language site only needs the `en` value.
 `docsSidebarSwitcher` accepts `tabs`, `dropdown`, or `list`. It changes only the section selector;
 sections and groups continue to come from the canonical content tree.
+The footer credits Lupinum by default. Third-party consumers can set `lupinumAttribution: false`
+without replacing the footer component.
 
 Content belongs to the consumer. A single-locale docs tree can start at `content/docs`; localized sites can use locale-prefixed trees configured through the collection factory.
 

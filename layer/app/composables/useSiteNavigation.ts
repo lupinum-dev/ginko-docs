@@ -27,6 +27,7 @@ export const useSiteNavigation = () => {
     description: getLocalizedSiteText(config.site.description, locale.value),
     logo: config.site.logo,
     url: config.site.url,
+    lupinumAttribution: config.site.lupinumAttribution,
   }));
 
   const banner = computed(() => {

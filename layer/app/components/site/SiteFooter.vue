@@ -63,6 +63,17 @@ const resources = computed(() => [
           © <NuxtTime :datetime="currentYearDate" year="numeric" /> {{ site.name }}.
           {{ t("site.footer") }}
         </p>
+        <p v-if="site.lupinumAttribution">
+          {{ t("site.openSourceBy") }}
+          <a
+            href="https://lupinum.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+          >
+            Lupinum<span class="sr-only"> ({{ t("nav.externalLink") }})</span> </a
+          >.
+        </p>
       </div>
     </div>
   </footer>
