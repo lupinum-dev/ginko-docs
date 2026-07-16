@@ -121,7 +121,7 @@ describe("docs navigation trails", () => {
     ]);
 
     expect(getDocsNavigationGroups(section!)).toContainEqual({
-      id: "Operations",
+      id: "docs:0.0:Operations",
       title: "Operations",
       icon: undefined,
       items: [
@@ -129,6 +129,18 @@ describe("docs navigation trails", () => {
         expect.objectContaining({ title: "Troubleshooting" }),
       ],
     });
+  });
+
+  it("gives same-titled structural siblings distinct local identities", () => {
+    const root = normalizeDocsNavigationItem({
+      title: "Reference",
+      children: [
+        { title: "API", children: [{ title: "First", path: "/docs/first" }] },
+        { title: "API", children: [{ title: "Second", path: "/docs/second" }] },
+      ],
+    });
+
+    expect(root.children.map((item) => item.id)).toEqual(["docs:0.0:API", "docs:0.1:API"]);
   });
 
   it("partitions sibling folders at section markers without dropping any page", () => {

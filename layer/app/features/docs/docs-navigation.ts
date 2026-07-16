@@ -1,12 +1,9 @@
-import { localeCodes, localizedPath } from "../../../i18n/locales";
-import { localizedRoutes } from "../../../i18n/routes";
+import type { ContentNavigationTreeItem } from "@lupinum/ginko-content/client";
 
-export type RawDocsTreeItem = {
-  title?: string;
-  path?: string;
-  icon?: string;
-  badge?: string;
-  sidebar?: "section" | "group";
+export type RawDocsTreeItem = Omit<ContentNavigationTreeItem, "children"> & {
+  icon?: unknown;
+  badge?: unknown;
+  sidebar?: unknown;
   children?: RawDocsTreeItem[];
 };
 
@@ -35,34 +32,30 @@ export type DocsNavigationGroup = {
   items: DocsNavigationItem[];
 };
 
-function itemId(item: RawDocsTreeItem): string {
-  return item.path ?? item.title ?? "docs-item";
+function itemId(item: RawDocsTreeItem, position: string): string {
+  return item.path ?? `docs:${position}:${item.title}`;
 }
 
-export function normalizeDocsNavigationItem(item: RawDocsTreeItem): DocsNavigationItem {
+export function normalizeDocsNavigationItem(
+  item: RawDocsTreeItem,
+  position: string | number = 0,
+): DocsNavigationItem {
+  const positionKey = String(position);
   return {
-    id: itemId(item),
-    title: item.title ?? "Untitled",
+    id: itemId(item, positionKey),
+    title: item.title,
     path: item.path,
-    icon: item.icon,
-    badge: item.badge,
-    sidebar: item.sidebar,
-    children: (item.children ?? []).map(normalizeDocsNavigationItem),
+    icon: typeof item.icon === "string" ? item.icon : undefined,
+    badge: typeof item.badge === "string" ? item.badge : undefined,
+    sidebar: item.sidebar === "section" || item.sidebar === "group" ? item.sidebar : undefined,
+    children: (item.children ?? []).map((child, index) =>
+      normalizeDocsNavigationItem(child, `${positionKey}.${index}`),
+    ),
   };
 }
 
 export function normalizeDocsNavigationPath(path: string): string {
   return path.length > 1 ? path.replace(/\/+$/, "") : path;
-}
-
-export function isDocsNavigationRoot(item: DocsNavigationItem): boolean {
-  const docsRoots = new Set(
-    localeCodes.flatMap((locale) => [
-      localizedRoutes[locale].docs,
-      localizedPath(locale, localizedRoutes[locale].docs),
-    ]),
-  );
-  return docsRoots.has(item.path ?? "") || docsRoots.has(item.id) || item.id === "docs";
 }
 
 export function docsNavigationItemContainsPath(item: DocsNavigationItem, path: string): boolean {

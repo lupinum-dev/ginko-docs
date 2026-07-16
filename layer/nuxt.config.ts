@@ -178,7 +178,6 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
-        "@lupinum/ginko-content",
         "@vueuse/core",
         "class-variance-authority",
         "clsx",

@@ -6,13 +6,10 @@ export async function useDocsNavigationData() {
   const { locale } = useI18n();
   const navigationKey = computed(() => `docs-navigation:${locale.value}`);
 
-  return useAsyncData(
-    navigationKey,
-    () =>
-      navigation("docs", {
-        locale: locale.value,
-        select: ["icon", "badge", "sidebar"],
-      }),
-    { watch: [locale] },
+  return useAsyncData(navigationKey, () =>
+    navigation("docs", {
+      locale: locale.value,
+      select: ["icon", "badge", "sidebar"],
+    }),
   );
 }

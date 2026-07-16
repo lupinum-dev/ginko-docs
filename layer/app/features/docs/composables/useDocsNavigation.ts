@@ -3,10 +3,8 @@ import { useRoute } from "#imports";
 import {
   findDocsNavigationTrail,
   getDocsNavigationSections,
-  isDocsNavigationRoot,
   normalizeDocsNavigationItem,
   type DocsNavigationSection,
-  type RawDocsTreeItem,
 } from "../docs-navigation";
 import { useDocsNavigationData } from "./useDocsNavigationData";
 
@@ -15,9 +13,7 @@ export async function useDocsNavigation() {
   const { data } = await useDocsNavigationData();
 
   const roots = computed(() => {
-    const normalized = ((data.value ?? []) as RawDocsTreeItem[]).map(normalizeDocsNavigationItem);
-    const root = normalized.find(isDocsNavigationRoot);
-    return root?.children?.length ? root.children : normalized;
+    return (data.value ?? []).map((item, index) => normalizeDocsNavigationItem(item, index));
   });
 
   const sections = computed<DocsNavigationSection[]>(() => {
