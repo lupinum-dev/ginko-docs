@@ -32,6 +32,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ginko-docs-release
+          if-no-files-found: error
+          include-hidden-files: true
           path: |
             layer/.pack/*.tgz
             layer/.pack/release-artifact.json
