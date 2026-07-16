@@ -1,4 +1,0 @@
-question: Braucht jedes Projekt einen Cookie-Banner?
-answer: Nein. Wenn keine consent-relevanten optionalen Dienste aktiv sind, zeigt das Preset keinen Banner und lädt keine optionalen Tracking-Skripte.
-category: privacy
-order: 2

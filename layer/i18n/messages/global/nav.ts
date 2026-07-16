@@ -1,0 +1,18 @@
+export const nav = {
+  skip: { de: "Zum Hauptinhalt springen", en: "Skip to main content" },
+  home: { de: "Startseite", en: "Home" },
+  main: { de: "Hauptnavigation", en: "Main navigation" },
+  mobile: { de: "Mobile Navigation", en: "Mobile navigation" },
+  navigationSection: { de: "Navigation", en: "Navigation" },
+  settingsHelp: { de: "Einstellungen & Hilfe", en: "Settings & Help" },
+  language: { de: "Sprache wechseln", en: "Change language" },
+  openMenu: { de: "Menü öffnen", en: "Open menu" },
+  closeMenu: { de: "Menü schließen", en: "Close menu" },
+  search: { de: "Suchen", en: "Search" },
+  resources: { de: "Ressourcen", en: "Resources" },
+  company: { de: "Unternehmen", en: "Company" },
+  documentation: { de: "Dokumentation", en: "Documentation" },
+  blog: { de: "Blog", en: "Blog" },
+  github: { de: "GitHub", en: "GitHub" },
+  externalLink: { de: "externer Link", en: "external link" },
+} as const;

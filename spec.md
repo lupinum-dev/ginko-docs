@@ -305,6 +305,7 @@ Rules:
 Rules:
 
 - The shell may read business config and site navigation config.
+- The shared footer credits Lupinum by default; consumers may disable that attribution through app config without replacing the component.
 - The shell may call tracking helpers for navigation events.
 - The shell may mount global client-only helpers such as the service loader and command center.
 - The shell must not own feature-specific page layout.
@@ -662,6 +663,7 @@ Feature responsibilities:
 - Query the active docs page.
 - Query docs navigation from the content tree.
 - Normalize docs navigation for sidebar sections and groups.
+- Render the section selector as tabs, a dropdown, or a list from one consumer app-config choice.
 - Render full docs documents through `ContentRenderer`.
 - Keep folder group metadata in `.navigation.yml` sidecars.
 - Use content metadata as navigation metadata.
@@ -1636,7 +1638,9 @@ docs/
     DocsPageContent.vue
     DocsPageNav.vue
     DocsSidebar.vue
+    DocsSidebarDropdown.vue
     DocsSidebarItem.vue
+    DocsSidebarList.vue
     DocsSidebarTabs.vue
     DocsToc.vue
   composables/

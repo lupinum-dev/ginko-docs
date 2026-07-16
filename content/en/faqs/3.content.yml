@@ -1,4 +1,0 @@
-question: Where do we maintain services and references?
-answer: Services and references live in Ginko Content. Components and navigation use the paths provided by Ginko instead of building separate slug tables.
-category: content
-order: 3

@@ -13,12 +13,12 @@ export default [
       "coverage/**",
       "dist/**",
       "node_modules/**",
-      "packages/*/dist/**",
+      "playground/.nuxt/**",
     ],
   },
   ...pluginVue.configs["flat/essential"],
   {
-    files: ["app/**/*.vue", "packages/**/*.vue"],
+    files: ["layer/**/*.vue"],
     languageOptions: {
       parserOptions: {
         parser: tseslint.parser,
@@ -28,12 +28,6 @@ export default [
       "vue/multi-word-component-names": "off",
       "vue/no-v-html": "error",
       "vue/require-valid-default-prop": "off",
-    },
-  },
-  {
-    files: ["app/components/site/ServiceLoader.vue"],
-    rules: {
-      "vue/valid-template-root": "off",
     },
   },
 ];
