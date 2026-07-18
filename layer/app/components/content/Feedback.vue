@@ -45,7 +45,7 @@ function selectSentiment(s: Sentiment) {
 </script>
 
 <template>
-  <div v-if="enabled" class="mt-14 border-y border-border py-5">
+  <div v-if="enabled">
     <Transition
       enter-active-class="transition-opacity duration-200"
       enter-from-class="opacity-0"

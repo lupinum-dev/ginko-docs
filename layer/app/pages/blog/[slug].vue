@@ -186,7 +186,10 @@ useSchemaJsonLd(() =>
       <ContentRenderer :value="post" />
     </div>
 
-    <ContentFeedback :label="t('feedback.articleLabel')" />
+    <ContentFeedback
+      class="mt-14 border-y border-border py-5"
+      :label="t('feedback.articleLabel')"
+    />
 
     <div v-if="suggestions.length" class="mt-14">
       <h2 class="mb-6 text-sm font-semibold tracking-wider text-muted-foreground uppercase">

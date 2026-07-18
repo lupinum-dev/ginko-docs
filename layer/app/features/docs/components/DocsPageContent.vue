@@ -191,14 +191,18 @@ useHead(() => ({
             <ContentRenderer :value="page" />
           </div>
 
-          <DocsContributeLinks
-            class="xl:hidden"
-            :stem="page.stem"
-            :extension="page.extension"
-            :title="pageTitle"
-          />
-          <DocsPageNav :prev="prev" :next="next" />
-          <ContentFeedback :label="t('feedback.label')" />
+          <footer class="mt-12 border-t border-border pt-6">
+            <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+              <ContentFeedback :label="t('feedback.label')" />
+              <DocsContributeLinks
+                class="xl:hidden"
+                :stem="page.stem"
+                :extension="page.extension"
+                :title="pageTitle"
+              />
+            </div>
+            <DocsPageNav class="mt-8" :prev="prev" :next="next" />
+          </footer>
         </article>
       </main>
     </div>

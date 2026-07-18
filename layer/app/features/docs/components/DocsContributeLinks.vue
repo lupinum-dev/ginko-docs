@@ -47,7 +47,7 @@ const issueUrl = computed(() => {
     :class="
       variant === 'rail'
         ? 'flex flex-col gap-2.5 text-sm'
-        : 'mt-12 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-sm'
+        : 'flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'
     "
     :aria-label="t('docs.contribute')"
   >

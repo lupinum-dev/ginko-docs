@@ -11,7 +11,7 @@ const { t } = useI18n();
 <template>
   <nav
     v-if="prev || next"
-    class="mt-12 grid grid-cols-1 gap-3 border-t border-border pt-8 sm:grid-cols-2"
+    class="grid grid-cols-1 gap-3 sm:grid-cols-2"
     :aria-label="t('docs.pageNavigation')"
   >
     <!-- Previous -->

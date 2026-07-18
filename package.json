@@ -42,6 +42,9 @@
   "pnpm": {
     "overrides": {
       "@lupinum/ginko-content": "0.3.0-rc.4"
+    },
+    "patchedDependencies": {
+      "@lupinum/ginko-content": "patches/@lupinum__ginko-content.patch"
     }
   }
 }

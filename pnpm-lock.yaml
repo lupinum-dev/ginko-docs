@@ -7,6 +7,11 @@ settings:
 overrides:
   '@lupinum/ginko-content': 0.3.0-rc.4
 
+patchedDependencies:
+  '@lupinum/ginko-content':
+    hash: 928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51
+    path: patches/@lupinum__ginko-content.patch
+
 importers:
 
   .:
@@ -19,7 +24,7 @@ importers:
         version: 1.2.111
       '@lupinum/ginko-content':
         specifier: 0.3.0-rc.4
-        version: 0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)
+        version: 0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -163,7 +168,7 @@ importers:
     dependencies:
       '@lupinum/ginko-content':
         specifier: 0.3.0-rc.4
-        version: 0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)
+        version: 0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -7539,7 +7544,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)':
+  '@lupinum/ginko-content@0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
