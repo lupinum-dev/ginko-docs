@@ -7,6 +7,7 @@ import {
   getDocsNavigationGroups,
   type DocsNavigationSection,
 } from "#ginko-docs/features/docs/docs-navigation";
+import { ScrollArea } from "#ginko-docs/components/ui/scroll-area";
 import DocsSidebarItem from "./DocsSidebarItem.vue";
 import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
 import DocsSidebarList from "./DocsSidebarList.vue";
@@ -63,7 +64,7 @@ function setActiveSection(id: string) {
 }
 
 const scrollViewportClass =
-  "min-h-0 flex-1 overflow-y-auto px-4 pb-4 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
+  "size-full rounded-[inherit] p-4 pt-2 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
 
 const asideClass = computed(() =>
   cn(
@@ -104,15 +105,12 @@ const asideClass = computed(() =>
       />
     </div>
 
-    <div
-      :class="[scrollViewportClass, switcherSections.length > 1 ? 'pt-2' : 'pt-4']"
-      :data-switcher="switcherSections.length > 1"
-    >
+    <ScrollArea class="min-h-0 flex-1" :viewport-class="scrollViewportClass">
       <div class="flex min-w-full flex-col gap-0.5">
         <template v-for="group in groups" :key="group.id">
           <p
             v-if="group.title"
-            class="mt-6 mb-1 inline-flex items-center gap-2 px-2 text-sm font-semibold text-foreground first:mt-0"
+            class="mt-6 mb-1 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0"
           >
             {{ group.title }}
           </p>
@@ -124,6 +122,6 @@ const asideClass = computed(() =>
           />
         </template>
       </div>
-    </div>
+    </ScrollArea>
   </aside>
 </template>

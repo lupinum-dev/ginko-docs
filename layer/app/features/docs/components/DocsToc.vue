@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
+import { computed } from "vue";
 import { cn } from "#ginko-docs/lib/utils";
 import { useI18n } from "#imports";
 
@@ -21,40 +22,63 @@ const props = withDefaults(
   },
 );
 const { t } = useI18n();
+
+const activeIndex = computed(() =>
+  props.activeId ? props.items.findIndex((item) => item.id === props.activeId) : -1,
+);
+
+const indicatorStyle = computed(() => {
+  if (activeIndex.value === -1) {
+    return {
+      opacity: "0",
+      height: "1.75rem",
+      top: "0",
+    };
+  }
+
+  return {
+    "--indicator-position": `${activeIndex.value * 1.75}rem`,
+    opacity: "1",
+    height: "1.75rem",
+    top: "var(--indicator-position, 0rem)",
+  };
+});
 </script>
 
 <template>
-  <div v-if="items.length" :class="cn('w-full', props.class)">
-    <h3 v-if="showTitle" class="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+  <nav v-if="items.length" :class="cn('w-full', props.class)" :aria-label="t('docs.toc')">
+    <h3
+      v-if="showTitle"
+      class="mb-4 flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+    >
       <Icon name="lucide:list" class="size-3.5 shrink-0" aria-hidden="true" />
       {{ t("docs.toc") }}
     </h3>
 
-    <div class="relative space-y-1 border-l border-border pl-3 text-[13px]">
-      <!-- Animated active indicator -->
+    <div class="relative border-l border-border pl-3">
       <div
-        class="absolute -left-px w-0.5 rounded-full bg-primary transition-all duration-200"
-        :style="
-          activeId && items.findIndex((i) => i.id === activeId) !== -1
-            ? `top: ${items.findIndex((i) => i.id === activeId) * 26 + 2}px; height: 20px; opacity: 1;`
-            : 'top: 2px; height: 20px; opacity: 0;'
-        "
+        class="pointer-events-none absolute -left-px w-0.5 rounded-full bg-primary transition-all duration-200"
+        :style="indicatorStyle"
       />
 
-      <a
-        v-for="item in items"
-        :key="item.id"
-        :href="`#${item.id}`"
-        class="block truncate py-0.5 leading-5 transition-colors"
-        :class="[
-          item.depth === 3 ? 'pl-3' : (item.depth ?? 2) >= 4 ? 'pl-6' : '',
-          activeId === item.id
-            ? 'font-medium text-primary'
-            : 'text-muted-foreground hover:text-foreground',
-        ]"
-      >
-        {{ item.label }}
-      </a>
+      <ul class="space-y-1">
+        <li v-for="item in items" :key="item.id">
+          <a
+            :href="`#${item.id}`"
+            class="block truncate py-0.5 text-[13px] leading-5 transition-colors"
+            :class="
+              cn(
+                item.depth === 3 ? 'pl-3' : (item.depth ?? 2) >= 4 ? 'pl-6' : '',
+                activeId === item.id
+                  ? 'font-medium text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
+              )
+            "
+          >
+            {{ item.label }}
+          </a>
+        </li>
+      </ul>
     </div>
-  </div>
+  </nav>
 </template>

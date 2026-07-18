@@ -7,6 +7,12 @@ import {
   type DocsNavigationItem,
 } from "#ginko-docs/features/docs/docs-navigation";
 import { Badge } from "#ginko-docs/components/ui/badge";
+import { Button } from "#ginko-docs/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "#ginko-docs/components/ui/collapsible";
 import { cn } from "#ginko-docs/lib/utils";
 
 defineOptions({
@@ -39,22 +45,10 @@ const paddingClass = computed(() => {
 
 const linkRowClass = computed(() =>
   cn(
-    "group relative flex min-h-10 w-full flex-row items-center gap-2 rounded-lg px-2 py-2 text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    "group relative flex w-full flex-row items-center gap-2 rounded-lg p-2 text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "hover:bg-accent/50 hover:text-accent-foreground/80 hover:transition-none",
-    "data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground data-[active=true]:hover:transition-colors",
-    props.depth > 0
-      ? "data-[active=true]:before:absolute data-[active=true]:before:inset-y-2.5 data-[active=true]:before:start-2.5 data-[active=true]:before:w-px data-[active=true]:before:bg-primary data-[active=true]:before:content-['']"
-      : undefined,
-    paddingClass.value,
-  ),
-);
-
-const splitFolderRowClass = computed(() =>
-  cn(
-    "group relative flex min-h-10 w-full flex-row items-center rounded-lg text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none",
-    "hover:bg-accent/50 hover:text-accent-foreground/80 hover:transition-none",
-    "data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground data-[active=true]:hover:transition-colors",
+    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:hover:transition-colors",
     props.depth > 0
       ? "data-[active=true]:before:absolute data-[active=true]:before:inset-y-2.5 data-[active=true]:before:start-2.5 data-[active=true]:before:w-px data-[active=true]:before:bg-primary data-[active=true]:before:content-['']"
       : undefined,
@@ -78,17 +72,13 @@ const contentRailClass =
 </script>
 
 <template>
-  <div v-if="item.children.length > 0" :data-state="folderOpen ? 'open' : 'closed'">
-    <div
-      v-if="item.path"
-      :class="splitFolderRowClass"
-      :data-active="isExactActive ? 'true' : 'false'"
-    >
+  <Collapsible v-if="item.children.length > 0" v-model:open="folderOpen" :unmount-on-hide="false">
+    <CollapsibleTrigger v-if="item.path" as-child>
       <NuxtLink
         :to="item.path"
+        :class="linkRowClass"
         :aria-current="isExactActive ? 'page' : undefined"
-        class="flex min-w-0 flex-1 items-center gap-2 rounded-s-lg py-2 pe-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        data-slot="docs-sidebar-folder-link"
+        :data-active="isExactActive ? 'true' : 'false'"
       >
         <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
         <span class="min-w-0 truncate">{{ item.title }}</span>
@@ -99,56 +89,46 @@ const contentRailClass =
         >
           {{ item.badge }}
         </Badge>
-      </NuxtLink>
-      <button
-        class="group flex size-10 shrink-0 items-center justify-center rounded-e-lg transition-colors outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-        data-slot="docs-sidebar-folder-toggle"
-        type="button"
-        :aria-expanded="folderOpen"
-        :data-state="folderOpen ? 'open' : 'closed'"
-        @click="folderOpen = !folderOpen"
-      >
         <Icon
           name="lucide:chevron-down"
-          class="size-4 shrink-0 -rotate-90 transition-transform duration-200 group-data-[state=open]:rotate-0 rtl:rotate-90"
+          class="ms-auto size-4 shrink-0 -rotate-90 transition-transform duration-200 group-data-[state=open]:rotate-0 rtl:rotate-90"
           aria-hidden="true"
         />
-        <span class="sr-only">{{ item.title }}</span>
-      </button>
-    </div>
-    <button
-      v-else
-      :class="linkRowClass"
-      :data-active="isExactActive ? 'true' : 'false'"
-      :data-state="folderOpen ? 'open' : 'closed'"
-      :aria-expanded="folderOpen"
-      type="button"
-      @click="folderOpen = !folderOpen"
-    >
-      <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
-      <span class="min-w-0 truncate">{{ item.title }}</span>
-      <Badge
-        v-if="item.badge"
-        variant="secondary"
-        class="ms-auto h-4 shrink-0 rounded-sm px-1.5 py-0 text-[10px]"
+      </NuxtLink>
+    </CollapsibleTrigger>
+    <CollapsibleTrigger v-else as-child>
+      <Button
+        variant="ghost"
+        :class="linkRowClass"
+        class="h-auto justify-start"
+        :data-active="isExactActive ? 'true' : 'false'"
       >
-        {{ item.badge }}
-      </Badge>
-      <Icon
-        name="lucide:chevron-down"
-        class="ms-auto size-4 shrink-0 -rotate-90 transition-transform duration-200 group-data-[state=open]:rotate-0 rtl:rotate-90"
-        aria-hidden="true"
-      />
-    </button>
-    <div v-show="folderOpen" :class="contentRailClass">
+        <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
+        <span class="min-w-0 truncate">{{ item.title }}</span>
+        <Badge
+          v-if="item.badge"
+          variant="secondary"
+          class="ms-auto h-4 shrink-0 rounded-sm px-1.5 py-0 text-[10px]"
+        >
+          {{ item.badge }}
+        </Badge>
+        <Icon
+          name="lucide:chevron-down"
+          class="ms-auto size-4 shrink-0 -rotate-90 transition-transform duration-200 group-data-[state=open]:rotate-0 rtl:rotate-90"
+          aria-hidden="true"
+        />
+      </Button>
+    </CollapsibleTrigger>
+
+    <CollapsibleContent :class="contentRailClass">
       <DocsSidebarItem
         v-for="child in item.children"
         :key="child.path ?? child.title"
         :item="child"
         :depth="depth + 1"
       />
-    </div>
-  </div>
+    </CollapsibleContent>
+  </Collapsible>
   <NuxtLink
     v-else-if="item.path"
     :to="item.path"
