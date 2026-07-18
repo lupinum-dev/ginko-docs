@@ -7,7 +7,8 @@ import DocsMobileToc from "./DocsMobileToc.vue";
 import DocsPageNav from "./DocsPageNav.vue";
 import DocsToc from "./DocsToc.vue";
 import DocsContributeLinks from "./DocsContributeLinks.vue";
-import { computed, ref, watch } from "vue";
+import { computed, provide, ref, watch } from "vue";
+import { docsTocKey } from "#ginko-docs/features/docs/toc-context";
 import { useAppConfig, useContentPage, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
@@ -65,6 +66,7 @@ const schemaBreadcrumbs = computed(() => [
     .filter((item) => item.path)
     .map((item) => ({ name: item.title, path: item.path! })),
 ]);
+provide(docsTocKey, tocItems);
 const { activeIds, refresh } = useScrollspy(computed(() => tocItems.value.map((item) => item.id)));
 
 watch(tocItems, () => {

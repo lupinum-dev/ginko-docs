@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { findFirstNavigationPage } from "@lupinum/ginko-content/client";
+import { findFirstNavigationPage } from "@lupinum/ginko-content/navigation";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useDocsNavigationData } from "./useDocsNavigationData";
 

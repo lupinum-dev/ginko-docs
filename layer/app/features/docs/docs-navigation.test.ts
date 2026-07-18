@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
+import { findNavigationTrail } from "@lupinum/ginko-content/navigation";
 import {
-  findDocsNavigationTrail,
   getDocsNavigationGroups,
   getDocsNavigationSections,
   docsNavigationSectionContainsPath,
@@ -36,19 +36,19 @@ function collectPaths(item: DocsNavigationItem): string[] {
 describe("docs navigation trails", () => {
   it("derives the full hierarchy from the canonical navigation tree", () => {
     expect(
-      findDocsNavigationTrail(navigation, "/docs/guides/authentication/api-keys").map(
+      findNavigationTrail(navigation, "/docs/guides/authentication/api-keys").map(
         (item) => item.title,
       ),
     ).toEqual(["Guides", "Authentication", "API keys"]);
   });
 
   it("returns an empty trail when the route is outside the docs tree", () => {
-    expect(findDocsNavigationTrail(navigation, "/blog/release")).toEqual([]);
+    expect(findNavigationTrail(navigation, "/blog/release")).toEqual([]);
   });
 
   it("matches active routes with or without a trailing slash", () => {
     expect(
-      findDocsNavigationTrail(navigation, "/docs/guides/authentication/api-keys/").map(
+      findNavigationTrail(navigation, "/docs/guides/authentication/api-keys/").map(
         (item) => item.title,
       ),
     ).toEqual(["Guides", "Authentication", "API keys"]);

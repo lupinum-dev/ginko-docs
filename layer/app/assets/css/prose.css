@@ -1152,3 +1152,25 @@ html.dark .shiki span {
 .fd-scroll-container::-webkit-scrollbar-corner {
   display: none;
 }
+
+/* The inline TOC (`::toc`) reuses the docs TOC component inside prose;
+   neutralize prose list and link styling for its own markup. */
+.content-inline-toc :where(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.content-inline-toc :where(li) {
+  margin: 0;
+}
+
+.content-inline-toc :where(a) {
+  color: var(--muted-foreground);
+  font-weight: 400;
+  text-decoration-line: none;
+}
+
+.content-inline-toc :where(a:hover) {
+  color: var(--foreground);
+}

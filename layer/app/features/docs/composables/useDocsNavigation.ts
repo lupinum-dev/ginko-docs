@@ -1,7 +1,7 @@
 import { computed } from "vue";
+import { findNavigationTrail } from "@lupinum/ginko-content/navigation";
 import { useRoute } from "#imports";
 import {
-  findDocsNavigationTrail,
   getDocsNavigationSections,
   normalizeDocsNavigationItem,
   type DocsNavigationSection,
@@ -20,7 +20,7 @@ export async function useDocsNavigation() {
     return getDocsNavigationSections(roots.value);
   });
 
-  const trail = computed(() => findDocsNavigationTrail(roots.value, route.path));
+  const trail = computed(() => findNavigationTrail(roots.value, route.path));
 
   return {
     sections,

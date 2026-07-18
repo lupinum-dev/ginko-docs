@@ -2,10 +2,10 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import {
-  docsNavigationItemContainsPath,
-  normalizeDocsNavigationPath,
-  type DocsNavigationItem,
-} from "#ginko-docs/features/docs/docs-navigation";
+  navigationItemContainsPath,
+  normalizeNavigationPath,
+} from "@lupinum/ginko-content/navigation";
+import type { DocsNavigationItem } from "#ginko-docs/features/docs/docs-navigation";
 import { Button } from "#ginko-docs/components/ui/button";
 import DocsSidebarRow from "./DocsSidebarRow.vue";
 import {
@@ -27,13 +27,11 @@ const props = defineProps<{
 const route = useRoute();
 
 function itemIsExactActive(path: string, item: DocsNavigationItem): boolean {
-  return Boolean(
-    item.path && normalizeDocsNavigationPath(path) === normalizeDocsNavigationPath(item.path),
-  );
+  return Boolean(item.path && normalizeNavigationPath(path) === normalizeNavigationPath(item.path));
 }
 
 function folderShouldBeOpen(path: string, item: DocsNavigationItem): boolean {
-  return item.children.length > 0 && docsNavigationItemContainsPath(item, path);
+  return item.children.length > 0 && navigationItemContainsPath(item, path);
 }
 
 const isExactActive = computed(() => itemIsExactActive(route.path, props.item));

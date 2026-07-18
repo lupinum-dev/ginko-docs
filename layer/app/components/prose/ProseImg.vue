@@ -2,12 +2,7 @@
 import type { HTMLAttributes } from "vue";
 import { computed, ref } from "vue";
 import { useI18n } from "#imports";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "#ginko-docs/components/ui/dialog";
+import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 import { cn } from "../../utils";
 
@@ -105,16 +100,13 @@ const imageClass = computed(() =>
       </span>
     </figcaption>
 
-    <Dialog v-if="zoomEnabled" v-model:open="zoomOpen">
-      <DialogContent
-        class="max-h-[90dvh] w-auto max-w-[min(96vw,80rem)] overflow-auto border-none bg-transparent p-0 shadow-none"
-      >
-        <DialogTitle class="sr-only">{{
-          caption || title || alt || t("docs.zoomImage")
-        }}</DialogTitle>
-        <DialogDescription v-if="description" class="sr-only">{{ description }}</DialogDescription>
-        <img :src="src" :alt="alt" class="max-h-[88dvh] w-auto rounded-lg object-contain" />
-      </DialogContent>
-    </Dialog>
+    <ImageZoomDialog
+      v-if="zoomEnabled"
+      v-model:open="zoomOpen"
+      :src="src"
+      :alt="alt"
+      :label="caption || title"
+      :description="description"
+    />
   </figure>
 </template>

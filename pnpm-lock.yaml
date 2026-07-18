@@ -5,12 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lupinum/ginko-content': 0.3.0-rc.4
-
-patchedDependencies:
-  '@lupinum/ginko-content':
-    hash: 928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51
-    path: patches/@lupinum__ginko-content.patch
+  '@lupinum/ginko-content': file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz
 
 importers:
 
@@ -23,8 +18,8 @@ importers:
         specifier: ^1.2.111
         version: 1.2.111
       '@lupinum/ginko-content':
-        specifier: 0.3.0-rc.4
-        version: 0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)
+        specifier: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz
+        version: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz(314cb0cbd74478ed72474292a012d14b)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -88,6 +83,9 @@ importers:
       '@iconify-json/lucide':
         specifier: ^1.2.111
         version: 1.2.111
+      '@lupinum/ginko-content':
+        specifier: file:../../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz
+        version: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz(d4ff452fe392fc85cec3a8e998c62f67)
       '@nuxt/fonts':
         specifier: ^0.14.0
         version: 0.14.0(db0@0.3.4)(ioredis@5.11.1)(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -170,8 +168,8 @@ importers:
   playground:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 0.3.0-rc.4
-        version: 0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)
+        specifier: file:../../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz
+        version: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz(314cb0cbd74478ed72474292a012d14b)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -1248,8 +1246,9 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@0.3.0-rc.4':
-    resolution: {integrity: sha512-Hbq7BRPdOF6IiRLsG24R1UN5v2YjUMFGEyDx5LqsgEgscUrmaUI9DI0tkmQghUi8Li+FjsmrW+Aix3xjXov8IQ==}
+  '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz':
+    resolution: {integrity: sha512-LZZzwo1lpLGNi92MVCvnqTTELRgq/ZvlE6Mnn5sAIZeR4uSCwdfwep6erQJQElY+3CO9F+3Jm7OPzQDI1YlU+w==, tarball: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz}
+    version: 0.3.0-rc.5
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
@@ -7547,7 +7546,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@0.3.0-rc.4(patch_hash=928efdcb0f7447bf768085c4b592586fdbe0af828ecde7f54cc4595668f70f51)(314cb0cbd74478ed72474292a012d14b)':
+  '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz(314cb0cbd74478ed72474292a012d14b)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
@@ -7564,6 +7563,78 @@ snapshots:
       minisearch: 7.2.0
       nitropack: 2.13.4(oxc-parser@0.138.0)(srvx@0.11.16)
       nuxt: 4.4.8(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@parcel/watcher@2.5.6)(@types/node@25.9.2)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(db0@0.3.4)(eslint@10.4.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(optionator@0.9.4)(oxlint@1.67.0(oxlint-tsgolint@0.23.0)(vite-plus@0.1.24(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(typescript@5.9.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)))(rollup-plugin-visualizer@7.0.1(rollup@4.61.1))(rollup@4.61.1)(terser@5.48.0)(typescript@5.9.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(vue-tsc@3.3.3(typescript@5.9.3))(yaml@2.9.0)
+      ohash: 2.0.11
+      pathe: 2.0.3
+      picomatch: 4.0.4
+      scule: 1.3.0
+      shiki: 4.2.0
+      ufo: 1.6.4
+      unstorage: 1.17.5(db0@0.3.4)(ioredis@5.11.1)
+      vue: 3.5.35(typescript@5.9.3)
+      vue-router: 5.1.0(@vue/compiler-sfc@3.5.39)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.9.3))
+      zod: 4.4.3
+    optionalDependencies:
+      vitest: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(typescript@5.9.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)'
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@pinia/colada'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - '@vue/compiler-sfc'
+      - aws4fetch
+      - bare-abort-controller
+      - bare-buffer
+      - beautiful-mermaid
+      - better-sqlite3
+      - db0
+      - drizzle-orm
+      - encoding
+      - idb-keyval
+      - ioredis
+      - katex
+      - magicast
+      - mysql2
+      - oxc-parser
+      - pinia
+      - react-native-b4a
+      - rolldown
+      - sqlite3
+      - srvx
+      - supports-color
+      - uploadthing
+      - vite
+      - xml2js
+
+  '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz(d4ff452fe392fc85cec3a8e998c62f67)':
+    dependencies:
+      '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
+      '@nuxt/kit': 4.4.8(magicast@0.5.3)
+      '@shikijs/transformers': 4.2.0
+      comark: 0.4.0(shiki@4.2.0)
+      defu: 6.1.7
+      destr: 2.0.5
+      globby: 16.2.0
+      h3: 1.15.11
+      jiti: 2.7.0
+      js-yaml: 4.2.0
+      json5: 2.2.3
+      knitwork: 1.3.0
+      minisearch: 7.2.0
+      nitropack: 2.13.4(oxc-parser@0.138.0)(srvx@0.11.16)
+      nuxt: 4.4.8(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@parcel/watcher@2.5.6)(@types/node@25.9.2)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(db0@0.3.4)(eslint@10.4.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(optionator@0.9.4)(oxlint@1.67.0(oxlint-tsgolint@0.23.0)(vite-plus@0.1.24(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(typescript@5.9.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)))(rollup-plugin-visualizer@7.0.1(rollup@4.61.1))(rollup@4.61.1)(srvx@0.11.16)(terser@5.48.0)(typescript@5.9.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(vue-tsc@3.3.3(typescript@5.9.3))(yaml@2.9.0)
       ohash: 2.0.11
       pathe: 2.0.3
       picomatch: 4.0.4

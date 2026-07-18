@@ -51,7 +51,7 @@ function inspectPackage(path, temporaryRoot) {
   if (manifest.name !== "@lupinum/ginko-docs" || manifest.version !== "0.2.2") {
     throw new Error("Packed layer identity does not match @lupinum/ginko-docs@0.2.2.");
   }
-  if (manifest.peerDependencies?.["@lupinum/ginko-content"] !== ">=0.3.0-rc.2 <0.4.0") {
+  if (manifest.peerDependencies?.["@lupinum/ginko-content"] !== ">=0.3.0-rc.5 <0.4.0") {
     throw new Error("Packed layer does not declare the supported Ginko Content peer range.");
   }
   for (const field of [

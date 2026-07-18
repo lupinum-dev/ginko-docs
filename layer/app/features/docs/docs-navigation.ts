@@ -1,9 +1,14 @@
-import type { ContentNavigationTreeItem } from "@lupinum/ginko-content/client";
+import {
+  findFirstNavigationPage,
+  navigationItemContainsPath,
+  normalizeNavigationPath,
+  type ContentNavigationTreeItem,
+  type NavigationSidebar,
+} from "@lupinum/ginko-content/navigation";
 
 export type RawDocsTreeItem = Omit<ContentNavigationTreeItem, "children"> & {
   icon?: unknown;
   badge?: unknown;
-  sidebar?: unknown;
   children?: RawDocsTreeItem[];
 };
 
@@ -13,7 +18,7 @@ export type DocsNavigationItem = {
   path?: string;
   icon?: string;
   badge?: string;
-  sidebar?: "section" | "group";
+  sidebar?: NavigationSidebar;
   children: DocsNavigationItem[];
 };
 
@@ -47,63 +52,29 @@ export function normalizeDocsNavigationItem(
     path: item.path,
     icon: typeof item.icon === "string" ? item.icon : undefined,
     badge: typeof item.badge === "string" ? item.badge : undefined,
-    sidebar: item.sidebar === "section" || item.sidebar === "group" ? item.sidebar : undefined,
+    sidebar: item.sidebar,
     children: (item.children ?? []).map((child, index) =>
       normalizeDocsNavigationItem(child, `${positionKey}.${index}`),
     ),
   };
 }
 
-export function normalizeDocsNavigationPath(path: string): string {
-  return path.length > 1 ? path.replace(/\/+$/, "") : path;
-}
-
-export function docsNavigationItemContainsPath(item: DocsNavigationItem, path: string): boolean {
-  const normalizedPath = normalizeDocsNavigationPath(path);
-  return (
-    (item.path !== undefined && normalizeDocsNavigationPath(item.path) === normalizedPath) ||
-    item.children.some((child) => docsNavigationItemContainsPath(child, normalizedPath))
-  );
-}
-
 export function docsNavigationSectionContainsPath(
   section: DocsNavigationSection,
   path: string,
 ): boolean {
-  const normalizedPath = normalizeDocsNavigationPath(path);
+  const normalizedPath = normalizeNavigationPath(path);
   return (
-    (section.path !== undefined && normalizeDocsNavigationPath(section.path) === normalizedPath) ||
-    section.items.some((item) => docsNavigationItemContainsPath(item, normalizedPath))
+    (section.path !== undefined && normalizeNavigationPath(section.path) === normalizedPath) ||
+    section.items.some((item) => navigationItemContainsPath(item, normalizedPath))
   );
-}
-
-function firstDocsNavigationPagePath(items: DocsNavigationItem[]): string | undefined {
-  for (const item of items) {
-    if (item.path) return item.path;
-    const descendant = firstDocsNavigationPagePath(item.children);
-    if (descendant) return descendant;
-  }
-  return undefined;
 }
 
 // Structural sections have no page of their own — they resolve to their first
 // navigable page so switching to them lands somewhere instead of only swapping
 // the sidebar contents.
 export function resolveDocsSectionTargetPath(section: DocsNavigationSection): string | undefined {
-  return section.path ?? firstDocsNavigationPagePath(section.items);
-}
-
-export function findDocsNavigationTrail(
-  items: DocsNavigationItem[],
-  path: string,
-): DocsNavigationItem[] {
-  const normalizedPath = normalizeDocsNavigationPath(path);
-  for (const item of items) {
-    if (item.path && normalizeDocsNavigationPath(item.path) === normalizedPath) return [item];
-    const descendants = findDocsNavigationTrail(item.children, normalizedPath);
-    if (descendants.length > 0) return [item, ...descendants];
-  }
-  return [];
+  return section.path ?? findFirstNavigationPage(section.items)?.path;
 }
 
 export function getDocsNavigationSections(items: DocsNavigationItem[]): DocsNavigationSection[] {

@@ -42,6 +42,8 @@ export const layerIconNames = [
   "lucide:file-json",
   "lucide:file-key",
   "lucide:file-text",
+  "lucide:folder",
+  "lucide:folder-open",
   "lucide:git-branch",
   "lucide:github",
   "lucide:hash",

@@ -121,7 +121,7 @@ function copyFixture(variant, directory) {
         private: true,
         type: "module",
         dependencies: {
-          "@lupinum/ginko-content": "0.3.0-rc.2",
+          "@lupinum/ginko-content": "0.3.0-rc.5",
           "@lupinum/ginko-docs": `file:${archive[0]}`,
           nuxt: "^4.4.8",
           vue: "^3.5.35",
@@ -272,7 +272,7 @@ try {
     const contentVersions = new Set(
       [...lock.matchAll(/@lupinum\/ginko-content@([^:'()\s]+)[(:]/g)].map((match) => match[1]),
     );
-    if (contentVersions.size !== 1 || !contentVersions.has("0.3.0-rc.2")) {
+    if (contentVersions.size !== 1 || !contentVersions.has("0.3.0-rc.5")) {
       throw new Error(
         `${variant.name} did not resolve exactly one Ginko Content rc.2 installation.`,
       );

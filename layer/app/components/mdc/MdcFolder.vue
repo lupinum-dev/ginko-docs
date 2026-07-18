@@ -10,13 +10,17 @@ import { resolveIconifyIcon } from "./icons";
 const props = withDefaults(
   defineProps<{
     name: string;
-    open?: boolean;
+    open?: boolean | string;
     icon?: string;
   }>(),
   {
+    // Vue casts an absent Boolean-typed prop to false; the explicit default
+    // keeps folders open unless the author opts out.
     open: true,
   },
 );
+
+const defaultOpen = computed(() => props.open === true || props.open === "true");
 
 const iconName = computed(() =>
   props.icon ? (resolveIconifyIcon(props.icon) ?? props.icon) : null,
@@ -24,7 +28,7 @@ const iconName = computed(() =>
 </script>
 
 <template>
-  <Collapsible :default-open="open">
+  <Collapsible :default-open="defaultOpen">
     <CollapsibleTrigger
       class="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start [overflow-wrap:anywhere] transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
@@ -50,9 +54,7 @@ const iconName = computed(() =>
       </template>
       <span class="min-w-0">{{ name }}</span>
     </CollapsibleTrigger>
-    <CollapsibleContent
-      class="relative ms-[1.0625rem] border-s border-border ps-2 *:first:mt-0.5"
-    >
+    <CollapsibleContent class="relative ms-[1.0625rem] border-s border-border ps-2 *:first:mt-0.5">
       <slot />
     </CollapsibleContent>
   </Collapsible>
