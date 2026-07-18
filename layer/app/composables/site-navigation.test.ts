@@ -27,14 +27,14 @@ const bannerContext: BannerContext = {
 describe("resolveMainNav", () => {
   it("derives Docs and Blog automatically when blog routes exist", () => {
     expect(resolveMainNav("auto", navContext)).toEqual([
-      { label: "Documentation", href: "/docs" },
-      { label: "Blog", href: "/blog" },
+      { label: "Documentation", href: "/docs", icon: "lucide:book-open" },
+      { label: "Blog", href: "/blog", icon: "lucide:file-text" },
     ]);
   });
 
   it("omits Blog when no blog routes exist", () => {
     expect(resolveMainNav("auto", { ...navContext, blogExists: false })).toEqual([
-      { label: "Documentation", href: "/docs" },
+      { label: "Documentation", href: "/docs", icon: "lucide:book-open" },
     ]);
   });
 
@@ -51,8 +51,8 @@ describe("resolveMainNav", () => {
     );
 
     expect(items).toEqual([
-      { label: "Anleitungen", href: "/de/dokumentation", external: false },
-      { label: "GitHub", href: "https://github.com/acme", external: true },
+      { label: "Anleitungen", href: "/de/dokumentation", external: false, icon: undefined },
+      { label: "GitHub", href: "https://github.com/acme", external: true, icon: undefined },
     ]);
   });
 

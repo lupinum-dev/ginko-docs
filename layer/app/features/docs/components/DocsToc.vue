@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
+import { useEventListener } from "@vueuse/core";
 import { cn } from "#ginko-docs/lib/utils";
 import type { FlatTocItem } from "#ginko-docs/utils/content";
 import { useI18n } from "#imports";
@@ -19,34 +20,36 @@ const props = withDefaults(
 );
 const { t } = useI18n();
 
-// Indicator geometry assumes every row is exactly 1.75rem tall:
-// py-0.5 (0.25rem) + leading-5 (1.25rem) + space-y-1 gap (0.25rem),
-// single line enforced by `truncate`.
-const ROW_HEIGHT_REM = 1.75;
+// The sliding indicator spans the active rows. Measure the rendered rows
+// instead of assuming a fixed row height, so wrapped or restyled rows keep
+// the indicator aligned.
+const listRef = ref<HTMLElement | null>(null);
+const indicatorStyle = ref({ opacity: "0", top: "0px", height: "0px" });
 
-const activeRange = computed(() => {
-  let first = -1;
-  let last = -1;
-  props.items.forEach((item, index) => {
-    if (!props.activeIds.includes(item.id)) return;
-    if (first === -1) first = index;
-    last = index;
-  });
-  return first === -1 ? null : { first, last };
-});
-
-const indicatorStyle = computed(() => {
-  if (!activeRange.value) {
-    return { opacity: "0", height: `${ROW_HEIGHT_REM}rem`, top: "0" };
+function measureIndicator() {
+  const list = listRef.value;
+  if (!list) return;
+  const active = list.querySelectorAll<HTMLElement>("[data-toc-active]");
+  const first = active[0];
+  const last = active[active.length - 1];
+  if (!first || !last) {
+    indicatorStyle.value = { ...indicatorStyle.value, opacity: "0" };
+    return;
   }
-
-  const { first, last } = activeRange.value;
-  return {
+  indicatorStyle.value = {
     opacity: "1",
-    top: `${first * ROW_HEIGHT_REM}rem`,
-    height: `${(last - first + 1) * ROW_HEIGHT_REM}rem`,
+    top: `${first.offsetTop}px`,
+    height: `${last.offsetTop + last.offsetHeight - first.offsetTop}px`,
   };
-});
+}
+
+watch(
+  () => [props.activeIds, props.items],
+  () => nextTick(measureIndicator),
+  { deep: true },
+);
+onMounted(measureIndicator);
+useEventListener("resize", measureIndicator, { passive: true });
 
 function scrollToHeading(id: string) {
   const element = document.getElementById(id);
@@ -77,7 +80,7 @@ function scrollToHeading(id: string) {
         :style="indicatorStyle"
       />
 
-      <ul class="space-y-1">
+      <ul ref="listRef" class="space-y-1">
         <li v-for="item in items" :key="item.id">
           <a
             :href="`#${item.id}`"

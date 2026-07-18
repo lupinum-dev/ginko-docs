@@ -8,6 +8,7 @@ import {
   type DocsNavigationSection,
 } from "#ginko-docs/features/docs/docs-navigation";
 import { ScrollArea } from "#ginko-docs/components/ui/scroll-area";
+import { useRevealActive } from "#ginko-docs/features/docs/composables/useRevealActive";
 import DocsSidebarItem from "./DocsSidebarItem.vue";
 import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
 import DocsSidebarList from "./DocsSidebarList.vue";
@@ -67,22 +68,13 @@ const scrollViewportClass =
   "size-full rounded-[inherit] p-4 pt-2 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
 
 // Deep links can land on an item far outside the visible band — center it
-// once on mount and on section switches. Instant on purpose: this is initial
-// positioning, not motion.
+// once on mount and on section switches.
 const scrollArea = ref<{ $el?: HTMLElement } | null>(null);
 
-function revealActiveItem() {
-  const viewport = scrollArea.value?.$el?.querySelector<HTMLElement>(
-    "[data-slot='scroll-area-viewport']",
-  );
-  const active = viewport?.querySelector<HTMLElement>("[data-active='true']");
-  if (!viewport || !active) return;
-  const viewportRect = viewport.getBoundingClientRect();
-  const activeRect = active.getBoundingClientRect();
-  const top = activeRect.top - viewportRect.top;
-  if (top >= 8 && top + activeRect.height <= viewport.clientHeight - 8) return;
-  viewport.scrollTop += top - viewport.clientHeight / 2 + activeRect.height / 2;
-}
+const { reveal: revealActiveItem } = useRevealActive(
+  () => scrollArea.value?.$el?.querySelector<HTMLElement>("[data-slot='scroll-area-viewport']"),
+  "[data-active='true']",
+);
 
 onMounted(() => {
   void nextTick(revealActiveItem);

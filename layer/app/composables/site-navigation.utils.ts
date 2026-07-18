@@ -30,13 +30,14 @@ export function resolveMainNav(
         label: getLocalizedSiteText(link.label, ctx.locale),
         href,
         external: isExternalHref(href),
+        icon: link.icon,
       };
     });
   }
 
-  const items: NavItem[] = [{ label: ctx.docsLabel, href: ctx.docsPath }];
+  const items: NavItem[] = [{ label: ctx.docsLabel, href: ctx.docsPath, icon: "lucide:book-open" }];
   if (ctx.blogExists) {
-    items.push({ label: ctx.blogLabel, href: ctx.blogPath });
+    items.push({ label: ctx.blogLabel, href: ctx.blogPath, icon: "lucide:file-text" });
   }
   return items;
 }

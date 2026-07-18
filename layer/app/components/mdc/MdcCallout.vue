@@ -48,7 +48,7 @@ const iconName = computed(() => {
   >
     <span class="content-callout-bar" aria-hidden="true" />
     <span data-slot="alert-icon" class="content-callout-icon" aria-hidden="true">
-      <Icon :name="iconName" class="mt-1 size-5" />
+      <Icon :name="iconName" />
     </span>
     <div class="content-callout-body">
       <div v-if="title" data-slot="alert-title" class="content-alert-title">

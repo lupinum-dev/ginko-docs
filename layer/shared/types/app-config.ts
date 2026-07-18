@@ -3,6 +3,8 @@ export type GinkoDocsLocalizedText = { en: string; de?: string };
 export interface GinkoDocsLink {
   label: GinkoDocsLocalizedText;
   to: GinkoDocsLocalizedText;
+  /** Iconify icon shown where nav items render with icons (e.g. mobile menu). */
+  icon?: string;
 }
 
 export type GinkoDocsHeroMedia =

@@ -2,6 +2,7 @@
 import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { filterTocByDepth, flattenTocLinks, getMarkdownTocLinks } from "#ginko-docs/utils/content";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
+import DocsBreadcrumb from "./DocsBreadcrumb.vue";
 import DocsMobileToc from "./DocsMobileToc.vue";
 import DocsPageNav from "./DocsPageNav.vue";
 import DocsToc from "./DocsToc.vue";
@@ -11,6 +12,7 @@ import { useAppConfig, useContentPage, useHead, useI18n, useRoute, useSeoMeta } 
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useScrollspy } from "#ginko-docs/features/docs/composables/useScrollspy";
+import { useRevealActive } from "#ginko-docs/features/docs/composables/useRevealActive";
 import PageMarkdownCopy from "#ginko-docs/components/content/PageMarkdownCopy.vue";
 import { Separator } from "#ginko-docs/components/ui/separator";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
@@ -70,18 +72,14 @@ watch(tocItems, () => {
 });
 
 // Keep the active TOC region visible when a long TOC overflows the sticky
-// aside. Instant, never animated — it must not compete with the page scroll.
+// aside.
 const tocAside = ref<HTMLElement | null>(null);
+const { reveal: revealActiveTocLink } = useRevealActive(tocAside, "[data-toc-active]", {
+  topPad: 16,
+  bottomPad: 44,
+});
 watch(activeIds, () => {
-  requestAnimationFrame(() => {
-    const aside = tocAside.value;
-    if (!aside || aside.scrollHeight <= aside.clientHeight) return;
-    const link = aside.querySelector<HTMLElement>("[data-toc-active]");
-    if (!link) return;
-    const linkTop = link.getBoundingClientRect().top - aside.getBoundingClientRect().top;
-    if (linkTop >= 16 && linkTop <= aside.clientHeight - 44) return;
-    aside.scrollTop += linkTop - aside.clientHeight / 2;
-  });
+  requestAnimationFrame(revealActiveTocLink);
 });
 
 useSeoMeta({
@@ -152,28 +150,7 @@ useHead(() => ({
         <article v-if="page">
           <div class="flex items-start justify-between gap-4 sm:gap-6">
             <div class="min-w-0">
-              <nav
-                v-if="visibleTrail.length"
-                class="mb-2 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
-                :aria-label="t('docs.breadcrumbs')"
-              >
-                <template v-for="(item, index) in visibleTrail" :key="item.id">
-                  <Icon
-                    v-if="index > 0"
-                    name="lucide:chevron-right"
-                    class="size-3.5 text-border"
-                    aria-hidden="true"
-                  />
-                  <NuxtLink
-                    v-if="item.path"
-                    :to="item.path"
-                    class="rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {{ item.title }}
-                  </NuxtLink>
-                  <span v-else>{{ item.title }}</span>
-                </template>
-              </nav>
+              <DocsBreadcrumb class="mb-2" :items="visibleTrail" />
               <h1
                 class="font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.025em] text-balance text-foreground sm:text-[2.25rem]"
               >

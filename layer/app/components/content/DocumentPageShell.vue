@@ -46,7 +46,7 @@ const { t } = useI18n();
           </ul>
         </nav>
 
-        <article class="[&_h2[id]]:scroll-mt-28">
+        <article class="[&_h2[id]]:scroll-mt-[var(--content-scroll-margin)]">
           <slot />
         </article>
       </div>

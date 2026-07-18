@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { useScrollLock, onKeyStroke } from "@vueuse/core";
 import { Button } from "#ginko-docs/components/ui/button";
 import { Kbd } from "#ginko-docs/components/ui/kbd";
 import { Separator } from "#ginko-docs/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "#ginko-docs/components/ui/sheet";
 import { computed, ref, watch } from "vue";
 import { useI18n, useRoute } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
 import { useCommandCenterState } from "#ginko-docs/features/search/useCommandCenter";
+import { useMetaKey } from "#ginko-docs/composables/useMetaKey";
 import ModeToggle from "#ginko-docs/components/site/ModeToggle.vue";
 
 const { mainNav } = useSiteNavigation();
@@ -19,42 +26,25 @@ const localizedPath = useLocalizedPath();
 
 const isActive = (href: string) => route.path === href || route.path.startsWith(href + "/");
 
-function mobileNavIcon(href: string) {
-  if (href.includes("blog")) return "lucide:file-text";
-  if (href.includes("dok") || href.includes("doc")) return "lucide:book-open";
-  return "lucide:circle";
-}
-
 const mobileNavItems = computed(() =>
   mainNav.value.map((item) => ({
     label: item.label,
     href: item.href,
-    icon: mobileNavIcon(item.href),
-    children: [] as { label: string; href: string }[],
+    icon: item.icon ?? "lucide:circle",
   })),
 );
+
+const metaKey = useMetaKey();
+const searchShortcut = computed(() => (metaKey.value === "⌘" ? "⌘K" : "Ctrl K"));
 const homePath = computed(() => localizedPath("home"));
 
-// Scroll lock when menu is open
-const scrollLock = useScrollLock(import.meta.client ? document.body : null);
-
-watch(isMobileMenuOpen, (open) => {
-  scrollLock.value = open;
-});
-
+// Scroll lock, Escape handling, and focus trapping come from the Sheet
+// (reka-ui Dialog); only route-driven closing is ours.
 function openSearch() {
   isMobileMenuOpen.value = false;
   openCommandCenter();
 }
 
-// Close on Escape
-onKeyStroke("Escape", () => {
-  if (isMobileMenuOpen.value) {
-    isMobileMenuOpen.value = false;
-  }
-});
-
-// Close menu on navigation
 watch(
   () => route.path,
   () => {
@@ -100,7 +90,7 @@ watch(
         >
           <Icon name="lucide:search" class="size-4 shrink-0" aria-hidden="true" />
           <span class="flex-1 text-left">{{ t("nav.search") }}...</span>
-          <Kbd class="h-5 bg-background text-[10px]">⌘K</Kbd>
+          <Kbd class="h-5 bg-background text-[10px]">{{ searchShortcut }}</Kbd>
         </Button>
         <Button
           variant="ghost"
@@ -129,101 +119,96 @@ watch(
         </ClientOnly>
 
         <SiteLocaleSwitcher class="hidden md:flex" />
-        <Button
-          variant="ghost"
-          size="icon"
-          class="md:hidden"
-          :aria-label="isMobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')"
-          :aria-expanded="isMobileMenuOpen"
-          type="button"
-          @click="isMobileMenuOpen = !isMobileMenuOpen"
-        >
-          <Icon
-            :name="isMobileMenuOpen ? 'lucide:x' : 'lucide:menu'"
-            class="size-5"
-            aria-hidden="true"
-          />
-        </Button>
+        <Sheet v-model:open="isMobileMenuOpen">
+          <SheetTrigger as-child>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="md:hidden"
+              :aria-label="t('nav.openMenu')"
+              type="button"
+            >
+              <Icon name="lucide:menu" class="size-5" aria-hidden="true" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side="top"
+            class="inset-0 h-dvh gap-0 [scrollbar-width:none] overflow-y-auto border-b-0 bg-background/95 backdrop-blur-md md:hidden [&::-webkit-scrollbar]:hidden"
+          >
+            <SheetTitle class="sr-only">{{ t("nav.mobile") }}</SheetTitle>
+            <SheetDescription class="sr-only">{{ t("nav.main") }}</SheetDescription>
+            <div class="px-5 pt-14 pb-12">
+              <nav v-if="mobileNavItems.length" class="space-y-4" :aria-label="t('nav.mobile')">
+                <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
+                  {{ t("nav.navigationSection") }}
+                </p>
+                <div
+                  class="overflow-hidden rounded-xl border border-border bg-background shadow-xs"
+                >
+                  <NuxtLink
+                    v-for="(group, index) in mobileNavItems"
+                    :key="group.href"
+                    :to="group.href"
+                    class="flex h-[4.25rem] items-center gap-4 px-5 text-base font-semibold transition-colors hover:bg-muted/50"
+                    :class="[
+                      isActive(group.href) ? 'text-primary' : 'text-foreground',
+                      index > 0 && 'border-t border-border',
+                    ]"
+                    @click="isMobileMenuOpen = false"
+                  >
+                    <span
+                      class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
+                    >
+                      <Icon :name="group.icon" class="size-5" aria-hidden="true" />
+                    </span>
+                    <span class="min-w-0 flex-1 truncate">{{ group.label }}</span>
+                    <Icon
+                      name="lucide:chevron-right"
+                      class="size-5 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                  </NuxtLink>
+                </div>
+              </nav>
+
+              <div class="space-y-4" :class="mobileNavItems.length ? 'mt-9' : ''">
+                <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
+                  {{ t("nav.settingsHelp") }}
+                </p>
+                <div
+                  class="overflow-hidden rounded-xl border border-border bg-background shadow-xs"
+                >
+                  <button
+                    type="button"
+                    class="flex h-[4.25rem] w-full items-center gap-4 px-5 text-start text-base font-semibold transition-colors hover:bg-muted/50"
+                    @click="openSearch"
+                  >
+                    <span
+                      class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
+                    >
+                      <Icon name="lucide:search" class="size-5" aria-hidden="true" />
+                    </span>
+                    <span class="min-w-0 flex-1 truncate">{{ t("nav.search") }}</span>
+                    <Icon
+                      name="lucide:chevron-right"
+                      class="size-5 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <div class="grid grid-cols-2 border-t border-border">
+                    <ModeToggle variant="menu-tile" class="border-r border-border" />
+                    <SiteLocaleSwitcher
+                      variant="menu-tile"
+                      class="flex"
+                      @navigate="isMobileMenuOpen = false"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   </header>
-  <Transition
-    enter-active-class="transition-all duration-200 ease-out"
-    enter-from-class="-translate-y-4 opacity-0"
-    enter-to-class="translate-y-0 opacity-100"
-    leave-active-class="transition-all duration-200 ease-in"
-    leave-from-class="translate-y-0 opacity-100"
-    leave-to-class="-translate-y-4 opacity-0"
-  >
-    <div
-      v-if="isMobileMenuOpen"
-      class="fixed inset-x-0 top-[calc(var(--site-banner-height,0px)+var(--site-header-height))] bottom-0 z-40 [scrollbar-width:none] overflow-y-auto bg-background/95 backdrop-blur-md md:hidden [&::-webkit-scrollbar]:hidden"
-    >
-      <div class="px-5 pt-9 pb-12">
-        <nav v-if="mobileNavItems.length" class="space-y-4" :aria-label="t('nav.mobile')">
-          <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
-            {{ t("nav.navigationSection") }}
-          </p>
-          <div class="overflow-hidden rounded-xl border border-border bg-background shadow-xs">
-            <NuxtLink
-              v-for="(group, index) in mobileNavItems"
-              :key="group.href"
-              :to="group.href"
-              class="flex h-[4.25rem] items-center gap-4 px-5 text-base font-semibold transition-colors hover:bg-muted/50"
-              :class="[
-                isActive(group.href) ? 'text-primary' : 'text-foreground',
-                index > 0 && 'border-t border-border',
-              ]"
-              @click="isMobileMenuOpen = false"
-            >
-              <span
-                class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
-              >
-                <Icon :name="group.icon" class="size-5" aria-hidden="true" />
-              </span>
-              <span class="min-w-0 flex-1 truncate">{{ group.label }}</span>
-              <Icon
-                name="lucide:chevron-right"
-                class="size-5 shrink-0 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </NuxtLink>
-          </div>
-        </nav>
-
-        <div class="space-y-4" :class="mobileNavItems.length ? 'mt-9' : ''">
-          <p class="px-3 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
-            {{ t("nav.settingsHelp") }}
-          </p>
-          <div class="overflow-hidden rounded-xl border border-border bg-background shadow-xs">
-            <button
-              type="button"
-              class="flex h-[4.25rem] w-full items-center gap-4 px-5 text-start text-base font-semibold transition-colors hover:bg-muted/50"
-              @click="openSearch"
-            >
-              <span
-                class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
-              >
-                <Icon name="lucide:search" class="size-5" aria-hidden="true" />
-              </span>
-              <span class="min-w-0 flex-1 truncate">{{ t("nav.search") }}</span>
-              <Icon
-                name="lucide:chevron-right"
-                class="size-5 shrink-0 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </button>
-            <div class="grid grid-cols-2 border-t border-border">
-              <ModeToggle variant="menu-tile" class="border-r border-border" />
-              <SiteLocaleSwitcher
-                variant="menu-tile"
-                class="flex"
-                @navigate="isMobileMenuOpen = false"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Transition>
 </template>

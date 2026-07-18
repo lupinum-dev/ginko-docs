@@ -6,8 +6,8 @@ import {
   normalizeDocsNavigationPath,
   type DocsNavigationItem,
 } from "#ginko-docs/features/docs/docs-navigation";
-import { Badge } from "#ginko-docs/components/ui/badge";
 import { Button } from "#ginko-docs/components/ui/button";
+import DocsSidebarRow from "./DocsSidebarRow.vue";
 import {
   Collapsible,
   CollapsibleContent,
@@ -80,20 +80,7 @@ const contentRailClass =
         :aria-current="isExactActive ? 'page' : undefined"
         :data-active="isExactActive ? 'true' : 'false'"
       >
-        <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
-        <span class="min-w-0 truncate">{{ item.title }}</span>
-        <Badge
-          v-if="item.badge"
-          variant="secondary"
-          class="ms-auto h-4 shrink-0 rounded-full px-1.5 py-0 text-[10px]"
-        >
-          {{ item.badge }}
-        </Badge>
-        <Icon
-          name="lucide:chevron-down"
-          class="ms-auto size-3.5 shrink-0 -rotate-90 text-muted-foreground/70 transition-transform duration-200 ease-out group-hover:text-muted-foreground group-data-[state=open]:rotate-0 group-data-[active=true]:text-primary/70 rtl:rotate-90"
-          aria-hidden="true"
-        />
+        <DocsSidebarRow :item="item" show-chevron />
       </NuxtLink>
     </CollapsibleTrigger>
     <CollapsibleTrigger v-else as-child>
@@ -103,20 +90,7 @@ const contentRailClass =
         class="h-auto justify-start"
         :data-active="isExactActive ? 'true' : 'false'"
       >
-        <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
-        <span class="min-w-0 truncate">{{ item.title }}</span>
-        <Badge
-          v-if="item.badge"
-          variant="secondary"
-          class="ms-auto h-4 shrink-0 rounded-full px-1.5 py-0 text-[10px]"
-        >
-          {{ item.badge }}
-        </Badge>
-        <Icon
-          name="lucide:chevron-down"
-          class="ms-auto size-3.5 shrink-0 -rotate-90 text-muted-foreground/70 transition-transform duration-200 ease-out group-hover:text-muted-foreground group-data-[state=open]:rotate-0 group-data-[active=true]:text-primary/70 rtl:rotate-90"
-          aria-hidden="true"
-        />
+        <DocsSidebarRow :item="item" show-chevron />
       </Button>
     </CollapsibleTrigger>
 
@@ -136,14 +110,6 @@ const contentRailClass =
     :class="linkRowClass"
     :data-active="isExactActive ? 'true' : 'false'"
   >
-    <Icon v-if="item.icon" :name="item.icon" class="size-4 shrink-0" aria-hidden="true" />
-    <span class="min-w-0 truncate">{{ item.title }}</span>
-    <Badge
-      v-if="item.badge"
-      variant="secondary"
-      class="ms-auto h-4 shrink-0 rounded-sm px-1.5 py-0 text-[10px]"
-    >
-      {{ item.badge }}
-    </Badge>
+    <DocsSidebarRow :item="item" />
   </NuxtLink>
 </template>

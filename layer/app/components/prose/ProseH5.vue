@@ -9,10 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <h1 :id="id" :class="cn('scroll-mt-[var(--content-scroll-margin)]', props.class)">
-    <a v-if="id" :href="`#${id}`" class="inline-flex items-center gap-2">
-      <slot />
-    </a>
-    <slot v-else />
-  </h1>
+  <h5 :id="id" :class="cn('scroll-mt-[var(--content-scroll-margin)]', props.class)">
+    <slot />
+  </h5>
 </template>

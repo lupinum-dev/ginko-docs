@@ -107,8 +107,7 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
       data-slot="card"
       :class="
         cn(
-          'content-card-surface relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs transition-colors',
-          hasBody || hasFooter ? 'p-0' : 'p-0',
+          'content-card-surface relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs transition-colors p-0',
           to && 'cursor-pointer hover:bg-accent/50',
           showOutgoingLinkIcon && (hasBody || hasFooter ? '' : 'pr-10'),
           inStack &&
@@ -130,7 +129,7 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
       >
         <div
           v-if="iconName"
-          :style="cardIconStyle"
+          v-bind="cardIconStyle ? { style: cardIconStyle } : {}"
           :class="
             cn(
               'content-card-icon flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted shadow-xs [&_.iconify]:size-5',

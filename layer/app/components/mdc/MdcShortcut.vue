@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed } from "vue";
 import type { HTMLAttributes } from "vue";
+import { useMetaKey } from "../../composables/useMetaKey";
 import { cn } from "../../utils";
 
 interface Props {
@@ -13,14 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: "md",
 });
 
-const metaSymbol = ref("Ctrl");
-
-// Safe from Nuxt SSR because onMounted only fires on the client
-onMounted(() => {
-  if (typeof navigator !== "undefined" && navigator.userAgent.includes("Macintosh")) {
-    metaSymbol.value = "⌘";
-  }
-});
+const metaSymbol = useMetaKey();
 
 const resolvedValue = computed(() => {
   if (props.value === "meta") return metaSymbol.value;

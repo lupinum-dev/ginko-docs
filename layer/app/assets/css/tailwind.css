@@ -118,6 +118,10 @@
   --docs-sidebar-width-expanded: 268px;
   --docs-sidebar-width: var(--docs-sidebar-width-expanded);
   --docs-toc-width: 16rem;
+  /* Anchor scroll offset: sticky header + banner + breathing room. */
+  --content-scroll-margin: calc(
+    var(--site-banner-height, 0px) + var(--site-header-height) + 3.5rem
+  );
 
   --font-body: "Public Sans", system-ui, sans-serif;
   --font-heading: "Public Sans", system-ui, sans-serif;

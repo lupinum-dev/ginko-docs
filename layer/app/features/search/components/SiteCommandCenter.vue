@@ -21,34 +21,17 @@ const { open, query, groupedItems, selectItem } = await useCommandCenter();
 const visibleItems = computed(() => groupedItems.value.flatMap((g) => g.items));
 
 // ── text highlighting ──────────────────────────────────────────────────────
-function escapeHtml(str: string) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function highlight(text: string, q: string): string {
-  if (!q.trim()) return escapeHtml(text);
-  const pattern = q
-    .trim()
-    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    .split(/\s+/)
-    .filter(Boolean)
-    .join("|");
-  const parts = text.split(new RegExp(`(${pattern})`, "gi"));
-  return parts
-    .map((part) =>
-      part.toLowerCase() === q.trim().toLowerCase() ||
-      q
-        .trim()
-        .split(/\s+/)
-        .some((t) => part.toLowerCase() === t.toLowerCase())
-        ? `<mark class="bg-primary/15 text-primary rounded-[3px] font-medium not-italic">${escapeHtml(part)}</mark>`
-        : escapeHtml(part),
-    )
-    .join("");
+function highlightTokens(text: string, q: string): { text: string; match: boolean }[] {
+  const terms = q.trim().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return [{ text, match: false }];
+  const pattern = terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  return text
+    .split(new RegExp(`(${pattern})`, "gi"))
+    .filter((part) => part !== "")
+    .map((part) => ({
+      text: part,
+      match: terms.some((term) => part.toLowerCase() === term.toLowerCase()),
+    }));
 }
 
 // ── keyboard navigation ────────────────────────────────────────────────────
@@ -225,11 +208,18 @@ onMounted(async () => {
                 <!-- Text -->
                 <div class="min-w-0 flex-1">
                   <div class="flex min-w-0 items-center gap-2">
-                    <!-- eslint-disable vue/no-v-html -->
-                    <span
-                      class="min-w-0 truncate text-sm leading-5 font-medium"
-                      v-html="highlight(item.title, query)"
-                    />
+                    <span class="min-w-0 truncate text-sm leading-5 font-medium">
+                      <template
+                        v-for="(token, tokenIndex) in highlightTokens(item.title, query)"
+                        :key="tokenIndex"
+                      >
+                        <mark
+                          v-if="token.match"
+                          class="rounded-[3px] bg-primary/15 font-medium text-primary not-italic"
+                          >{{ token.text }}</mark
+                        ><template v-else>{{ token.text }}</template>
+                      </template>
+                    </span>
                     <span
                       v-if="item.badge"
                       class="shrink-0 rounded-full bg-primary/10 px-1.5 py-px text-[10px] font-medium text-primary"
@@ -246,8 +236,18 @@ onMounted(async () => {
                       class="mt-1 size-3 shrink-0 opacity-50"
                       aria-hidden="true"
                     />
-                    <span class="line-clamp-2 min-w-0" v-html="highlight(item.subtitle, query)" />
-                    <!-- eslint-enable vue/no-v-html -->
+                    <span class="line-clamp-2 min-w-0">
+                      <template
+                        v-for="(token, tokenIndex) in highlightTokens(item.subtitle, query)"
+                        :key="tokenIndex"
+                      >
+                        <mark
+                          v-if="token.match"
+                          class="rounded-[3px] bg-primary/15 font-medium text-primary not-italic"
+                          >{{ token.text }}</mark
+                        ><template v-else>{{ token.text }}</template>
+                      </template>
+                    </span>
                   </p>
                 </div>
 

@@ -7,6 +7,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "#ginko-docs/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "#ginko-docs/components/ui/tooltip";
 import { computed } from "vue";
 import { useI18n } from "#imports";
 import { usePageMarkdownActions } from "#ginko-docs/composables/usePageMarkdownActions";
@@ -54,17 +60,24 @@ const statusMessage = computed(() => {
     </Button>
 
     <DropdownMenu>
-      <DropdownMenuTrigger as-child>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          class="h-9 w-8 rounded-l-none px-0"
-          :aria-label="t('docs.moreActions')"
-        >
-          <Icon name="lucide:chevron-down" class="size-3.5" aria-hidden="true" />
-        </Button>
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <DropdownMenuTrigger as-child>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                class="h-9 w-8 rounded-l-none px-0"
+                :aria-label="t('docs.moreActions')"
+              >
+                <Icon name="lucide:chevron-down" class="size-3.5" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{{ t("docs.moreActions") }}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent align="end" class="w-56">
         <DropdownMenuItem @select="copyValue(rawUrl, 'link')">
           <Icon :name="actionSucceeded('link') ? 'lucide:check' : 'lucide:link'" />

@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import { useI18n, useRoute } from "#imports";
 import { useGinkoAnalytics } from "#ginko-docs/composables/useGinkoAnalytics";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
+import { buildRepoIssueUrl } from "#ginko-docs/utils/repository";
 
 withDefaults(
   defineProps<{
@@ -23,24 +24,34 @@ const { track } = useGinkoAnalytics();
 type Sentiment = "positive" | "negative";
 
 const sentiment = ref<Sentiment | null>(null);
+const pending = ref<Sentiment | null>(null);
 
 const issueUrl = computed(() => {
   const repository = config.repository;
   if (!repository) return null;
-  const url = new URL(`${repository.url.replace(/\/$/, "")}/issues/new`);
-  url.searchParams.set("title", t("feedback.issueTitle", { path: route.path }));
-  url.searchParams.set("body", t("docs.issueBody", { path: route.path }));
-  return url.toString();
+  return buildRepoIssueUrl(repository, {
+    title: t("feedback.issueTitle", { path: route.path }),
+    body: t("docs.issueBody", { path: route.path }),
+  });
 });
 
 function selectSentiment(s: Sentiment) {
-  if (sentiment.value !== null) return;
-  sentiment.value = s;
+  if (sentiment.value !== null || pending.value !== null) return;
   track("docs-feedback", {
     path: route.path,
     helpful: s === "positive" ? "yes" : "no",
     locale: locale.value,
   });
+  // Let the pressed state register before swapping to the thanks row.
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  pending.value = s;
+  window.setTimeout(
+    () => {
+      sentiment.value = s;
+      pending.value = null;
+    },
+    reducedMotion ? 0 : 250,
+  );
 }
 </script>
 
@@ -75,7 +86,8 @@ function selectSentiment(s: Sentiment) {
         <Button
           variant="outline"
           size="sm"
-          class="h-9 w-20 rounded-full px-4 text-muted-foreground shadow-sm"
+          class="h-9 min-w-20 rounded-full px-4 text-muted-foreground shadow-sm transition-transform data-[selected=true]:scale-95 data-[selected=true]:border-foreground/30 data-[selected=true]:text-foreground"
+          :data-selected="pending === 'positive' ? 'true' : undefined"
           @click="selectSentiment('positive')"
         >
           <Icon name="lucide:thumbs-up" class="shrink-0" aria-hidden="true" />
@@ -85,7 +97,8 @@ function selectSentiment(s: Sentiment) {
         <Button
           variant="outline"
           size="sm"
-          class="h-9 w-20 rounded-full px-4 text-muted-foreground shadow-sm"
+          class="h-9 min-w-20 rounded-full px-4 text-muted-foreground shadow-sm transition-transform data-[selected=true]:scale-95 data-[selected=true]:border-foreground/30 data-[selected=true]:text-foreground"
+          :data-selected="pending === 'negative' ? 'true' : undefined"
           @click="selectSentiment('negative')"
         >
           <Icon name="lucide:thumbs-down" class="shrink-0" aria-hidden="true" />

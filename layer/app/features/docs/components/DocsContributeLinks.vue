@@ -2,6 +2,7 @@
 import type { GinkoDocsAppConfig } from "../../../../shared/types/app-config";
 import { computed } from "vue";
 import { useAppConfig, useI18n, useRoute } from "#imports";
+import { buildRepoEditUrl, buildRepoIssueUrl } from "#ginko-docs/utils/repository";
 
 const props = withDefaults(
   defineProps<{
@@ -26,19 +27,18 @@ const sourcePath = computed(() => {
   return `${directory}/${props.stem}.${extension}`;
 });
 
-const editUrl = computed(() => {
-  if (!repository || !sourcePath.value) return null;
-  const branch = repository.branch || "main";
-  return `${repository.url.replace(/\/$/, "")}/edit/${encodeURIComponent(branch)}/${sourcePath.value}`;
-});
+const editUrl = computed(() =>
+  repository && sourcePath.value ? buildRepoEditUrl(repository, sourcePath.value) : null,
+);
 
-const issueUrl = computed(() => {
-  if (!repository) return null;
-  const url = new URL(`${repository.url.replace(/\/$/, "")}/issues/new`);
-  url.searchParams.set("title", t("docs.issueTitle", { title: props.title }));
-  url.searchParams.set("body", t("docs.issueBody", { path: route.path }));
-  return url.toString();
-});
+const issueUrl = computed(() =>
+  repository
+    ? buildRepoIssueUrl(repository, {
+        title: t("docs.issueTitle", { title: props.title }),
+        body: t("docs.issueBody", { path: route.path }),
+      })
+    : null,
+);
 </script>
 
 <template>

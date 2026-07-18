@@ -897,9 +897,9 @@ html.dark .shiki span {
 
 .content-callout > .content-callout-icon {
   display: inline-flex;
-  width: 1.25rem !important;
-  height: 1.25rem !important;
-  transform: none !important;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.25rem;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
@@ -910,8 +910,8 @@ html.dark .shiki span {
 }
 
 .content-callout > .content-callout-icon > :where(svg, span, .iconify) {
-  width: 1.15rem !important;
-  height: 1.15rem !important;
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 .content-callout-body {
