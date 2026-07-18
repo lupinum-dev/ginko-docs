@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lupinum/ginko-content': 0.3.0-rc.3
+  '@lupinum/ginko-content': 0.3.0-rc.4
 
 importers:
 
@@ -18,8 +18,8 @@ importers:
         specifier: ^1.2.111
         version: 1.2.111
       '@lupinum/ginko-content':
-        specifier: 0.3.0-rc.3
-        version: 0.3.0-rc.3(314cb0cbd74478ed72474292a012d14b)
+        specifier: 0.3.0-rc.4
+        version: 0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(magicast@0.5.3)(vite@7.3.6(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -162,8 +162,8 @@ importers:
   playground:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 0.3.0-rc.3
-        version: 0.3.0-rc.3(314cb0cbd74478ed72474292a012d14b)
+        specifier: 0.3.0-rc.4
+        version: 0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -1240,15 +1240,15 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@0.3.0-rc.3':
-    resolution: {integrity: sha512-WLaU7cu/nu4m9KYCfq5m9hNGnoCFEcjah4ppEfpKGDZ8pFDNSequdrG7734J50TJGqlhn9aL4f7KEFv/XyiLRw==}
-    engines: {node: '>=22.0.0'}
+  '@lupinum/ginko-content@0.3.0-rc.4':
+    resolution: {integrity: sha512-Hbq7BRPdOF6IiRLsG24R1UN5v2YjUMFGEyDx5LqsgEgscUrmaUI9DI0tkmQghUi8Li+FjsmrW+Aix3xjXov8IQ==}
+    engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
       nuxt: '>=4.4.7 <5'
       pagefind: ^1.5.2
       vitest: '>=4.1.6 <5'
-      vue: ^3.5.0
+      vue: ^3.5.35
     peerDependenciesMeta:
       pagefind:
         optional: true
@@ -7539,13 +7539,12 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@0.3.0-rc.3(314cb0cbd74478ed72474292a012d14b)':
+  '@lupinum/ginko-content@0.3.0-rc.4(314cb0cbd74478ed72474292a012d14b)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.35(typescript@5.9.3))
       '@nuxt/kit': 4.4.8(magicast@0.5.3)
       '@shikijs/transformers': 4.2.0
       comark: 0.4.0(shiki@4.2.0)
-      consola: 3.4.2
       defu: 6.1.7
       destr: 2.0.5
       globby: 16.2.0

@@ -12,6 +12,17 @@ export type FlatTocItem = {
   depth?: number;
 };
 
+export function getMarkdownTocLinks(body: unknown): TocLinkLike[] | undefined {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return undefined;
+
+  const root = body as { type?: unknown; children?: unknown; toc?: unknown };
+  if (root.type !== "root" || !Array.isArray(root.children)) return undefined;
+  if (!root.toc || typeof root.toc !== "object" || Array.isArray(root.toc)) return undefined;
+
+  const links = (root.toc as { links?: unknown }).links;
+  return Array.isArray(links) ? (links as TocLinkLike[]) : undefined;
+}
+
 export function formatContentDate(
   value?: string | Date | null,
   locale: string = defaultLocale,

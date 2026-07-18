@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createContentNotFoundError } from "#ginko-docs/lib/errors";
-import { filterTocByDepth, flattenTocLinks } from "#ginko-docs/utils/content";
+import { filterTocByDepth, flattenTocLinks, getMarkdownTocLinks } from "#ginko-docs/utils/content";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
 import DocsMobileToc from "./DocsMobileToc.vue";
 import DocsPageNav from "./DocsPageNav.vue";
@@ -52,7 +52,7 @@ const pageTitle = computed(() => page.value?.title ?? t("docs.fallbackTitle"));
 const pageDescription = computed(() => page.value?.description ?? t("docs.fallbackDescription"));
 const canonicalUrl = useCanonicalUrl();
 const tocItems = computed(() =>
-  filterTocByDepth(flattenTocLinks(page.value?.body?.toc?.links), config.toc?.depth ?? 3),
+  filterTocByDepth(flattenTocLinks(getMarkdownTocLinks(page.value?.body)), config.toc?.depth ?? 3),
 );
 const prev = computed(() => toDocsNavLink(previous.value));
 const next = computed(() => toDocsNavLink(nextContent.value));

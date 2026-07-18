@@ -5,7 +5,12 @@ import { Button } from "#ginko-docs/components/ui/button";
 import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { createArticleSchema, createBreadcrumbSchema } from "#ginko-docs/lib/schema-org";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
-import { filterTocByDepth, flattenTocLinks, formatContentDate } from "#ginko-docs/utils/content";
+import {
+  filterTocByDepth,
+  flattenTocLinks,
+  formatContentDate,
+  getMarkdownTocLinks,
+} from "#ginko-docs/utils/content";
 import { computed, watch } from "vue";
 import {
   definePageMeta,
@@ -49,7 +54,7 @@ const pageTitle = computed(() => post.value?.title ?? t("blog.fallbackTitle"));
 const pageDescription = computed(() => post.value?.description ?? t("blog.fallbackDescription"));
 const canonicalUrl = useCanonicalUrl();
 const tocItems = computed(() =>
-  filterTocByDepth(flattenTocLinks(post.value?.body?.toc?.links), config.toc?.depth ?? 3),
+  filterTocByDepth(flattenTocLinks(getMarkdownTocLinks(post.value?.body)), config.toc?.depth ?? 3),
 );
 const formattedDate = computed(() => formatContentDate(post.value?.date, locale.value));
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
