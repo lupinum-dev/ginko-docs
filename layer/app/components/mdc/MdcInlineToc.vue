@@ -28,7 +28,9 @@ const items = computed(() => {
   return props.depth ? filterTocByDepth(all, props.depth) : all;
 });
 
-const defaultOpen = computed(() => props.open === true || props.open === "true");
+const defaultOpen = computed(
+  () => props.open !== undefined && props.open !== false && props.open !== "false",
+);
 </script>
 
 <template>
