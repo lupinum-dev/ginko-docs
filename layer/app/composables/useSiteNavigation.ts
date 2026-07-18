@@ -69,6 +69,8 @@ export const useSiteNavigation = () => {
       blogExists: blogExists.value,
       docsLabel: t("nav.documentation"),
       blogLabel: t("nav.blog"),
+      docsDescription: t("nav.docsDescription"),
+      blogDescription: t("nav.blogDescription"),
     }),
   );
 

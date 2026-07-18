@@ -14,7 +14,7 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    variant?: "icon" | "menu-row" | "menu-tile";
+    variant?: "icon" | "menu-row" | "menu-tile" | "pill";
     class?: HTMLAttributes["class"];
   }>(),
   {
@@ -95,12 +95,21 @@ function setColorModePreference(value: unknown) {
           aria-hidden="true"
         />
       </Button>
+      <Button
+        v-else-if="variant === 'pill'"
+        variant="outline"
+        :class="cn('h-9 gap-2 rounded-full px-4 text-sm font-semibold', props.class)"
+      >
+        <Icon :name="triggerIcon" class="size-4" aria-hidden="true" />
+        <span>{{ triggerLabel }}</span>
+        <span class="sr-only">{{ t("theme.toggle") }}</span>
+      </Button>
       <Button v-else variant="outline" size="icon" :class="cn('relative shrink-0', props.class)">
         <Icon :name="nextExplicitColorModeIcon" class="size-[1.2rem]" aria-hidden="true" />
         <span class="sr-only">{{ t("theme.toggle") }}</span>
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-44">
+    <DropdownMenuContent align="end" class="w-44" :portal-disabled="variant !== 'icon'">
       <DropdownMenuRadioGroup
         :model-value="colorMode.preference"
         @update:model-value="setColorModePreference"

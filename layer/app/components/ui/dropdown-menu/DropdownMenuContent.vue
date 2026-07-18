@@ -10,20 +10,30 @@ defineOptions({
 });
 
 const props = withDefaults(
-  defineProps<DropdownMenuContentProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<
+    DropdownMenuContentProps & {
+      class?: HTMLAttributes["class"];
+      /**
+       * Render in place instead of teleporting to body. Required inside modal
+       * dialogs (e.g. the mobile menu sheet), where body-level portals are
+       * blocked by the dialog's pointer-events lock.
+       */
+      portalDisabled?: boolean;
+    }
+  >(),
   {
     sideOffset: 4,
   },
 );
 const emits = defineEmits<DropdownMenuContentEmits>();
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, "class", "portalDisabled");
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <DropdownMenuPortal>
+  <DropdownMenuPortal :disabled="props.portalDisabled">
     <DropdownMenuContent
       data-slot="dropdown-menu-content"
       v-bind="{ ...$attrs, ...forwarded }"

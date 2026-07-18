@@ -5,6 +5,8 @@ export interface GinkoDocsLink {
   to: GinkoDocsLocalizedText;
   /** Iconify icon shown where nav items render with icons (e.g. mobile menu). */
   icon?: string;
+  /** One-line subtitle shown under the label in the mobile menu. */
+  description?: GinkoDocsLocalizedText;
 }
 
 export interface GinkoDocsHeroCodeTab {

@@ -13,7 +13,7 @@ import { useI18n } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
 import { locales as configuredLocales } from "../../../i18n/locales";
 
-type LocaleSwitcherVariant = "dropdown" | "menu-row" | "menu-tile" | "segmented";
+type LocaleSwitcherVariant = "dropdown" | "menu-row" | "menu-tile" | "segmented" | "pill";
 
 type LocaleEntry = {
   code: string;
@@ -160,12 +160,30 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
   </div>
 
   <div
-    v-else-if="localeLinks.length > 1 && (variant === 'menu-row' || variant === 'menu-tile')"
+    v-else-if="
+      localeLinks.length > 1 &&
+      (variant === 'menu-row' || variant === 'menu-tile' || variant === 'pill')
+    "
     :class="cn('items-center', props.class)"
   >
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <Button
+          v-if="variant === 'pill'"
+          variant="outline"
+          class="h-9 gap-2 rounded-full px-4 text-sm font-semibold"
+          :aria-label="t('nav.language')"
+        >
+          <Icon
+            v-if="currentLocale?.flagIcon"
+            :name="currentLocale.flagIcon"
+            class="size-4 rounded-full"
+            aria-hidden="true"
+          />
+          <span>{{ currentLocale?.shortLabel }}</span>
+        </Button>
+        <Button
+          v-else
           variant="ghost"
           :class="
             cn(
@@ -204,7 +222,7 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" class="w-44">
+      <DropdownMenuContent align="end" class="w-44" portal-disabled>
         <DropdownMenuItem v-for="entry in localeLinks" :key="entry.code" as-child>
           <NuxtLink
             :to="entry.to"
