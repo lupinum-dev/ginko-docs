@@ -116,32 +116,81 @@ export default {
           ],
         },
       },
+      install: { command: "pnpm add @lupinum/ginko-docs" },
       features: [
         {
-          title: { en: "Content first", de: "Inhalte zuerst" },
+          title: { en: "40+ content components", de: "40+ Inhaltskomponenten" },
           description: {
-            en: "Write Markdown while the theme handles navigation, search, and responsive layouts.",
-            de: "Schreibe Markdown, während das Theme Navigation, Suche und responsive Layouts übernimmt.",
+            en: "Steps, tabs, code groups, file trees, quizzes, timelines — polished and accessible.",
+            de: "Steps, Tabs, Code-Gruppen, Dateibäume, Quizze, Timelines — ausgereift und barrierefrei.",
           },
-          icon: "lucide:file-text",
+          icon: "lucide:blocks",
         },
         {
-          title: { en: "International", de: "International" },
+          title: { en: "Search built in", de: "Suche integriert" },
           description: {
-            en: "Ship localized routes and content with a coherent language switcher.",
-            de: "Veröffentliche lokalisierte Routen und Inhalte mit einem konsistenten Sprachwechsler.",
+            en: "⌘K command center with fuzzy full-text search across every page and heading.",
+            de: "⌘K-Befehlszentrale mit unscharfer Volltextsuche über alle Seiten und Überschriften.",
+          },
+          icon: "lucide:search",
+        },
+        {
+          title: { en: "Real localization", de: "Echte Lokalisierung" },
+          description: {
+            en: "Translated slugs, localized routes, locale fallback, and a coherent language switcher.",
+            de: "Übersetzte Slugs, lokalisierte Routen, Sprach-Fallback und ein konsistenter Sprachwechsler.",
           },
           icon: "lucide:languages",
         },
         {
-          title: { en: "Agent ready", de: "Agentenbereit" },
+          title: { en: "SEO & OG images", de: "SEO & OG-Bilder" },
           description: {
-            en: "LLMs routes and Markdown negotiation are part of the default contract.",
-            de: "LLM-Routen und Markdown-Aushandlung gehören zum Standardvertrag.",
+            en: "Generated social cards, sitemap, robots, and canonical links out of the box.",
+            de: "Generierte Social Cards, Sitemap, Robots und kanonische Links ab Werk.",
           },
-          icon: "lucide:bot",
+          icon: "lucide:globe-2",
+        },
+        {
+          title: { en: "Dark mode & theming", de: "Dark Mode & Theming" },
+          description: {
+            en: "Dual-theme code highlighting and design tokens that adapt to both color schemes.",
+            de: "Code-Highlighting für beide Themes und Design-Tokens, die sich beiden Farbschemata anpassen.",
+          },
+          icon: "lucide:palette",
+        },
+        {
+          title: { en: "Feedback & edit links", de: "Feedback & Bearbeiten" },
+          description: {
+            en: "Reader feedback and edit-on-GitHub links on every documentation page.",
+            de: "Leser-Feedback und Auf-GitHub-bearbeiten-Links auf jeder Dokumentationsseite.",
+          },
+          icon: "lucide:messages-square",
         },
       ],
+      agent: {
+        title: { en: "Your docs, readable by agents", de: "Deine Doku, lesbar für Agenten" },
+        description: {
+          en: "Every page negotiates Markdown. llms.txt and an MCP server ship by default — no plugin, no config.",
+          de: "Jede Seite liefert auf Wunsch Markdown. llms.txt und ein MCP-Server sind standardmäßig dabei — ohne Plugin, ohne Konfiguration.",
+        },
+        code: [
+          "$ curl https://docs.example.com/docs/setup \\",
+          '    -H "Accept: text/markdown"',
+          "",
+          "# Setup",
+          "Install the layer, write Markdown, ship.",
+          "",
+          "$ curl https://docs.example.com/llms.txt",
+          "# My Docs — llms.txt",
+        ].join("\n"),
+      },
+      cta: {
+        title: { en: "Ship your docs today.", de: "Bring deine Doku heute live." },
+        secondary: {
+          label: { en: "Read the docs", de: "Doku lesen" },
+          to: { en: "/docs", de: "/de/dokumentation" },
+        },
+      },
     },
   },
 };

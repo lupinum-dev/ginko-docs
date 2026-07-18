@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, useId } from "vue";
-import { useClipboard } from "@vueuse/core";
 import { useAsyncData, useI18n } from "#imports";
 import { cn } from "../../utils";
 import { filenameExtension, resolveFileIcon } from "../../utils/file-icons";
@@ -15,7 +14,6 @@ export type SiteHeroCodeTab = {
 
 const props = defineProps<{ tabs: SiteHeroCodeTab[] }>();
 
-const { copy, copied } = useClipboard();
 const { t } = useI18n();
 const regionId = useId();
 const activeIndex = ref(0);
@@ -64,10 +62,6 @@ const { data: highlighted } = await useAsyncData(`site-hero-code-${regionId}`, a
     }),
   );
 });
-
-async function copyActiveCode() {
-  await copy(activeTab.value?.code ?? "");
-}
 </script>
 
 <template>
@@ -91,23 +85,11 @@ async function copyActiveCode() {
       </div>
       <div
         v-else-if="activeTab"
-        class="flex min-w-0 items-center gap-1.5 text-[0.8125rem] font-medium text-muted-foreground"
+        class="flex min-w-0 items-center gap-2 text-sm font-medium text-muted-foreground"
       >
         <Icon :name="tabIcon(activeTab)" class="content-codegroup-tab-icon" aria-hidden="true" />
         <span class="truncate">{{ activeTab.label }}</span>
       </div>
-      <button
-        type="button"
-        class="content-codeblock-copy-button content-codegroup-copy-button"
-        :aria-label="copied ? t('docs.copiedText') : t('docs.copyText')"
-        @click="copyActiveCode"
-      >
-        <Icon
-          :name="copied ? 'lucide:check' : 'lucide:clipboard'"
-          class="size-3.5"
-          aria-hidden="true"
-        />
-      </button>
     </div>
     <div class="content-codegroup-panels grid">
       <div
@@ -130,10 +112,11 @@ async function copyActiveCode() {
             class="fd-scroll-container max-h-[600px] overflow-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
           >
             <!-- Shiki output over site-owner config code, never end-user input. -->
-            <!-- eslint-disable-next-line vue/no-v-html -->
+            <!-- eslint-disable vue/no-v-html -->
             <pre
               class="w-max min-w-full"
             ><code v-html="highlighted?.[index] ?? plainLines(tab.code)" /></pre>
+            <!-- eslint-enable vue/no-v-html -->
           </div>
         </figure>
       </div>
@@ -142,16 +125,40 @@ async function copyActiveCode() {
 </template>
 
 <style scoped>
-/* Hero-scale type: same chrome as docs code blocks, one step larger. */
+/* Hero scale: same chrome as docs code groups, one step larger. */
+.site-hero-code {
+  padding: 0.25rem 0.375rem 0.375rem;
+}
+
+.site-hero-code .content-codegroup-header {
+  padding: 0.375rem 0.375rem 0.25rem 0.625rem;
+}
+
+.site-hero-code .content-codegroup-tabs {
+  gap: 0.375rem;
+}
+
+.site-hero-code .content-codegroup-tab {
+  height: 2.125rem;
+  gap: 0.5rem;
+  padding: 0 0.625rem 0.4375rem;
+  font-size: 0.9375rem;
+}
+
+.site-hero-code .content-codegroup-tab-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
 .site-hero-code .content-codeblock pre {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 1.125rem;
+  padding-bottom: 1.125rem;
   font-size: 0.875rem;
   line-height: 1.75;
 }
 
 .site-hero-code :deep([data-fd-codeblock] pre code .line) {
-  padding-right: 1.25rem;
-  padding-left: 1.25rem;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 </style>

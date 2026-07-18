@@ -104,10 +104,25 @@ export interface GinkoDocsAppConfig {
     hero?: {
       media?: GinkoDocsHeroMedia;
     };
+    /** Copyable install command shown under the hero CTAs. */
+    install?: { command: string };
     features: Array<{
       title: GinkoDocsLocalizedText;
       description: GinkoDocsLocalizedText;
       icon?: string;
     }>;
+    /** Dark full-width band highlighting agent readiness. */
+    agent?: {
+      title: GinkoDocsLocalizedText;
+      description: GinkoDocsLocalizedText;
+      /** Terminal transcript; "$"-prefixed lines render as commands, "#" as comments. */
+      code: string;
+    };
+    /** Closing call to action; primary falls back to landing.primary. */
+    cta?: {
+      title: GinkoDocsLocalizedText;
+      primary?: GinkoDocsLink;
+      secondary?: GinkoDocsLink;
+    };
   };
 }
