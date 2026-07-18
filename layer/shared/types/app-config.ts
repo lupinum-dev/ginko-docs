@@ -7,9 +7,20 @@ export interface GinkoDocsLink {
   icon?: string;
 }
 
+export interface GinkoDocsHeroCodeTab {
+  label: GinkoDocsLocalizedText;
+  /** Iconify icon shown in the tab. */
+  icon?: string;
+  filename?: string;
+  /** Shiki language id; derived from the filename extension when unset. */
+  language?: string;
+  code: string;
+}
+
 export type GinkoDocsHeroMedia =
   | { type: "image"; src: string; alt: string }
-  | { type: "code"; code: string; language?: string; filename?: string };
+  | { type: "code"; code: string; language?: string; filename?: string }
+  | { type: "code-tabs"; tabs: GinkoDocsHeroCodeTab[] };
 
 export type GinkoDocsPlausibleExtension =
   | "hash"

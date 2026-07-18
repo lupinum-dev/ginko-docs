@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useI18n, useSeoMeta } from "#imports";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
+import SiteHeroCode from "#ginko-docs/components/site/SiteHeroCode.vue";
 
 const config = useGinkoDocsConfig();
 const { locale } = useI18n();
@@ -30,9 +31,26 @@ const landing = computed(() => ({
   heroMedia: config.landing.hero?.media,
 }));
 
-const heroCodeLines = computed(() =>
-  landing.value.heroMedia?.type === "code" ? landing.value.heroMedia.code.split("\n") : [],
-);
+const heroCodeTabs = computed(() => {
+  const media = landing.value.heroMedia;
+
+  if (media?.type === "code-tabs") {
+    return media.tabs.map((tab) => ({ ...tab, label: localize(tab.label) }));
+  }
+
+  if (media?.type === "code") {
+    return [
+      {
+        label: media.filename ?? media.language ?? "Code",
+        filename: media.filename,
+        language: media.language,
+        code: media.code,
+      },
+    ];
+  }
+
+  return [];
+});
 
 useSeoMeta({
   title: computed(() => localize(config.site.name)),
@@ -77,39 +95,19 @@ useSeoMeta({
           </div>
         </div>
 
-        <div v-if="landing.heroMedia" class="hidden w-[26rem] max-w-full shrink-0 lg:block">
+        <div
+          v-if="landing.heroMedia"
+          class="w-full min-w-0 max-w-2xl shrink-0 lg:w-[30rem] lg:max-w-full xl:w-[36rem]"
+        >
           <NuxtImg
             v-if="landing.heroMedia.type === 'image'"
             :src="landing.heroMedia.src"
             :alt="landing.heroMedia.alt"
             class="w-full rounded-xl border border-border object-cover shadow-sm"
-            width="416"
+            width="576"
             loading="lazy"
           />
-          <div
-            v-else-if="landing.heroMedia.type === 'code'"
-            class="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
-          >
-            <div
-              v-if="landing.heroMedia.filename"
-              class="flex h-9 items-center gap-2 border-b border-border bg-muted/50 px-4"
-            >
-              <span class="flex gap-1.5" aria-hidden="true">
-                <span class="size-2.5 rounded-full bg-border" />
-                <span class="size-2.5 rounded-full bg-border" />
-                <span class="size-2.5 rounded-full bg-border" />
-              </span>
-              <span class="text-xs font-medium text-muted-foreground">
-                {{ landing.heroMedia.filename }}
-              </span>
-            </div>
-            <pre
-              role="region"
-              tabindex="0"
-              :aria-label="landing.heroMedia.filename ?? 'Code'"
-              class="overflow-x-auto p-4 font-mono text-[13px] leading-6 text-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            ><code><span v-for="(line, index) in heroCodeLines" :key="index" class="block">{{ line }}</span></code></pre>
-          </div>
+          <SiteHeroCode v-else-if="heroCodeTabs.length" :tabs="heroCodeTabs" />
         </div>
       </div>
     </section>
