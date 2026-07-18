@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { cn } from "#ginko-docs/lib/utils";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
-import { findFirstNavigationPage } from "@lupinum/ginko-content/client";
 import {
   docsNavigationSectionContainsPath,
   getDocsNavigationGroups,
+  resolveDocsSectionTargetPath,
   type DocsNavigationSection,
 } from "#ginko-docs/features/docs/docs-navigation";
 import { ScrollArea } from "#ginko-docs/components/ui/scroll-area";
@@ -12,7 +12,7 @@ import DocsSidebarItem from "./DocsSidebarItem.vue";
 import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
 import DocsSidebarList from "./DocsSidebarList.vue";
 import DocsSidebarTabs from "./DocsSidebarTabs.vue";
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { navigateTo, useAppConfig, useI18n, useRoute } from "#imports";
 
 const props = withDefaults(
@@ -55,16 +55,41 @@ watch(
 );
 
 function setActiveSection(id: string) {
+  // Re-selecting the active section must not navigate away from the current page.
+  if (id === activeSectionId.value) return;
   selectedSectionId.value = id;
   const section = sections.value.find((entry) => entry.id === id);
-  // Structural sections have no page of their own — land on their first page
-  // instead of only swapping the sidebar contents.
-  const path = section?.path ?? findFirstNavigationPage(section?.items)?.path;
+  const path = section ? resolveDocsSectionTargetPath(section) : undefined;
   if (path) void navigateTo(path);
 }
 
 const scrollViewportClass =
   "size-full rounded-[inherit] p-4 pt-2 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
+
+// Deep links can land on an item far outside the visible band — center it
+// once on mount and on section switches. Instant on purpose: this is initial
+// positioning, not motion.
+const scrollArea = ref<{ $el?: HTMLElement } | null>(null);
+
+function revealActiveItem() {
+  const viewport = scrollArea.value?.$el?.querySelector<HTMLElement>(
+    "[data-slot='scroll-area-viewport']",
+  );
+  const active = viewport?.querySelector<HTMLElement>("[data-active='true']");
+  if (!viewport || !active) return;
+  const viewportRect = viewport.getBoundingClientRect();
+  const activeRect = active.getBoundingClientRect();
+  const top = activeRect.top - viewportRect.top;
+  if (top >= 8 && top + activeRect.height <= viewport.clientHeight - 8) return;
+  viewport.scrollTop += top - viewport.clientHeight / 2 + activeRect.height / 2;
+}
+
+onMounted(() => {
+  void nextTick(revealActiveItem);
+});
+watch(activeSectionId, () => {
+  void nextTick(revealActiveItem);
+});
 
 const asideClass = computed(() =>
   cn(
@@ -77,13 +102,7 @@ const asideClass = computed(() =>
 </script>
 
 <template>
-  <aside
-    data-hovered="false"
-    :data-variant="variant"
-    :id="variant === 'desktop' ? 'nd-sidebar' : undefined"
-    :aria-label="t('docs.label')"
-    :class="asideClass"
-  >
+  <aside :data-variant="variant" :aria-label="t('docs.label')" :class="asideClass">
     <div v-if="switcherSections.length > 1" class="flex flex-col gap-3 p-4 pb-2">
       <DocsSidebarTabs
         v-if="sidebarSwitcher === 'tabs'"
@@ -105,12 +124,12 @@ const asideClass = computed(() =>
       />
     </div>
 
-    <ScrollArea class="min-h-0 flex-1" :viewport-class="scrollViewportClass">
+    <ScrollArea ref="scrollArea" class="min-h-0 flex-1" :viewport-class="scrollViewportClass">
       <div class="flex min-w-full flex-col gap-0.5">
         <template v-for="group in groups" :key="group.id">
           <p
             v-if="group.title"
-            class="mt-6 mb-1 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0"
+            class="mt-6 mb-1.5 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0"
           >
             {{ group.title }}
           </p>

@@ -77,6 +77,22 @@ export function docsNavigationSectionContainsPath(
   );
 }
 
+function firstDocsNavigationPagePath(items: DocsNavigationItem[]): string | undefined {
+  for (const item of items) {
+    if (item.path) return item.path;
+    const descendant = firstDocsNavigationPagePath(item.children);
+    if (descendant) return descendant;
+  }
+  return undefined;
+}
+
+// Structural sections have no page of their own — they resolve to their first
+// navigable page so switching to them lands somewhere instead of only swapping
+// the sidebar contents.
+export function resolveDocsSectionTargetPath(section: DocsNavigationSection): string | undefined {
+  return section.path ?? firstDocsNavigationPagePath(section.items);
+}
+
 export function findDocsNavigationTrail(
   items: DocsNavigationItem[],
   path: string,

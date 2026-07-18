@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import type { DocsNavigationSection } from "#ginko-docs/features/docs/docs-navigation";
+import { computed } from "vue";
+import {
+  resolveDocsSectionTargetPath,
+  type DocsNavigationSection,
+} from "#ginko-docs/features/docs/docs-navigation";
+import { Tabs, TabsList, TabsTrigger } from "#ginko-docs/components/ui/tabs";
 
-defineProps<{
+const props = defineProps<{
   sections: Array<DocsNavigationSection & { title: string }>;
   activeId: string;
 }>();
@@ -9,27 +14,46 @@ defineProps<{
 const emit = defineEmits<{
   "update:activeId": [id: string];
 }>();
+
+const tabs = computed(() =>
+  props.sections.map((section) => ({
+    id: section.id,
+    title: section.title,
+    target: resolveDocsSectionTargetPath(section),
+  })),
+);
+
+function onTabClick(id: string, event: MouseEvent) {
+  // Re-clicking the active section would otherwise navigate away from the
+  // current page to the section's first page.
+  if (id === props.activeId) event.preventDefault();
+}
 </script>
 
 <template>
-  <div
-    class="inline-flex h-9 w-full items-center justify-center overflow-hidden rounded-lg bg-muted p-[3px] text-muted-foreground"
-    role="tablist"
-    aria-orientation="horizontal"
-    data-slot="docs-sidebar-tabs"
-  >
-    <button
-      v-for="section in sections"
-      :key="section.id"
-      type="button"
-      role="tab"
-      :title="section.title"
-      :aria-selected="activeId === section.id"
-      :data-state="activeId === section.id ? 'active' : 'inactive'"
-      class="inline-flex h-[calc(100%-1px)] min-w-0 flex-1 basis-0 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring data-[state=active]:bg-background data-[state=active]:shadow-sm dark:text-muted-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground"
-      @click="emit('update:activeId', section.id)"
-    >
-      {{ section.title }}
-    </button>
-  </div>
+  <Tabs :model-value="activeId" activation-mode="manual" data-slot="docs-sidebar-tabs">
+    <TabsList class="w-full">
+      <template v-for="tab in tabs" :key="tab.id">
+        <TabsTrigger v-if="tab.target" :value="tab.id" as-child>
+          <NuxtLink
+            :to="tab.target"
+            :title="tab.title"
+            class="min-w-0 flex-1 basis-0"
+            @click="onTabClick(tab.id, $event)"
+          >
+            <span class="truncate">{{ tab.title }}</span>
+          </NuxtLink>
+        </TabsTrigger>
+        <TabsTrigger
+          v-else
+          :value="tab.id"
+          :title="tab.title"
+          class="min-w-0 flex-1 basis-0"
+          @click="emit('update:activeId', tab.id)"
+        >
+          <span class="truncate">{{ tab.title }}</span>
+        </TabsTrigger>
+      </template>
+    </TabsList>
+  </Tabs>
 </template>

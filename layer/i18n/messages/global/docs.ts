@@ -22,6 +22,7 @@ export const docs = {
   askClaude: { de: "In Claude öffnen", en: "Open in Claude" },
   copyMcpUrl: { de: "MCP-Server-URL kopieren", en: "Copy MCP server URL" },
   contribute: { de: "Zu dieser Seite beitragen", en: "Contribute to this page" },
+  backToTop: { de: "Nach oben", en: "Back to top" },
   editPage: { de: "Diese Seite bearbeiten", en: "Edit this page" },
   reportIssue: { de: "Problem melden", en: "Report an issue" },
   issueTitle: { de: "Dokumentation: {title}", en: "Docs: {title}" },

@@ -6,7 +6,7 @@ import DocsMobileToc from "./DocsMobileToc.vue";
 import DocsPageNav from "./DocsPageNav.vue";
 import DocsToc from "./DocsToc.vue";
 import DocsContributeLinks from "./DocsContributeLinks.vue";
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useAppConfig, useContentPage, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
@@ -63,10 +63,25 @@ const schemaBreadcrumbs = computed(() => [
     .filter((item) => item.path)
     .map((item) => ({ name: item.title, path: item.path! })),
 ]);
-const { activeId, refresh } = useScrollspy(computed(() => tocItems.value.map((item) => item.id)));
+const { activeIds, refresh } = useScrollspy(computed(() => tocItems.value.map((item) => item.id)));
 
 watch(tocItems, () => {
   void refresh();
+});
+
+// Keep the active TOC region visible when a long TOC overflows the sticky
+// aside. Instant, never animated — it must not compete with the page scroll.
+const tocAside = ref<HTMLElement | null>(null);
+watch(activeIds, () => {
+  requestAnimationFrame(() => {
+    const aside = tocAside.value;
+    if (!aside || aside.scrollHeight <= aside.clientHeight) return;
+    const link = aside.querySelector<HTMLElement>("[data-toc-active]");
+    if (!link) return;
+    const linkTop = link.getBoundingClientRect().top - aside.getBoundingClientRect().top;
+    if (linkTop >= 16 && linkTop <= aside.clientHeight - 44) return;
+    aside.scrollTop += linkTop - aside.clientHeight / 2;
+  });
 });
 
 useSeoMeta({
@@ -109,6 +124,11 @@ useSchemaJsonLd(() => [
   },
 ]);
 
+function scrollToTop() {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+}
+
 useHead(() => ({
   link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
   meta: [{ property: "og:type", content: "article" }],
@@ -121,7 +141,7 @@ useHead(() => ({
       <DocsMobileToc
         class="order-1"
         :items="tocItems"
-        :active-id="activeId"
+        :active-ids="activeIds"
         :page-title="pageTitle"
       />
 
@@ -171,7 +191,12 @@ useHead(() => ({
             <ContentRenderer :value="page" />
           </div>
 
-          <DocsContributeLinks :stem="page.stem" :extension="page.extension" :title="pageTitle" />
+          <DocsContributeLinks
+            class="xl:hidden"
+            :stem="page.stem"
+            :extension="page.extension"
+            :title="pageTitle"
+          />
           <DocsPageNav :prev="prev" :next="next" />
           <ContentFeedback :label="t('feedback.label')" />
         </article>
@@ -179,10 +204,28 @@ useHead(() => ({
     </div>
 
     <aside
-      class="sticky top-[var(--site-header-height)] hidden h-[calc(100vh-var(--site-header-height))] w-[var(--docs-toc-width)] shrink-0 flex-col overflow-y-auto pt-10 pr-4 pb-6 xl:flex"
+      ref="tocAside"
+      class="sticky top-[var(--site-header-height)] hidden h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-toc-width)] shrink-0 flex-col overflow-y-auto pt-10 pr-4 pb-6 xl:flex"
       :aria-label="t('docs.toc')"
     >
-      <DocsToc :items="tocItems" :active-id="activeId" />
+      <DocsToc class="mb-6" :items="tocItems" :active-ids="activeIds" />
+
+      <div class="mt-auto flex flex-col gap-2.5 border-t border-border/70 pt-5">
+        <DocsContributeLinks
+          variant="rail"
+          :stem="page?.stem"
+          :extension="page?.extension"
+          :title="pageTitle"
+        />
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 self-start text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          @click="scrollToTop"
+        >
+          <Icon name="lucide:arrow-up" class="size-4" aria-hidden="true" />
+          {{ t("docs.backToTop") }}
+        </button>
+      </div>
     </aside>
   </div>
 </template>

@@ -3,7 +3,7 @@ import { useScrollLock, onKeyStroke } from "@vueuse/core";
 import { Button } from "#ginko-docs/components/ui/button";
 import { Kbd } from "#ginko-docs/components/ui/kbd";
 import { Separator } from "#ginko-docs/components/ui/separator";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n, useRoute } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
@@ -15,8 +15,6 @@ const { openCommandCenter } = useCommandCenterState();
 const { t } = useI18n();
 const route = useRoute();
 const isMobileMenuOpen = ref(false);
-const headerElement = ref<HTMLElement | null>(null);
-const mobileMenuTop = ref("var(--site-header-height)");
 const localizedPath = useLocalizedPath();
 
 const isActive = (href: string) => route.path === href || route.path.startsWith(href + "/");
@@ -42,24 +40,7 @@ const scrollLock = useScrollLock(import.meta.client ? document.body : null);
 
 watch(isMobileMenuOpen, (open) => {
   scrollLock.value = open;
-  if (open) {
-    void nextTick(updateMobileMenuTop);
-  }
 });
-
-function updateMobileMenuTop() {
-  if (!import.meta.client || !headerElement.value) return;
-  mobileMenuTop.value = `${Math.max(0, headerElement.value.getBoundingClientRect().bottom)}px`;
-}
-
-function handleResize() {
-  if (isMobileMenuOpen.value) {
-    updateMobileMenuTop();
-  }
-}
-
-onMounted(() => window.addEventListener("resize", handleResize));
-onBeforeUnmount(() => window.removeEventListener("resize", handleResize));
 
 function openSearch() {
   isMobileMenuOpen.value = false;
@@ -84,7 +65,6 @@ watch(
 
 <template>
   <header
-    ref="headerElement"
     class="sticky top-0 z-50 flex h-14 w-full shrink-0 items-center border-b border-border bg-background/90 backdrop-blur-md"
   >
     <div class="mx-auto flex w-full max-w-screen-2xl flex-1 items-center gap-4 px-4 md:px-6">
@@ -177,8 +157,7 @@ watch(
   >
     <div
       v-if="isMobileMenuOpen"
-      class="fixed inset-x-0 bottom-0 z-40 [scrollbar-width:none] overflow-y-auto bg-background/95 backdrop-blur-md md:hidden [&::-webkit-scrollbar]:hidden"
-      :style="{ top: mobileMenuTop }"
+      class="fixed inset-x-0 top-[calc(var(--site-banner-height,0px)+var(--site-header-height))] bottom-0 z-40 [scrollbar-width:none] overflow-y-auto bg-background/95 backdrop-blur-md md:hidden [&::-webkit-scrollbar]:hidden"
     >
       <div class="px-5 pt-9 pb-12">
         <nav v-if="mobileNavItems.length" class="space-y-4" :aria-label="t('nav.mobile')">

@@ -9,13 +9,13 @@ import {
   SheetTrigger,
 } from "#ginko-docs/components/ui/sheet";
 import { cn } from "#ginko-docs/lib/utils";
-import type { TocItem } from "./DocsToc.vue";
+import type { FlatTocItem } from "#ginko-docs/utils/content";
 import DocsToc from "./DocsToc.vue";
 import { useI18n, useRoute } from "#imports";
 
 const props = defineProps<{
-  items: TocItem[];
-  activeId?: string;
+  items: FlatTocItem[];
+  activeIds?: string[];
   pageTitle?: string;
   class?: HTMLAttributes["class"];
 }>();
@@ -53,7 +53,7 @@ watch(
       <SheetTrigger as-child>
         <button
           type="button"
-          class="-ml-1 flex h-8 min-w-0 items-center gap-2 rounded-lg px-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          class="-ml-1 flex h-8 min-w-0 items-center gap-2 rounded-lg px-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           :aria-label="t('docs.pageNavigation')"
         >
           <Icon
@@ -65,7 +65,10 @@ watch(
         </button>
       </SheetTrigger>
 
-      <SheetContent side="left" class="flex w-[20rem] max-w-[86vw] flex-col gap-0 p-0">
+      <SheetContent
+        side="left"
+        class="flex w-[var(--docs-sidebar-width)] max-w-[85vw] flex-col gap-0 p-0"
+      >
         <div class="border-b border-border px-4 py-3">
           <SheetTitle class="text-sm font-semibold">{{ t("docs.label") }}</SheetTitle>
           <SheetDescription class="sr-only">{{ t("docs.pageNavigation") }}</SheetDescription>
@@ -79,7 +82,8 @@ watch(
     <Sheet v-if="items.length" v-model:open="tocOpen">
       <SheetTrigger as-child>
         <button
-          class="-mr-1 flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          type="button"
+          class="-mr-1 flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
           <Icon name="lucide:list" class="size-3.5" aria-hidden="true" />
           <span>{{ t("docs.toc") }}</span>
@@ -96,7 +100,7 @@ watch(
         </div>
 
         <div class="flex-1 overflow-y-auto px-6 py-5" @click="tocOpen = false">
-          <DocsToc :items="items" :active-id="activeId" :show-title="false" />
+          <DocsToc :items="items" :active-ids="activeIds" :show-title="false" />
         </div>
       </SheetContent>
     </Sheet>

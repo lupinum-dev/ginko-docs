@@ -113,6 +113,8 @@
 :root {
   /* Docs layout (Fumadocs-style shell) */
   --site-header-height: 3.5rem;
+  /* Currently visible banner height; SiteBanner is the single writer. */
+  --site-banner-height: 0px;
   --docs-sidebar-width-expanded: 268px;
   --docs-sidebar-width: var(--docs-sidebar-width-expanded);
   --docs-toc-width: 16rem;

@@ -5,7 +5,9 @@ import {
   getDocsNavigationSections,
   docsNavigationSectionContainsPath,
   normalizeDocsNavigationItem,
+  resolveDocsSectionTargetPath,
   type DocsNavigationItem,
+  type DocsNavigationSection,
 } from "./docs-navigation";
 
 const navigation: DocsNavigationItem[] = [
@@ -202,5 +204,38 @@ describe("docs navigation trails", () => {
         items: navigation,
       },
     ]);
+  });
+});
+
+describe("resolveDocsSectionTargetPath", () => {
+  const section = (overrides: Partial<DocsNavigationSection>): DocsNavigationSection => ({
+    id: "docs:section",
+    items: [],
+    ...overrides,
+  });
+
+  it("prefers the section's own page", () => {
+    expect(resolveDocsSectionTargetPath(section({ path: "/docs/guides", items: navigation }))).toBe(
+      "/docs/guides",
+    );
+  });
+
+  it("resolves a structural section to its first navigable page", () => {
+    const structural = section({
+      items: [
+        normalizeDocsNavigationItem({
+          title: "Authentication",
+          children: [{ title: "API keys", path: "/docs/guides/authentication/api-keys" }],
+        }),
+      ],
+    });
+    expect(resolveDocsSectionTargetPath(structural)).toBe("/docs/guides/authentication/api-keys");
+  });
+
+  it("returns undefined for a section without any page", () => {
+    const empty = section({
+      items: [normalizeDocsNavigationItem({ title: "Placeholder", children: [] })],
+    });
+    expect(resolveDocsSectionTargetPath(empty)).toBeUndefined();
   });
 });

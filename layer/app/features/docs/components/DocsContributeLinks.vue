@@ -3,11 +3,17 @@ import type { GinkoDocsAppConfig } from "../../../../shared/types/app-config";
 import { computed } from "vue";
 import { useAppConfig, useI18n, useRoute } from "#imports";
 
-const props = defineProps<{
-  stem?: string;
-  extension?: string;
-  title: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    stem?: string;
+    extension?: string;
+    title: string;
+    variant?: "article" | "rail";
+  }>(),
+  {
+    variant: "article",
+  },
+);
 
 const route = useRoute();
 const { t } = useI18n();
@@ -38,7 +44,11 @@ const issueUrl = computed(() => {
 <template>
   <div
     v-if="repository"
-    class="mt-12 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-sm"
+    :class="
+      variant === 'rail'
+        ? 'flex flex-col gap-2.5 text-sm'
+        : 'mt-12 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-sm'
+    "
     :aria-label="t('docs.contribute')"
   >
     <a

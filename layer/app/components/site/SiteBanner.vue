@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLocalStorage } from "@vueuse/core";
-import { computed, ref, onMounted } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18n } from "#imports";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
@@ -25,11 +25,52 @@ const visible = computed(
     (!props.landing || config.banner.showOnLanding) &&
     (!hydrated.value ? true : !dismissed.value),
 );
+
+// The banner scrolls away above the sticky header, so sticky consumers
+// (docs sidebar/TOC heights, mobile menu top) need its *currently visible*
+// height. This component is the single writer of --site-banner-height.
+const bannerElement = ref<HTMLElement | null>(null);
+let rafId: number | null = null;
+let lastHeight = -1;
+
+function updateBannerHeightVar() {
+  rafId = null;
+  const element = bannerElement.value;
+  const height = element
+    ? Math.max(0, Math.min(element.getBoundingClientRect().bottom, element.offsetHeight))
+    : 0;
+  if (height === lastHeight) return;
+  lastHeight = height;
+  document.documentElement.style.setProperty("--site-banner-height", `${height}px`);
+}
+
+function scheduleBannerHeightVar() {
+  if (rafId !== null) return;
+  rafId = requestAnimationFrame(updateBannerHeightVar);
+}
+
+watch(visible, () => {
+  void nextTick(scheduleBannerHeightVar);
+});
+
+onMounted(() => {
+  window.addEventListener("scroll", scheduleBannerHeightVar, { passive: true });
+  window.addEventListener("resize", scheduleBannerHeightVar, { passive: true });
+  scheduleBannerHeightVar();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", scheduleBannerHeightVar);
+  window.removeEventListener("resize", scheduleBannerHeightVar);
+  if (rafId !== null) cancelAnimationFrame(rafId);
+  document.documentElement.style.setProperty("--site-banner-height", "0px");
+});
 </script>
 
 <template>
   <div
     v-if="visible"
+    ref="bannerElement"
     role="region"
     :aria-label="banner.text"
     class="relative z-30 bg-primary px-10 py-2.5 text-center text-sm leading-5 font-medium text-primary-foreground"
@@ -46,7 +87,7 @@ const visible = computed(
     </span>
     <button
       type="button"
-      class="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded p-1 opacity-70 transition-opacity hover:opacity-100"
+      class="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-foreground/50 focus-visible:outline-none"
       :aria-label="t('banner.dismiss')"
       @click="dismissed = true"
     >

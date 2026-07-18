@@ -12,6 +12,7 @@ export const layerIconNames = [
   "logos:yarn",
   "lucide:arrow-left",
   "lucide:arrow-right",
+  "lucide:arrow-up",
   "lucide:arrow-up-right",
   "lucide:atom",
   "lucide:badge-check",
