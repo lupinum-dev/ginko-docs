@@ -1,39 +1,46 @@
-# Product
+# Ginko Docs product
 
-## Register
+## Purpose
 
-brand
+Ginko Docs is a publishable Nuxt layer for product and developer documentation. A consumer supplies Markdown, identity, and optional presentation overrides. The layer supplies the documentation shell, content routes, navigation, search, localization, SEO, social images, and agent-readable output.
+
+The product succeeds when a maintainer can start with an existing Nuxt application, publish a useful first page without rebuilding a theme, and keep the site understandable as the documentation grows.
 
 ## Users
 
-Decision-makers in established, specialized B2B companies whose services, audiences, and standards have outgrown their current website. They may arrive with a specific concern through an advertising campaign, or research Lupinum through the main website, references, blog, and knowledge content. They need to understand whether Lupinum recognizes their situation, can be trusted with a consequential website project, and offers a sensible next step.
+Ginko Docs serves teams that own a Nuxt product and need a maintained documentation site without creating a second frontend platform. Typical users are:
 
-## Product Purpose
+- maintainers publishing API, integration, or product documentation;
+- documentation engineers responsible for navigation and authoring conventions;
+- teams that need English and German content from one site;
+- teams that want the same canonical content available to readers, search engines, and software agents.
 
-Lupinum demonstrates and sells a clear, structured approach to modern business websites. The site should turn uncertainty about an outdated or unclear website into an informed next action, using focused campaign journeys, strong proof, substantial educational content, and an easy path between conversion-focused landing pages and the broader Lupinum website.
+It is not a hosted CMS, a visual editor, or a general marketing-site builder.
 
-Success means that qualified visitors understand the offer, trust the agency's judgment, can explore supporting evidence without losing their original intent, and complete the relevant conversion action.
+## Product boundaries
 
-## Brand Personality
+Ginko Content owns document identity, collection schemas, routes, locale variants, search data, sitemaps, and agent representations. Ginko Docs presents those capabilities through a Nuxt application shell. Consumers own their content, brand, locale selection, repository links, analytics choices, and deployment.
 
-Clear, confident, energetic. Lupinum should feel expert without becoming corporate, direct without becoming aggressive, and visually distinctive without sacrificing comprehension.
+Each concern must keep one authoring source:
 
-## Anti-references
+- `content.config.ts` defines collections and whether the blog exists;
+- `app/app.config.ts` defines public presentation settings;
+- Markdown and data files define the published content;
+- `.navigation.yml` files define sidebar sections and groups;
+- Nuxt configuration defines framework and deployment behavior.
 
-- Generic full-service agency templates with interchangeable claims and stock sections.
-- High-pressure funnel pages built on false urgency, hidden navigation, or manipulative scarcity.
-- Campaign microsites that feel unrelated to the company behind them.
-- Technically impressive interfaces that make visitors work to understand the offer.
-- Safe, muted design systems that erase Lupinum's bright and opinionated identity.
+## Product principles
 
-## Design Principles
+1. **Useful on the first page.** The default shell should need content and identity, not a theme-building project.
+2. **Nuxt-native customization.** Consumers override pages, layouts, components, and CSS through normal Nuxt conventions.
+3. **One content model.** Rendered pages, search, SEO, raw Markdown, LLM catalogs, and MCP must derive from the same documents.
+4. **Structure over ornament.** Navigation should expose the reader's location and choices without decorative hierarchy.
+5. **Static where possible, runtime where required.** Static deployments keep prerendered content and discovery assets; runtime-only capabilities must be described honestly.
+6. **Accessible by default.** Keyboard navigation, focus states, semantic landmarks, contrast, reduced motion, and readable text are release requirements.
+7. **Safe authored components.** Markdown components use explicit static prop and slot policies rather than unrestricted Vue execution.
 
-1. **Practice what we sell.** The website itself should demonstrate clarity, structure, performance, accessibility, and thoughtful conversion design.
-2. **Focus without disconnection.** Campaign pages remove irrelevant choices, but visitors always understand that Lupinum is the trusted company behind the offer and can move into or back from the full site.
-3. **Proof before pressure.** References, process clarity, and useful information should build conviction instead of artificial urgency.
-4. **One meaningful next step.** Every surface should make its primary action obvious while preserving a quieter exploration path.
-5. **Depth on demand.** The first read is simple; visitors who need confidence can access substantial services, references, blog, and knowledge content without losing context.
+## Documentation standard
 
-## Accessibility & Inclusion
+The playground is the reference consumer and the public documentation site. Its content must teach the package, not describe tests or internal migrations. Examples use public consumer APIs and commands. Reference pages follow source types and exports. English and German pages remain structurally equivalent.
 
-Target WCAG 2.2 AA across the public website and campaign pages. Preserve keyboard navigation, visible focus, semantic landmarks, sufficient contrast, readable line lengths, reduced-motion alternatives, localized language, and mobile-first conversion flows. Campaign context and persistent calls to action must never obstruct content, focus, or essential controls.
+The detailed writing contract lives in [`docs/WRITING.md`](./docs/WRITING.md).

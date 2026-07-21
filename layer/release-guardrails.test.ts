@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { defaultLocale, localeFromPath, localizedPath } from "./i18n/locales";
@@ -20,6 +20,57 @@ function sourceFiles(path: string): string[] {
     const entryPath = join(path, entry.name);
     return entry.isDirectory() ? sourceFiles(entryPath) : [entryPath];
   });
+}
+
+function authoredProse(source: string) {
+  const withoutFrontmatter = source.replace(/^---\n[\s\S]*?\n---\n?/, "");
+  let inFence = false;
+
+  return withoutFrontmatter
+    .split("\n")
+    .filter((line) => {
+      if (/^\s*(?:`{3,}|~{3,})/.test(line)) {
+        inFence = !inFence;
+        return false;
+      }
+      return !inFence;
+    })
+    .join("\n");
+}
+
+function numericContentIdentity(contentRoot: string, path: string) {
+  return relative(contentRoot, path)
+    .replaceAll("\\", "/")
+    .split("/")
+    .map((segment) => {
+      if (segment === ".navigation.yml") return "navigation";
+      const order = segment.match(/^(\d+)\./)?.[1];
+      if (!order) return segment;
+      return `${segment.endsWith(".md") ? "page" : "directory"}:${order}`;
+    })
+    .join("/");
+}
+
+function unlabeledCodeFences(source: string) {
+  const unlabeled: string[] = [];
+  let closingFence: string | undefined;
+
+  for (const line of source.split("\n")) {
+    const trimmed = line.trim();
+    if (closingFence) {
+      if (trimmed === closingFence) closingFence = undefined;
+      continue;
+    }
+
+    const fence = trimmed.match(/^(`{3,}|~{3,})(.*)$/);
+    if (!fence) continue;
+    closingFence = fence[1];
+    if (!/^[a-z0-9_-]+\s+\[[^\]]+\]$/i.test(fence[2]?.trim() ?? "")) {
+      unlabeled.push(line);
+    }
+  }
+
+  return unlabeled;
 }
 
 describe("ginko docs release guardrails", () => {
@@ -191,6 +242,72 @@ describe("ginko docs release guardrails", () => {
     expect(read("playground/nuxt.config.ts")).toContain('extends: ["../layer"]');
     expect(read("playground/content.config.ts")).toContain("defineGinkoDocsConfig");
     expect(read("playground/app/app.config.ts")).toContain("ginkoDocs");
+  });
+
+  it("keeps the playground documentation bilingual, task-first, and free of fixture prose", () => {
+    const roots = [
+      join(root, "playground/content/en/1.docs"),
+      join(root, "playground/content/de/1.dokumentation"),
+    ];
+    const pagesByLocale = roots.map((contentRoot) =>
+      sourceFiles(contentRoot).filter((path) => path.endsWith(".md")),
+    );
+    const localeRoots = [join(root, "playground/content/en"), join(root, "playground/content/de")];
+    const authoredPagesByLocale = localeRoots.map((contentRoot) =>
+      sourceFiles(contentRoot).filter((path) => path.endsWith(".md")),
+    );
+
+    expect(pagesByLocale[0]?.length).toBeGreaterThanOrEqual(20);
+    expect(pagesByLocale[1]?.length).toBe(pagesByLocale[0]?.length);
+    expect(authoredPagesByLocale[1]?.length).toBe(authoredPagesByLocale[0]?.length);
+
+    const pageIdentities = roots.map((contentRoot, index) =>
+      (pagesByLocale[index] ?? []).map((path) => numericContentIdentity(contentRoot, path)).sort(),
+    );
+    expect(new Set(pageIdentities[0]).size).toBe(pageIdentities[0]?.length);
+    expect(pageIdentities[1]).toEqual(pageIdentities[0]);
+
+    const authoredIdentities = localeRoots.map((contentRoot, index) =>
+      (authoredPagesByLocale[index] ?? [])
+        .map((path) => numericContentIdentity(contentRoot, path))
+        .sort(),
+    );
+    expect(authoredIdentities[1]).toEqual(authoredIdentities[0]);
+
+    const navigationIdentities = roots.map((contentRoot) =>
+      sourceFiles(contentRoot)
+        .filter((path) => path.endsWith(".navigation.yml"))
+        .map((path) => numericContentIdentity(contentRoot, path))
+        .sort(),
+    );
+    expect(navigationIdentities[1]).toEqual(navigationIdentities[0]);
+
+    for (const [index, contentRoot] of roots.entries()) {
+      const navigation = sourceFiles(contentRoot)
+        .filter((path) => path.endsWith(".navigation.yml"))
+        .map((path) => readFileSync(path, "utf8"));
+      expect(navigation.filter((source) => source.includes("sidebar: section"))).toHaveLength(2);
+      expect(navigation.filter((source) => source.includes("sidebar: group"))).toHaveLength(7);
+
+      for (const path of authoredPagesByLocale[index] ?? []) {
+        const source = readFileSync(path, "utf8");
+        const prose = authoredProse(source);
+        expect(source).toMatch(/^---\n/);
+        expect(source).toMatch(/^title: .+$/m);
+        expect(source).toMatch(/^description: .+$/m);
+        expect(source).not.toMatch(/^navigation\./m);
+        expect(unlabeledCodeFences(source)).toEqual([]);
+        expect(prose).not.toMatch(/^#\s+/m);
+        expect(prose).not.toMatch(
+          /^##\s+(?:What's next|Next steps|Related|See also|Conclusion|Summary|Wie geht es weiter\??|Nächste Schritte|Verwandte Seiten|Siehe auch|Fazit|Zusammenfassung)\s*$/gim,
+        );
+        expect(prose).not.toMatch(
+          /acceptance test|this page proves|what to verify|explore the proof|Akzeptanzkriterien|Verifikationsziele|Diese Seite beweist/i,
+        );
+        expect(prose).not.toMatch(/\buseContent(?:Tree|Many|Variants|Navigation)\b/);
+        expect(prose).not.toMatch(/\bvp\s+(?:run|test|check|build|pack|fmt)\b/);
+      }
+    }
   });
 
   it("keeps feedback disabled until a consumer opts in", () => {

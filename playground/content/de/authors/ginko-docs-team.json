@@ -2,6 +2,6 @@
   "slug": "ginko-docs-team",
   "name": "Ginko Docs Team",
   "role": "Documentation Engineering",
-  "bio": "Das Team teilt praktische Erfahrungen mit hochwertiger, mehrsprachiger Dokumentation auf Basis von Ginko Content.",
+  "bio": "Maintainer des Ginko-Docs-Nuxt-Layers und seiner zweisprachigen Referenz-Site.",
   "avatar": "/favicon.svg"
 }

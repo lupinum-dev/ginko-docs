@@ -4,8 +4,8 @@ export default {
     site: {
       name: { en: "Ginko Docs", de: "Ginko Docs" },
       description: {
-        en: "Beautiful documentation sites built with Nuxt and ginko-content.",
-        de: "Schöne Dokumentations-Websites auf Basis von Nuxt und ginko-content.",
+        en: "Documentation sites built with Nuxt and Ginko Content.",
+        de: "Dokumentations-Sites auf Basis von Nuxt und Ginko Content.",
       },
       url: "http://localhost:3000",
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
@@ -28,16 +28,16 @@ export default {
     repository: undefined,
     landing: {
       eyebrow: {
-        en: "Documentation for humans and agents",
-        de: "Dokumentation für Menschen und Agenten",
+        en: "Documentation for readers and agents",
+        de: "Dokumentation für Leser und Agenten",
       },
       title: {
-        en: "Documentation that feels finished.",
-        de: "Dokumentation, die sich fertig anfühlt.",
+        en: "Publish structured documentation.",
+        de: "Veröffentliche strukturierte Dokumentation.",
       },
       description: {
-        en: "A focused Nuxt layer for fast, searchable, multilingual documentation sites.",
-        de: "Ein fokussierter Nuxt-Layer für schnelle, durchsuchbare, mehrsprachige Dokumentations-Websites.",
+        en: "A Nuxt layer for searchable, localized documentation with stable routes and agent-readable output.",
+        de: "Ein Nuxt-Layer für durchsuchbare, lokalisierte Dokumentation mit stabilen Routen und agentenlesbarer Ausgabe.",
       },
       primary: {
         label: { en: "Get started", de: "Erste Schritte" },

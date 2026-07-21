@@ -1,111 +1,169 @@
 # Ginko Docs
 
-Ginko Docs is a publishable Nuxt layer for focused, searchable, multilingual documentation sites. It combines a polished application shell with Ginko Content collections, navigation, search, SEO, localized routes, and agent-readable Markdown surfaces.
+Ginko Docs is a Nuxt layer for focused documentation sites. It combines Ginko Content collections with a documentation shell, navigation, search, localization, SEO, social images, optional blog routes, and agent-readable Markdown surfaces.
 
-The package currently lives in the Ginko Docs development repository. Repository links may move to the Lupinum organization without changing the package name or consumer API.
+## Requirements
+
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0`
+- Nuxt `>=4.4.7 <5`
+- Vue `^3.5.35`
+- Vue Router `^5.1.0`
+- Ginko Content `>=0.3.0-rc.5 <0.4.0`
 
 ## Install
 
-```sh
-pnpm add -D @lupinum/ginko-docs
+Install the layer and its Ginko Content peer:
+
+```bash
+pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.0-rc.5
 ```
 
-Extend the layer from `nuxt.config.ts`:
+Keep the public identity in one shared value:
 
-```ts
+```ts [site.ts]
+export const site = {
+  name: "Example Docs",
+  description: "Documentation for Example.",
+  url: "https://docs.example.com",
+};
+```
+
+Extend the layer and configure the canonical origin:
+
+```ts [nuxt.config.ts]
+import { site } from "./site";
+
 export default defineNuxtConfig({
   extends: ["@lupinum/ginko-docs"],
+  site: { url: site.url },
+  i18n: { baseUrl: site.url },
 });
 ```
 
-Define the site’s content collections in `content.config.ts`:
+Define the content collections in `content.config.ts`:
 
-```ts
+```ts [content.config.ts]
 import { defineGinkoDocsConfig } from "@lupinum/ginko-docs/content";
+import { site } from "./site";
 
 export default defineGinkoDocsConfig({
-  site: {
-    name: "Example Docs",
-    description: "Documentation for Example.",
-    url: "https://docs.example.com",
-  },
+  site,
   locales: ["en"],
   defaultLocale: "en",
   blog: false,
 });
 ```
 
-The content configuration is the source of truth for whether the optional blog exists. The layer removes blog routes when no blog collection is configured and derives navigation visibility from the resulting router.
+Single-locale documentation belongs in `content/docs`. Add a first page:
 
-Add public presentation settings in `app/app.config.ts`:
+```md [content/docs/1.introduction.md]
+---
+title: Introduction
+description: Learn what Example does and how to use it.
+---
 
-```ts
-export default {
+Example solves ...
+```
+
+The bare `/docs` route redirects to the first navigable document.
+
+## Set the public identity
+
+Presentation settings live in `app/app.config.ts`:
+
+```ts [app/app.config.ts]
+import { site } from "../site";
+
+export default defineAppConfig({
   ginkoDocs: {
     site: {
-      name: { en: "Example Docs" },
-      description: { en: "Documentation for Example." },
-      url: "https://docs.example.com",
+      name: { en: site.name },
+      description: { en: site.description },
+      url: site.url,
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
+      docsSidebarSwitcher: "tabs",
+      lupinumAttribution: true,
+    },
+    nav: { links: "auto" },
+    banner: { enabled: false, id: "default", showOnLanding: true },
+    feedback: { enabled: false },
+    toc: { depth: 3 },
+  },
+});
+```
+
+Localized values use `{ en, de? }`. Use English as the default locale; supported content layouts are English-only and bilingual English/German.
+
+Set the production URL once in `site.ts`, then pass it to the content configuration, app configuration, Nuxt Site configuration, and Nuxt i18n `baseUrl`. The layer uses it for canonical links, structured data, social cards, and agent catalogs.
+
+## Enable the blog
+
+Set `blog: true` in `defineGinkoDocsConfig`. That single option creates the `blog` and `authors` collections and keeps the blog routes in the generated Nuxt application.
+
+Blog posts are flat Markdown files under `content/2.blog` for an English-only site, or the corresponding locale directory for a bilingual site. Each post requires `title`, `description`, `date`, `readingTime`, and an `author` reference. Author records live under `authors` and require `slug`, `name`, `role`, `bio`, and `avatar`.
+
+## Customize presentation
+
+Use Nuxt's normal application directories. A consumer can replace `app/pages/index.vue`, layouts, or a stable shell component by providing the same component name:
+
+- `SiteHeader`, `SiteFooter`, `SiteBanner`, `SiteLogoMark`
+- `SiteLocaleSwitcher`, `SiteInteractionLayer`, `DocsSidebar`
+
+Load consumer theme CSS from an app plugin so it follows the layer styles without replacing Nuxt's merged `css` array.
+
+To add an authored MDC component, extend the exported tag map and declare its static render policy:
+
+```ts [nuxt.config.ts]
+import { ginkoDocsComponentTags } from "@lupinum/ginko-docs/components";
+
+export default defineNuxtConfig({
+  content: {
+    componentPolicy: {
+      components: {
+        "api-playground": {
+          kind: "block",
+          props: {
+            method: { type: "string", required: true },
+            path: { type: "string", required: true },
+          },
+          slots: ["default"],
+          media: null,
+        },
+      },
+    },
+    markdown: {
+      tags: {
+        ...ginkoDocsComponentTags,
+        "api-playground": "MdcApiPlayground",
+      },
     },
   },
-};
+});
 ```
+
+Register the Vue component globally because Markdown resolves component targets dynamically. Register a serializer through `@lupinum/ginko-content/agent-registry` when copied and raw Markdown needs a representation other than the default XML-style component output.
+
+## Agent and discovery surfaces
+
+Every deployment can include the prerendered routes and assets:
+
+- `/raw/**.md`
+- `/llms.txt` and `/llms-full.txt`
+- localized LLM catalogs
+- sitemap, robots, and PNG social images
+
+A Nitro server also provides request-time `Accept: text/markdown` negotiation, response link headers, and `/mcp`. The MCP server exposes read-only `list-pages` and `get-page` tools. Plain static hosting cannot provide those request-time behaviors.
+
+The `markdownActions` app settings change the page menu only; they do not disable agent routes.
 
 ## Public exports
 
-- `@lupinum/ginko-docs` — Nuxt layer entry
-- `@lupinum/ginko-docs/content` — typed content configuration factory
-- `@lupinum/ginko-docs/app-config` — application-configuration types
-- `@lupinum/ginko-docs/components` — default MDC tag map and related types
-
-## Customize
-
-Consumers use Nuxt's ordinary override rules. Add `app/pages/index.vue` or a layout to replace a
-page or layout. Add a same-named `SiteHeader`, `SiteFooter`, `SiteBanner`, `SiteLogoMark`,
-`SiteLocaleSwitcher`, `SiteInteractionLayer`, or `DocsSidebar` component to replace that shell
-piece. Import consumer theme CSS from an app plugin so it augments rather than replaces the layer's
-styles. Add or replace MDC components in `app/components/mdc` and extend
-`ginkoDocsComponentTags` from `@lupinum/ginko-docs/components` in `content.markdown.tags`. Register
-custom MDC components globally with a Nuxt plugin or Nuxt's `.global.vue` filename suffix, because
-MDC resolves tag targets dynamically. Each new tag must also declare its narrow static prop and slot
-contract in `content.componentPolicy`; Nuxt merges that consumer entry with the layer's built-in
-policy.
-
-Custom agent Markdown is deliberately separate: register serializers through
-`@lupinum/ginko-content/agent-registry` in a Nitro plugin.
-
-## Configuration
-
-All features are configured under the `ginkoDocs` key in `app/app.config.ts` and ship with safe
-defaults:
-
-- `nav.links` — `"auto"` (Docs + Blog when present) or an array of localized links.
-- `banner` — announcement bar with persisted dismissal (`enabled: "auto" | boolean`, `id`, `text`,
-  `link`, `showOnLanding`).
-- `analytics.plausible` — Plausible via Nuxt Scripts; disabled until `domain` is set
-  (`scriptSrc` for self-hosted, `extensions` default `["outbound-links"]`).
-- `feedback.enabled` — "Was this page helpful?" widget; votes fire the `docs-feedback` Plausible
-  event and negative votes link to a prefilled GitHub issue when `repository` is configured.
-- `ogImage` — build-time PNG social cards (`enabled`, `component`); override the template by
-  shadowing `app/components/OgImage/GinkoDocs.satori.vue`.
-- `markdownActions` — toggle ChatGPT / Claude / MCP entries in the Copy Markdown menu.
-- `images.zoom` — click-to-zoom lightbox for prose images.
-- `toc.depth` — table-of-contents depth (2–4).
-- `landing.hero.media` — optional hero visual (`{ type: "code" }` or `{ type: "image" }`).
-- `repository` — enables "Edit this page" / "Report an issue" links.
-
-The bare docs root (e.g. `/docs`) redirects to the first documentation page, and the 404 page
-renders with the full site chrome.
-
-## Agent surfaces
-
-The layer can expose canonical content through raw Markdown negotiation, `/raw/**`, `/llms.txt`, `/llms-full.txt`, and read-only MCP tools. These surfaces use the same Ginko Content route and document model as rendered pages.
-
-## Requirements
-
-- Nuxt 4.4 or newer
-- A package manager supported by Nuxt
+| Export                           | Contents                                                      |
+| -------------------------------- | ------------------------------------------------------------- |
+| `@lupinum/ginko-docs`            | Nuxt layer entry                                              |
+| `@lupinum/ginko-docs/content`    | `defineGinkoDocsConfig`                                       |
+| `@lupinum/ginko-docs/app-config` | App-configuration types                                       |
+| `@lupinum/ginko-docs/components` | Tag map, component names, component policy, and related types |
 
 ## License
 

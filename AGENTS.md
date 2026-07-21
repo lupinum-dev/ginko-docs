@@ -75,3 +75,17 @@ These commands map to their corresponding tools. In this repo, use `vp run dev` 
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
+
+## Ginko Docs documentation
+
+The playground content is the public package documentation and a bilingual release fixture.
+
+- Keep `playground/content/en/1.docs` and `playground/content/de/1.dokumentation` structurally equivalent.
+- Use the same numeric identities for translated folders and files. German pages use canonical English `$docs/...` and `$blog/...` references.
+- Use `sidebar: section` only for the Documentation and Reference areas. Use flat `sidebar: group` folders inside those areas.
+- Write consumer examples against public exports. Do not expose layer aliases, route components, repository commands, or obsolete Ginko Content composables.
+- Use sentence case, active voice, and labeled file snippets. Frontmatter renders the H1.
+- Do not append generic “What's next,” “Related,” “Conclusion,” or equivalent German sections; the site already renders previous and next links.
+- Check configuration claims against `layer/content.ts`, `layer/shared/types/app-config.ts`, `layer/app/app.config.ts`, and `layer/tags.ts`.
+
+The complete editorial contract is in `docs/WRITING.md`. Documentation changes must pass `vp test` and `vp run build`; inspect both locales in the rendered site when navigation or authored components change.
