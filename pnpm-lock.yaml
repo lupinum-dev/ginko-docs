@@ -161,6 +161,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -1247,7 +1250,7 @@ packages:
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
   '@lupinum/ginko-content@file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz':
-    resolution: {integrity: sha512-LZZzwo1lpLGNi92MVCvnqTTELRgq/ZvlE6Mnn5sAIZeR4uSCwdfwep6erQJQElY+3CO9F+3Jm7OPzQDI1YlU+w==, tarball: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz}
+    resolution: {integrity: sha512-bbLw6PdGEpRDlycEYr01YN6NHxvq4ioL/7QeywbpKMQIAmUJmLvkXdhbbI11stsca8PPQ2gPzgAMDd59uRZ/eQ==, tarball: file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz}
     version: 0.3.0-rc.5
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
