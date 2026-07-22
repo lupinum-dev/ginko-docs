@@ -4,6 +4,7 @@ export const contentComponentTags = {
   accordion: "MdcAccordion",
   "accordion-item": "MdcAccordionItem",
   alert: "MdcAlert",
+  api: "MdcApi",
   aside: "MdcAside",
   callout: "MdcCallout",
   card: "MdcCard",
@@ -86,6 +87,13 @@ export const contentComponentPolicy = {
       title: optional("string"),
       icon: optional("string"),
       type: optional("string"),
+    }),
+    api: block({
+      title: optional("string"),
+      icon: optional("string"),
+      method: optional("string"),
+      path: optional("string"),
+      groups: optional("json"),
     }),
     aside: block({ label: optional("string") }),
     callout: block({
