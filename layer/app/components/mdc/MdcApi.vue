@@ -136,7 +136,7 @@ onMounted(() => {
           style="scroll-margin-top: var(--content-scroll-margin)"
         >
           <code
-            class="overflow-x-auto font-mono text-[0.8125rem] whitespace-nowrap"
+            class="overflow-x-auto font-mono text-[0.8125rem] leading-normal whitespace-nowrap"
             :data-entry="entry.name"
           >
             <span
@@ -176,9 +176,12 @@ onMounted(() => {
             </span>
           </span>
 
-          <p
+          <!-- A div, not a p: the prose stylesheet's unlayered `.content-prose p`
+            rules (1rem margins, inherited 1rem/1.75 type) override layered
+            utilities and are not guarded by not-prose. -->
+          <div
             v-if="entry.description"
-            class="col-span-full m-0 text-[0.8125rem] text-muted-foreground"
+            class="col-span-full text-[0.8125rem] leading-normal text-muted-foreground"
           >
             <template
               v-for="(part, partIndex) in splitInlineCode(entry.description)"
@@ -190,7 +193,7 @@ onMounted(() => {
                 >{{ part.text }}</code
               ><template v-else>{{ part.text }}</template>
             </template>
-          </p>
+          </div>
         </div>
       </div>
     </div>
