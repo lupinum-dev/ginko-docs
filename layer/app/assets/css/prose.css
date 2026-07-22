@@ -400,11 +400,14 @@
   border-top: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
 }
 
-/* Inside tables the wrapper scrolls horizontally, so inline code chips must
-   not break mid-token (e.g. "content.confi / g.ts" on narrow viewports). */
+/* Keep short table code chips atomic so their cloned decoration cannot leave
+   an empty fragment on the previous line. Oversized tokens can still wrap
+   inside the chip instead of forcing unbounded horizontal overflow. */
 .content-table :where(th, td) :where(code, .content-code) {
-  white-space: nowrap;
-  overflow-wrap: normal;
+  display: inline-block;
+  max-width: min(100%, 48ch);
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 html.dark .shiki span {
