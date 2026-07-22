@@ -29,6 +29,16 @@ function fenceLeaks(nodes: ComarkNode[]): string[] {
   });
 }
 
+function apiDataIssues(nodes: ComarkNode[]): string[] {
+  return nodes.flatMap((node) => {
+    if (typeof node === "string") return [];
+    const [tag, props, ...children] = node;
+    const ownIssue =
+      tag === "api" && !Array.isArray(props.groups) ? ["api without groups prop"] : [];
+    return [...ownIssue, ...apiDataIssues(children)];
+  });
+}
+
 type ComponentOpening = { appearance?: string; tag: string };
 
 function authoredComponentOpenings(source: string): ComponentOpening[] {
@@ -71,6 +81,18 @@ describe("content fence integrity", () => {
     }
 
     expect(leaks).toEqual([]);
+  });
+
+  it("authors API data as typed component YAML instead of a code-fence slot", async () => {
+    const issues: string[] = [];
+    for (const file of markdownFiles(contentRoot)) {
+      const ast = await parse(readFileSync(file, "utf8"));
+      for (const issue of apiDataIssues(ast.nodes as ComarkNode[])) {
+        issues.push(`${relative(contentRoot, file)}: ${issue}`);
+      }
+    }
+
+    expect(issues).toEqual([]);
   });
 
   it("keeps the bilingual component laboratory structurally equivalent", () => {
