@@ -37,20 +37,26 @@ function folderShouldBeOpen(path: string, item: DocsNavigationItem): boolean {
 const isExactActive = computed(() => itemIsExactActive(route.path, props.item));
 
 const paddingClass = computed(() => {
-  const steps = ["ps-2", "ps-5", "ps-8", "ps-11"] as const;
-  return steps[Math.min(props.depth, steps.length - 1)]!;
+  const steps = ["ps-[13px]", "ps-[25px]", "ps-[37px]"] as const;
+  return steps[Math.min(Math.max(props.depth - 1, 0), steps.length - 1)]!;
 });
 
+// Depth 0: compact pill rows. Depth > 0: each row carries the rail as its own
+// start border so the active segment recolors it — aligned by construction.
 const linkRowClass = computed(() =>
   cn(
-    "group relative flex w-full flex-row items-center gap-2 rounded-lg p-2 text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    "group relative flex w-full flex-row items-center gap-2 text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "hover:bg-accent/50 hover:text-accent-foreground/80 hover:transition-none",
-    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:hover:transition-colors",
-    props.depth > 0
-      ? "data-[active=true]:before:absolute data-[active=true]:before:inset-y-2.5 data-[active=true]:before:start-2.5 data-[active=true]:before:w-px data-[active=true]:before:bg-primary data-[active=true]:before:content-['']"
-      : undefined,
-    paddingClass.value,
+    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium data-[active=true]:hover:transition-colors",
+    props.depth === 0
+      ? "rounded-[7px] px-2 py-[5.5px] text-[13px]"
+      : cn(
+          "rounded-e-[7px] border-s border-border py-[5px] pe-2 text-[12.5px]",
+          "hover:border-s-muted-foreground/40",
+          "data-[active=true]:border-s-primary",
+          paddingClass.value,
+        ),
   ),
 );
 
@@ -65,8 +71,11 @@ watch(
   },
 );
 
-const contentRailClass =
-  "relative flex flex-col gap-0.5 *:first:mt-0.5 before:absolute before:start-2.5 before:inset-y-1 before:w-px before:bg-border before:content-['']";
+// No gap between child rows: their start borders stack into one continuous
+// rail. Deeper levels indent via padding only, sharing the same rail.
+const contentRailClass = computed(() =>
+  props.depth === 0 ? "ms-[15.5px] mt-0.5 mb-1 flex flex-col" : "flex flex-col",
+);
 </script>
 
 <template>

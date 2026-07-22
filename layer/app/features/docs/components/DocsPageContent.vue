@@ -147,18 +147,21 @@ useHead(() => ({
 
       <main
         id="main-content"
-        class="order-2 mx-auto w-full max-w-3xl flex-1 px-4 py-8 md:px-6 xl:py-14"
+        class="order-2 mx-auto w-full max-w-[72ch] flex-1 px-4 py-8 md:px-6 xl:py-14"
       >
         <article v-if="page">
           <div class="flex items-start justify-between gap-4 sm:gap-6">
             <div class="min-w-0">
               <DocsBreadcrumb class="mb-2" :items="visibleTrail" />
               <h1
-                class="font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.025em] text-balance text-foreground sm:text-[2.25rem]"
+                class="font-heading text-[27px] leading-[1.15] font-semibold tracking-[-0.02em] text-balance text-foreground"
               >
                 {{ page.title }}
               </h1>
-              <p v-if="page.description" class="mt-2 text-lg leading-7 text-muted-foreground">
+              <p
+                v-if="page.description"
+                class="mt-2 text-base leading-[1.55] text-muted-foreground"
+              >
                 {{ page.description }}
               </p>
             </div>

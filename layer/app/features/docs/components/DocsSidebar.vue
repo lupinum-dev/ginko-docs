@@ -121,7 +121,7 @@ const asideClass = computed(() =>
         <template v-for="group in groups" :key="group.id">
           <p
             v-if="group.title"
-            class="mt-6 mb-1.5 inline-flex items-center gap-2 px-2 ps-2 text-sm font-semibold text-foreground first:mt-0"
+            class="mt-5 mb-1.5 inline-flex items-center gap-2 px-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase first:mt-0"
           >
             {{ group.title }}
           </p>
