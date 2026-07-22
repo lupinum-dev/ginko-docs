@@ -18,8 +18,8 @@
 .content-prose,
 .content-prose.content-prose {
   color: var(--content-prose-foreground);
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 0.9375rem;
+  line-height: 1.65;
   text-wrap: pretty;
 }
 
@@ -27,8 +27,6 @@
   --content-media-bleed-md: 1rem;
   --content-media-bleed-lg: 1.5rem;
   --content-media-bleed-xl: 2rem;
-  font-size: 0.9375rem;
-  line-height: 1.65;
 }
 
 .content-prose :where(h1, h2, h3, h4, h5, h6) {
@@ -36,8 +34,8 @@
 }
 
 .content-prose :where(p) {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.95em;
+  margin-bottom: 0.95em;
 }
 
 .content-prose p,
@@ -47,37 +45,37 @@
 }
 
 .content-prose :where(h1) {
-  margin-top: 2.5rem;
-  margin-bottom: 0.75rem;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
 }
 
 .content-prose h1 {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1.09375rem;
+  line-height: 1.4;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
 }
 
 .content-prose :where(h2) {
-  margin-top: 2.5rem;
-  margin-bottom: 0.75rem;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
 }
 
 .content-prose h2 {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1.09375rem;
+  line-height: 1.4;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
 }
 
 .content-prose :where(h3) {
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
 }
 
 .content-prose h3 {
-  font-size: 1.125rem;
-  line-height: 1.625rem;
+  font-size: 1rem;
+  line-height: 1.5;
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -98,34 +96,6 @@
 
 .content-prose :where(h2, h3, h4, h5, h6) + :where(p, ul, ol, blockquote, table, .not-prose) {
   margin-top: 0;
-}
-
-/* Docs prose runs at a compact 15px/1.65 scale with a tighter rhythm; blog
-   and callout prose keep the base scale above. */
-.content-prose-docs :where(p) {
-  margin-top: 0.95em;
-  margin-bottom: 0.95em;
-}
-
-.content-prose-docs :where(h2) {
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-}
-
-.content-prose.content-prose-docs h2 {
-  font-size: 1.09375rem;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-}
-
-.content-prose-docs :where(h3) {
-  margin-top: 1.6em;
-  margin-bottom: 0.4em;
-}
-
-.content-prose.content-prose-docs h3 {
-  font-size: 1rem;
-  line-height: 1.5;
 }
 
 .content-prose :where(ul, ol) {
