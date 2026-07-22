@@ -202,15 +202,17 @@ useSeoMeta({
       </div>
     </section>
 
-    <section v-if="landing.agent" class="border-y border-border bg-zinc-900 dark:bg-zinc-950">
+    <section v-if="landing.agent" class="border-y border-border bg-agent-background">
       <div
         class="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:gap-16"
       >
         <div class="min-w-0">
-          <h2 class="text-3xl font-semibold tracking-[-0.03em] text-balance text-white sm:text-4xl">
+          <h2
+            class="text-3xl font-semibold tracking-[-0.03em] text-balance text-agent-foreground sm:text-4xl"
+          >
             {{ landing.agent.title }}
           </h2>
-          <p class="mt-4 max-w-xl text-base leading-7 text-zinc-400">
+          <p class="mt-4 max-w-xl text-base leading-7 text-agent-muted">
             {{ landing.agent.description }}
           </p>
         </div>
@@ -220,7 +222,7 @@ useSeoMeta({
             v-for="(line, index) in agentTerminalLines"
             :key="index"
             class="block min-h-[1.75rem] whitespace-pre"
-          ><template v-if="line.kind === 'command'"><span class="text-zinc-500 select-none">$</span><span class="text-zinc-100">{{ line.text.slice(1) }}</span></template><span v-else-if="line.kind === 'comment'" class="text-emerald-300/90">{{ line.text }}</span><span v-else class="text-zinc-400">{{ line.text }}</span></span></code></pre>
+          ><template v-if="line.kind === 'command'"><span class="text-agent-muted/70 select-none">$</span><span class="text-agent-foreground">{{ line.text.slice(1) }}</span></template><span v-else-if="line.kind === 'comment'" class="text-emerald-300/90">{{ line.text }}</span><span v-else class="text-agent-muted">{{ line.text }}</span></span></code></pre>
       </div>
     </section>
 

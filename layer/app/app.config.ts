@@ -1,6 +1,10 @@
 import type { GinkoDocsAppConfig } from "../shared/types/app-config";
 export default {
   ginkoDocs: {
+    theme: {
+      neutral: "zinc",
+      primary: "neutral",
+    },
     prose: {
       appearance: "tint",
     },

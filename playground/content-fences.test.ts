@@ -39,6 +39,19 @@ function apiDataIssues(nodes: ComarkNode[]): string[] {
   });
 }
 
+function containsTag(node: ComarkNode, tag: string): boolean {
+  if (typeof node === "string") return false;
+  const [name, , ...children] = node;
+  return name === tag || children.some((child) => containsTag(child, tag));
+}
+
+function componentContainsTag(node: ComarkNode, component: string, tag: string): boolean {
+  if (typeof node === "string") return false;
+  const [name, , ...children] = node;
+  if (name === component) return children.some((child) => containsTag(child, tag));
+  return children.some((child) => componentContainsTag(child, component, tag));
+}
+
 type ComponentOpening = { appearance?: string; tag: string };
 
 function authoredComponentOpenings(source: string): ComponentOpening[] {
@@ -106,6 +119,19 @@ describe("content fence integrity", () => {
     );
 
     expect(authoredComponentOpenings(german)).toEqual(authoredComponentOpenings(english));
+  });
+
+  it("keeps Markdown images inside heading-based steps", async () => {
+    for (const file of [
+      "en/1.docs/8.components/3.component-showcase.md",
+      "de/1.dokumentation/8.komponenten/3.komponenten-showcase.md",
+    ]) {
+      const ast = await parse(readFileSync(join(contentRoot, file), "utf8"));
+      expect(
+        (ast.nodes as ComarkNode[]).some((node) => componentContainsTag(node, "steps", "img")),
+        `${file} must render a Markdown image inside a step`,
+      ).toBe(true);
+    }
   });
 
   it("shows both appearances with controlled fixtures for every surface family", () => {

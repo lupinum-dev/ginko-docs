@@ -1,3 +1,6 @@
+export type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
+import type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
+
 export type GinkoDocsLocalizedText = { en: string; de?: string };
 
 export type GinkoDocsProseAppearance = "quiet" | "tint";
@@ -58,6 +61,10 @@ export type GinkoDocsPlausibleExtension =
   | "manual";
 
 export interface GinkoDocsAppConfig {
+  theme: {
+    neutral: GinkoDocsNeutralPalette;
+    primary: GinkoDocsPrimaryPalette;
+  };
   prose: GinkoDocsProseConfig;
   site: {
     name: GinkoDocsLocalizedText;

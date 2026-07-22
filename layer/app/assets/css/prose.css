@@ -3,7 +3,9 @@
 [data-fd-codeblock] {
   --content-prose-foreground: color-mix(in oklab, var(--foreground) 85%, transparent);
   --content-prose-heading-foreground: color-mix(in oklab, var(--foreground) 90%, transparent);
-  --content-prose-inline-code-background: color-mix(in oklab, var(--foreground) 6.5%, transparent);
+  /* Inline code belongs to its surrounding surface; monospace type carries
+     the distinction without adding a nested chip background. */
+  --content-prose-inline-code-background: transparent;
   --content-prose-inline-code-foreground: var(--foreground);
   --content-prose-code-highlight-border: var(--code-border);
   /* Kept light enough that Shiki's light-plus tokens stay WCAG AA on top. */
@@ -601,7 +603,7 @@ html.dark .shiki span {
   border: 0;
   border-radius: var(--radius);
   background-color: transparent;
-  color: color-mix(in oklab, var(--primary) 45%, transparent);
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
@@ -617,12 +619,12 @@ html.dark .shiki span {
 .content-codeblock-copy-button:hover,
 .content-codeblock-copy-button:focus-visible {
   background-color: var(--muted);
-  color: color-mix(in oklab, var(--primary) 70%, transparent);
+  color: var(--foreground);
 }
 
 .content-codeblock-copy-button:focus-visible {
   opacity: 1;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--foreground) 25%, transparent);
 }
 
 .content-codeblock-copy-button:active {
