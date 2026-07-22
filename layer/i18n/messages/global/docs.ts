@@ -14,6 +14,8 @@ export const docs = {
   copiedText: { de: "Text kopiert", en: "Copied text" },
   copyFailed: { de: "Kopieren fehlgeschlagen", en: "Copy failed" },
   codeSample: { de: "Codebeispiel", en: "Code sample" },
+  showAllLines: { de: "Alle {count} Zeilen anzeigen", en: "Show all {count} lines" },
+  showMore: { de: "Mehr anzeigen", en: "Show more" },
   zoomImage: { de: "Bild vergrößern", en: "Zoom image" },
   moreActions: { de: "Weitere Seitenaktionen", en: "More page actions" },
   copyLink: { de: "Markdown-Link kopieren", en: "Copy Markdown link" },

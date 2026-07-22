@@ -3,7 +3,7 @@
 [data-fd-codeblock] {
   --content-prose-foreground: color-mix(in oklab, var(--foreground) 85%, transparent);
   --content-prose-heading-foreground: color-mix(in oklab, var(--foreground) 90%, transparent);
-  --content-prose-inline-code-background: var(--background);
+  --content-prose-inline-code-background: color-mix(in oklab, var(--foreground) 6.5%, transparent);
   --content-prose-inline-code-foreground: var(--foreground);
   --content-prose-code-highlight-border: var(--code-border);
   /* Kept light enough that Shiki's light-plus tokens stay WCAG AA on top. */
@@ -50,10 +50,10 @@
 }
 
 .content-prose h1 {
-  font-size: 1.09375rem;
-  line-height: 1.4;
+  font-size: 1.25rem;
+  line-height: 1.35;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .content-prose :where(h2) {
@@ -62,10 +62,10 @@
 }
 
 .content-prose h2 {
-  font-size: 1.09375rem;
-  line-height: 1.4;
+  font-size: 1.25rem;
+  line-height: 1.35;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .content-prose :where(h3) {
@@ -74,10 +74,10 @@
 }
 
 .content-prose h3 {
-  font-size: 1rem;
+  font-size: 1.03125rem;
   line-height: 1.5;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
 }
 
 .content-prose :where(h4, h5, h6) {
@@ -170,8 +170,8 @@
 }
 
 .content-prose :where(figure, .not-prose) {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .content-prose :where(figcaption, .content-caption) {
@@ -298,15 +298,15 @@
   display: inline;
   position: relative;
   max-width: 100%;
-  border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent);
   border-radius: max(0.3125rem, calc(var(--radius) - 5px));
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   background-color: var(--content-prose-inline-code-background, var(--muted));
   color: var(--content-prose-inline-code-foreground, var(--foreground));
-  padding: 0 0.25rem;
+  /* em-based so chips scale with tables, callouts, and body text alike */
+  padding: 0.14em 0.38em;
   font-family: var(--font-mono);
-  font-size: 0.8rem !important;
+  font-size: 0.855em !important;
   font-weight: 400;
   line-height: inherit;
   outline: none;
@@ -316,7 +316,7 @@
 }
 
 .content-prose :where(code):not(:where(pre code, [class~="not-prose"], [class~="not-prose"] *)) {
-  font-size: 0.8rem !important;
+  font-size: 0.855em !important;
 }
 
 .content-code.shiki,
@@ -355,14 +355,22 @@
   margin: 0;
 }
 
+/* Tables share the codeblock chrome: a secondary frame around a background
+   panel, so tables, codeblocks, and tabs read as one family. */
 .content-table {
   width: 100%;
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-  overflow-x: auto;
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-xs);
+  background-color: var(--secondary);
+  padding: 0.25rem;
+}
+
+.content-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--code-border);
+  border-radius: calc(var(--radius) - 2px);
+  background-color: var(--background);
 }
 
 .content-table table {
@@ -372,36 +380,24 @@
   line-height: 1.5rem;
 }
 
-.content-table thead {
-  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
-}
-
 .content-table th {
-  height: 2.25rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.875rem;
   text-align: left;
   vertical-align: middle;
-  color: var(--foreground);
-  font-weight: 500;
+  /* Matches the codeblock caption tone. */
+  color: color-mix(in oklab, var(--foreground) 80%, var(--muted-foreground));
+  font-weight: 600;
+  border-bottom: 1px solid var(--code-border);
 }
 
 .content-table td {
-  padding: 0.5rem 0.75rem;
+  padding: 0.5625rem 0.875rem;
   vertical-align: middle;
-  color: var(--muted-foreground);
+  color: color-mix(in oklab, var(--foreground) 88%, transparent);
 }
 
-.content-table tr {
-  border-bottom: 1px solid var(--border);
-  transition: background-color 150ms ease;
-}
-
-.content-table tr:hover {
-  background-color: color-mix(in oklab, var(--muted) 30%, transparent);
-}
-
-.content-table tbody tr:last-child {
-  border-bottom: 0;
+.content-table tbody tr + tr td {
+  border-top: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
 }
 
 /* Inside tables the wrapper scrolls horizontally, so inline code chips must
@@ -427,12 +423,22 @@ html.dark .shiki span {
 .content-codeblock {
   min-width: 0;
   max-width: 100%;
-  margin-top: 0.875rem;
-  margin-bottom: 0.875rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
   border-radius: var(--radius);
   color: var(--foreground);
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+/* Consecutive codeblocks read as one run of examples; tighten the seam.
+   Both sides shrink because adjacent margins collapse to the larger value. */
+.content-prose :where(.content-codeblock:has(+ .content-codeblock)) {
+  margin-bottom: 0.5rem;
+}
+
+.content-prose :where(.content-codeblock + .content-codeblock) {
+  margin-top: 0.5rem;
 }
 
 .content-codeblock-plain {
@@ -468,11 +474,101 @@ html.dark .shiki span {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
+  /* auto, not hidden: blocks taller than the max-height cap must scroll,
+     otherwise their tail is unreachable. */
+  overflow-y: auto;
   overscroll-behavior-x: none;
   border: 1px solid var(--code-border);
   border-radius: calc(var(--radius) - 2px);
   background-color: var(--background);
+}
+
+.content-codeblock-scroll-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+/* Right-edge fade signals clipped horizontal content; hidden at scroll end. */
+.content-codeblock-overflow-fade {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 2.5rem;
+  border-radius: 0 calc(var(--radius) - 3px) calc(var(--radius) - 3px) 0;
+  background: linear-gradient(to right, transparent, var(--background));
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.content-codeblock-overflow-fade[data-hidden="true"] {
+  opacity: 0;
+}
+
+/* The `::collapse` component clips tall authored content until the reader
+   expands it; expanding removes the cap so the page owns scrolling. */
+.content-collapse {
+  position: relative;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.content-collapse-region[data-collapsed] {
+  max-height: 480px;
+  overflow: hidden;
+}
+
+.content-collapse-region > :first-child {
+  margin-top: 0 !important;
+}
+
+.content-collapse-region > :last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Inside a collapse region the wrapper owns clipping; a nested codeblock
+   scroll cap would create a second scroll area. */
+.content-collapse-region .content-codeblock .fd-scroll-container {
+  max-height: none;
+}
+
+.content-collapse-fade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 5rem;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.625rem;
+  background: linear-gradient(to bottom, transparent, var(--background) 82%);
+}
+
+.content-collapse-button {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background-color: var(--secondary);
+  padding: 0.2rem 0.75rem;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.content-collapse-button:hover {
+  border-color: color-mix(in oklab, var(--foreground) 25%, transparent);
+}
+
+.content-collapse-button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--ring) 50%, transparent);
+  outline-offset: 2px;
 }
 
 .content-codeblock pre {
@@ -555,8 +651,8 @@ html.dark .shiki span {
 .content-codegroup {
   min-width: 0;
   max-width: 100%;
-  margin-top: 0.875rem;
-  margin-bottom: 0.875rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
   border-radius: var(--radius);
   background-color: var(--secondary);
   padding: 0.125rem 0.25rem 0.25rem;
@@ -574,8 +670,8 @@ html.dark .shiki span {
 .content-tabs {
   min-width: 0;
   max-width: 100%;
-  margin-top: 0.875rem;
-  margin-bottom: 0.875rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
   border-radius: var(--radius);
   background-color: var(--secondary);
   padding: 0.125rem 0.25rem 0.25rem;
@@ -1135,21 +1231,25 @@ html.dark .shiki span {
   font-weight: 600;
 }
 
-.fd-scroll-container::-webkit-scrollbar {
+.fd-scroll-container::-webkit-scrollbar,
+.content-table-scroll::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
-.fd-scroll-container::-webkit-scrollbar-thumb {
+.fd-scroll-container::-webkit-scrollbar-thumb,
+.content-table-scroll::-webkit-scrollbar-thumb {
   border-radius: 5px;
   background: var(--border);
 }
 
-.fd-scroll-container::-webkit-scrollbar-track {
+.fd-scroll-container::-webkit-scrollbar-track,
+.content-table-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.fd-scroll-container::-webkit-scrollbar-corner {
+.fd-scroll-container::-webkit-scrollbar-corner,
+.content-table-scroll::-webkit-scrollbar-corner {
   display: none;
 }
 
@@ -1183,6 +1283,15 @@ html.dark .shiki span {
   border: 0;
   border-radius: 0;
   display: flex;
+  flex-direction: column;
+}
+
+/* ProsePre wraps its scroll container for the overflow fade; the wrapper must
+   pass the pane's flex sizing through to the scroll container. */
+.content-code-tree-pane .content-codeblock-scroll-wrap {
+  display: flex;
+  min-height: 0;
+  flex: 1;
   flex-direction: column;
 }
 

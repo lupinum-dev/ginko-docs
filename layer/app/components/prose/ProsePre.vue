@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed, ref, useId } from "vue";
-import { useClipboard } from "@vueuse/core";
+import { computed, onMounted, ref, useId } from "vue";
+import { useClipboard, useEventListener, useResizeObserver } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
 import {
@@ -71,6 +71,22 @@ const iconName = computed(() => {
 async function copyCode() {
   await copy(props.code || codeElement.value?.innerText || "");
 }
+
+// A right-edge fade signals horizontally clipped code; it disappears once the
+// reader reaches the end of the line.
+const scrollElement = ref<HTMLElement | null>(null);
+const canScrollRight = ref(false);
+
+function measureOverflow() {
+  const el = scrollElement.value;
+  if (!el) return;
+  canScrollRight.value =
+    el.scrollWidth - el.clientWidth > 2 && el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+}
+
+onMounted(measureOverflow);
+useEventListener(scrollElement, "scroll", measureOverflow, { passive: true });
+useResizeObserver(scrollElement, measureOverflow);
 </script>
 
 <template>
@@ -123,24 +139,33 @@ async function copyCode() {
       </button>
     </div>
 
-    <div
-      role="region"
-      tabindex="0"
-      :aria-label="
-        (label ? `${t('docs.codeSample')}: ${label}` : t('docs.codeSample')) + ` (${regionId})`
-      "
-      :class="
-        cn(
-          'fd-scroll-container max-h-[600px] overflow-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset',
-          !label && !props.inGroup && 'content-codeblock-inline-copy',
-        )
-      "
-    >
-      <pre
-        ref="codeElement"
-        :class="cn('w-max min-w-full', props.class)"
-        v-bind="$attrs"
-      ><slot /></pre>
+    <div class="content-codeblock-scroll-wrap">
+      <div
+        ref="scrollElement"
+        role="region"
+        tabindex="0"
+        :aria-label="
+          (label ? `${t('docs.codeSample')}: ${label}` : t('docs.codeSample')) + ` (${regionId})`
+        "
+        :class="
+          cn(
+            'fd-scroll-container max-h-[600px] overflow-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset',
+            !label && !props.inGroup && 'content-codeblock-inline-copy',
+          )
+        "
+      >
+        <pre
+          ref="codeElement"
+          :class="cn('w-max min-w-full', props.class)"
+          v-bind="$attrs"
+        ><slot /></pre>
+      </div>
+
+      <div
+        class="content-codeblock-overflow-fade"
+        :data-hidden="!canScrollRight"
+        aria-hidden="true"
+      />
     </div>
   </figure>
 </template>

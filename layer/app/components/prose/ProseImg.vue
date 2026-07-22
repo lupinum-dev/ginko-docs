@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed, ref } from "vue";
+import { Motion } from "motion-v";
+import { computed } from "vue";
 import { useI18n } from "#imports";
 import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
@@ -31,7 +32,6 @@ const props = withDefaults(
 const { t } = useI18n();
 const config = useGinkoDocsConfig();
 const zoomEnabled = computed(() => config.images?.zoom !== false);
-const zoomOpen = ref(false);
 
 const shouldBleed = computed(() => props.bleed === true || props.bleed === "true");
 
@@ -56,23 +56,33 @@ const imageClass = computed(() =>
     :data-bleed="shouldBleed ? 'true' : undefined"
   >
     <template v-if="src">
-      <button
+      <ImageZoomDialog
         v-if="zoomEnabled"
-        type="button"
-        class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
-        @click="zoomOpen = true"
+        :src="src"
+        :alt="alt"
+        :label="caption || title"
+        :description="description"
       >
-        <NuxtImg
-          :src="src"
-          :alt="alt"
-          :width="width"
-          :height="height"
-          sizes="100vw md:768px"
-          loading="lazy"
-          :class="imageClass"
-        />
-      </button>
+        <template #trigger="{ layoutId, transition }">
+          <button
+            type="button"
+            class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
+          >
+            <Motion as-child :layout-id="layoutId" :transition="transition">
+              <NuxtImg
+                :src="src"
+                :alt="alt"
+                :width="width"
+                :height="height"
+                sizes="100vw md:768px"
+                loading="lazy"
+                :class="imageClass"
+              />
+            </Motion>
+          </button>
+        </template>
+      </ImageZoomDialog>
       <NuxtImg
         v-else
         :src="src"
@@ -99,14 +109,5 @@ const imageClass = computed(() =>
         {{ description }}
       </span>
     </figcaption>
-
-    <ImageZoomDialog
-      v-if="zoomEnabled"
-      v-model:open="zoomOpen"
-      :src="src"
-      :alt="alt"
-      :label="caption || title"
-      :description="description"
-    />
   </figure>
 </template>

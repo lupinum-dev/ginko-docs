@@ -315,6 +315,19 @@ describe("ginko docs release guardrails", () => {
     expect(defaults).toContain("feedback: { enabled: false }");
   });
 
+  it("keeps image zoom scoped to an interruptible shared-layout animation", () => {
+    const manifest = JSON.parse(read("layer/package.json"));
+    const dialog = read("layer/app/components/content/ImageZoomDialog.vue");
+    const motion = read("layer/app/components/content/imageZoom.ts");
+    const styles = read("layer/app/assets/css/tailwind.css");
+
+    expect(manifest.dependencies["motion-v"]).toBe("^2.3.0");
+    expect(dialog).toContain(":layout-id");
+    expect(motion).toContain("useReducedMotion");
+    expect(dialog).not.toContain("startViewTransition");
+    expect(styles).not.toContain("view-transition-name: zoom-img");
+  });
+
   it("ships safe defaults for navigation, banner, and integrations", () => {
     const defaults = read("layer/app/app.config.ts");
     expect(defaults).toContain('nav: { links: "auto" }');

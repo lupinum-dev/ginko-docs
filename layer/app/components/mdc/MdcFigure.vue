@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed, ref } from "vue";
+import { Motion } from "motion-v";
+import { computed } from "vue";
 import { useI18n } from "#imports";
 import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
@@ -32,8 +33,6 @@ const zoomEnabled = computed(() => {
   if (props.zoom === "auto") return config.images?.zoom !== false;
   return props.zoom === true || props.zoom === "true";
 });
-const zoomOpen = ref(false);
-
 const shouldBleed = computed(
   () => props.bleed === true || props.bleed === "true" || props.bleed === "outside",
 );
@@ -59,28 +58,24 @@ const imageClass = computed(() =>
     :data-bleed="shouldBleed ? 'true' : undefined"
   >
     <template v-if="src">
-      <button
-        v-if="zoomEnabled"
-        type="button"
-        class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
-        @click="zoomOpen = true"
-      >
-        <img :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
-      </button>
+      <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">
+        <template #trigger="{ layoutId, transition }">
+          <button
+            type="button"
+            class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
+          >
+            <Motion as-child :layout-id="layoutId" :transition="transition">
+              <img :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
+            </Motion>
+          </button>
+        </template>
+      </ImageZoomDialog>
       <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
     </template>
     <slot />
     <figcaption v-if="caption || alt" class="text-center">
       {{ caption || alt }}
     </figcaption>
-
-    <ImageZoomDialog
-      v-if="zoomEnabled"
-      v-model:open="zoomOpen"
-      :src="src"
-      :alt="alt"
-      :label="caption"
-    />
   </figure>
 </template>

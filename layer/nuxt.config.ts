@@ -181,6 +181,7 @@ export default defineNuxtConfig({
         "@vueuse/core",
         "class-variance-authority",
         "clsx",
+        "motion-v",
         "reka-ui",
         "tailwind-merge",
         "zod",

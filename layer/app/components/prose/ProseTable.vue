@@ -9,8 +9,10 @@ const props = defineProps<{
 
 <template>
   <div :class="cn('content-table', props.class)">
-    <table>
-      <slot />
-    </table>
+    <div class="content-table-scroll">
+      <table>
+        <slot />
+      </table>
+    </div>
   </div>
 </template>
