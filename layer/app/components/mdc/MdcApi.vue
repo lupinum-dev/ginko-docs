@@ -21,6 +21,24 @@ const panelId = useId();
 
 const iconName = computed(() => resolveIconifyIcon(props.icon));
 
+function handleKeydown(event: KeyboardEvent, currentIndex: number) {
+  let nextIndex: number | undefined;
+  if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % groups.value.length;
+  if (event.key === "ArrowLeft") {
+    nextIndex = (currentIndex - 1 + groups.value.length) % groups.value.length;
+  }
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = groups.value.length - 1;
+  if (nextIndex === undefined) return;
+
+  event.preventDefault();
+  activeIndex.value = nextIndex;
+  const tabs = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>(
+    '[role="tab"]',
+  );
+  tabs?.[nextIndex]?.focus();
+}
+
 function applyHash(hash: string) {
   if (!hash) return;
   const index = groups.value.findIndex((group) =>
@@ -43,46 +61,42 @@ onMounted(() => {
     v-if="groups.length"
     class="content-api content-tabs not-prose"
     :data-appearance="appearance"
+    :data-stacked-header="groups.length > 1 ? 'true' : undefined"
   >
-    <div class="content-tabs-header">
-      <span
-        v-if="method && path"
-        class="flex min-w-0 items-center gap-1.5 whitespace-nowrap ps-1 pe-1"
-      >
-        <span
-          class="inline-flex h-5 items-center rounded-md bg-accent-blue-muted px-1.5 font-mono text-[0.6875rem]/none font-semibold text-accent-blue"
-        >
+    <div class="content-tabs-header content-api-header">
+      <span v-if="method && path" class="content-api-identity">
+        <span class="content-api-method">
           {{ method.toUpperCase() }}
         </span>
-        <span class="truncate font-mono text-[0.8125rem] text-foreground/80">{{ path }}</span>
+        <span class="content-api-path">{{ path }}</span>
       </span>
-      <span
-        v-else-if="title"
-        class="flex min-w-0 items-center gap-1.5 whitespace-nowrap ps-1 pe-1 text-[0.8125rem] font-medium text-foreground/80"
-      >
+      <span v-else-if="title" class="content-api-identity content-api-title">
         <Icon
           v-if="iconName"
           :name="iconName"
           mode="svg"
-          class="size-3.5 shrink-0"
+          class="content-api-title-icon"
           aria-hidden="true"
         />
-        <span class="truncate">{{ title }}</span>
+        <span class="content-api-path">{{ title }}</span>
       </span>
 
-      <div class="content-tabs-list" role="tablist">
+      <div class="content-tabs-list content-api-tabs" role="tablist">
         <button
           v-for="(group, index) in groups"
           :key="group.label"
           type="button"
           role="tab"
+          :id="`${panelId}-tab-${index}`"
           :aria-selected="activeIndex === index"
           :aria-controls="`${panelId}-${index}`"
+          :tabindex="activeIndex === index ? 0 : -1"
           :class="cn('content-tabs-tab', activeIndex === index && 'content-tabs-tab-active')"
           @click="activeIndex = index"
+          @keydown="handleKeydown($event, index)"
         >
           {{ group.label }}
-          <span class="rounded-full bg-muted px-1.5 py-px text-[0.6875rem] text-muted-foreground">
+          <span class="content-api-count">
             {{ group.entries.length }}
           </span>
         </button>
@@ -95,52 +109,33 @@ onMounted(() => {
         :id="`${panelId}-${index}`"
         :key="group.label"
         role="tabpanel"
+        :aria-labelledby="`${panelId}-tab-${index}`"
         :style="activeIndex === index ? undefined : { display: 'none' }"
       >
         <div
           v-for="entry in group.entries"
           :id="apiEntryId(group.label, entry.name)"
           :key="entry.name"
-          class="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-0.5 border-t border-border px-3 py-2.5 first:border-t-0"
+          class="content-api-row"
           style="scroll-margin-top: var(--content-scroll-margin)"
         >
-          <code
-            class="overflow-x-auto font-mono text-[0.8125rem] leading-normal whitespace-nowrap"
-            :data-entry="entry.name"
-          >
+          <code class="content-api-signature" :data-entry="entry.name">
             <span
-              :class="
-                cn(
-                  'font-medium text-accent-blue',
-                  entry.deprecated && 'line-through decoration-foreground/40 opacity-70',
-                )
-              "
+              :class="cn('content-api-name', entry.deprecated && 'content-api-name-deprecated')"
               >{{ entry.name }}</span
-            ><span v-if="signatureTail(entry)" class="text-muted-foreground">{{
+            ><span v-if="signatureTail(entry)" class="content-api-type">{{
               signatureTail(entry)
             }}</span>
           </code>
 
-          <span
-            v-if="entry.required || entry.deprecated || entry.since"
-            class="flex items-center gap-1"
-          >
-            <span
-              v-if="entry.required"
-              class="inline-flex h-4.5 items-center rounded-full bg-accent-coral-muted px-1.75 text-[0.6875rem]/none font-semibold tracking-wide text-accent-coral"
-            >
+          <span v-if="entry.required || entry.deprecated || entry.since" class="content-api-badges">
+            <span v-if="entry.required" class="content-api-badge" data-state="required">
               required
             </span>
-            <span
-              v-if="entry.deprecated"
-              class="inline-flex h-4.5 items-center rounded-full bg-accent-yellow-muted px-1.75 text-[0.6875rem]/none font-semibold tracking-wide text-warning"
-            >
+            <span v-if="entry.deprecated" class="content-api-badge" data-state="deprecated">
               deprecated
             </span>
-            <span
-              v-if="entry.since"
-              class="inline-flex h-4.5 items-center rounded-full bg-accent-mint-muted px-1.75 text-[0.6875rem]/none font-semibold tracking-wide text-success"
-            >
+            <span v-if="entry.since" class="content-api-badge" data-state="since">
               since {{ entry.since }}
             </span>
           </span>
@@ -148,18 +143,12 @@ onMounted(() => {
           <!-- A div, not a p: the prose stylesheet's unlayered `.content-prose p`
             rules (1rem margins, inherited 1rem/1.75 type) override layered
             utilities and are not guarded by not-prose. -->
-          <div
-            v-if="entry.description"
-            class="col-span-full text-[0.8125rem] leading-normal text-muted-foreground"
-          >
+          <div v-if="entry.description" class="content-api-description">
             <template
               v-for="(part, partIndex) in splitInlineCode(entry.description)"
               :key="partIndex"
             >
-              <code
-                v-if="part.code"
-                class="rounded-sm bg-muted px-1 py-px font-mono text-[0.75rem] text-foreground"
-                >{{ part.text }}</code
+              <code v-if="part.code" class="content-api-inline-code">{{ part.text }}</code
               ><template v-else>{{ part.text }}</template>
             </template>
           </div>

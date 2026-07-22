@@ -85,6 +85,7 @@ function renderTabs() {
       class: cn("content-tabs not-prose group", props.inStack && "content-tabs-in-stack"),
       "data-appearance": appearance.value,
       "data-layout": props.layout,
+      "data-padded": props.padded ? "true" : "false",
     },
     [
       h("div", { class: "content-tabs-header" }, [
@@ -140,10 +141,7 @@ function renderTabs() {
               role: "tabpanel",
               id: `${tabsId}-panel-${index}`,
               "aria-labelledby": `${tabsId}-tab-${index}`,
-              class: cn(
-                "content-tabs-content-area content-prose content-prose-trim [&>figure:only-child]:-m-4 [&>figure:only-child]:border-none",
-                props.padded ? "p-4" : "p-0",
-              ),
+              class: cn("content-tabs-content-area content-prose content-prose-trim"),
               style: resolvedValue === item.value ? undefined : { display: "none" },
             },
             [cloneVNode(item.node, { inGroup: true })],

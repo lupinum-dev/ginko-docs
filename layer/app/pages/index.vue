@@ -17,7 +17,6 @@ const localizeLink = (link: { label: LocalizableText; to: LocalizableText }) => 
 });
 
 const landing = computed(() => ({
-  eyebrow: config.landing.eyebrow ? localize(config.landing.eyebrow) : undefined,
   title: localize(config.landing.title),
   description: localize(config.landing.description),
   primary: localizeLink(config.landing.primary),
@@ -112,9 +111,6 @@ useSeoMeta({
         class="relative mx-auto flex max-w-6xl flex-col gap-14 px-5 py-24 sm:px-8 sm:py-32 lg:flex-row lg:items-center"
       >
         <div class="min-w-0 flex-1">
-          <p v-if="landing.eyebrow" class="mb-6 text-sm font-semibold tracking-wide text-primary">
-            {{ landing.eyebrow }}
-          </p>
           <h1
             class="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-7xl"
             :class="landing.heroMedia ? 'lg:text-6xl' : 'lg:text-[5.75rem]'"

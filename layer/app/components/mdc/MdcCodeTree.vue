@@ -111,8 +111,7 @@ function toggleDir(path: string, initial: Set<string>) {
   else expanded.value.add(path);
 }
 
-const rowClass =
-  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+const rowClass = "content-code-tree-row";
 
 function renderRows(
   nodes: TreeNode[],
@@ -136,24 +135,22 @@ function renderRows(
           [
             h(Icon, {
               name: "lucide:chevron-right",
-              class: cn(
-                "size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out rtl:rotate-180",
-                isOpen && "rotate-90",
-              ),
+              class: "content-code-tree-chevron",
+              "data-open": isOpen ? "true" : undefined,
               "aria-hidden": "true",
             }),
             h(Icon, {
               name: isOpen ? "lucide:folder-open" : "lucide:folder",
-              class: "size-4 shrink-0 text-muted-foreground",
+              class: "content-code-tree-icon",
               "aria-hidden": "true",
             }),
-            h("span", { class: "min-w-0 truncate" }, node.label),
+            h("span", { class: "content-code-tree-label" }, node.label),
           ],
         ),
         isOpen
           ? h(
               "ul",
-              { role: "group", class: "relative border-s border-border" },
+              { role: "group", class: "content-code-tree-branch" },
               renderRows(node.children, openPaths, activePath),
             )
           : null,
@@ -166,18 +163,18 @@ function renderRows(
         "button",
         {
           type: "button",
-          class: cn(rowClass, isSelected && "bg-primary/10 text-primary hover:bg-primary/10"),
+          class: cn(rowClass, isSelected && "content-code-tree-row-active"),
           "aria-current": isSelected ? "true" : undefined,
           onClick: () => (selectedPath.value = node.path),
         },
         [
-          h("span", { class: "size-3.5 shrink-0", "aria-hidden": "true" }),
+          h("span", { class: "content-code-tree-spacer", "aria-hidden": "true" }),
           h(resolveComponent("Icon"), {
             name: resolveFileIcon(node.label),
-            class: cn("size-4 shrink-0", isSelected ? "text-primary/80" : "text-muted-foreground"),
+            class: "content-code-tree-icon",
             "aria-hidden": "true",
           }),
-          h("span", { class: "min-w-0 truncate" }, node.label),
+          h("span", { class: "content-code-tree-label" }, node.label),
         ],
       ),
     ]);
@@ -201,28 +198,26 @@ function renderCodeTree() {
   return h(
     "div",
     {
-      class:
-        "content-code-tree not-prose my-4 grid overflow-hidden rounded-xl border bg-card text-sm text-card-foreground shadow-xs lg:h-[28rem] lg:grid-cols-3",
+      class: "content-code-tree not-prose",
       "data-appearance": appearance.value,
     },
     [
       h(
         "ul",
         {
-          class:
-            "content-code-tree-list max-h-60 overflow-y-auto border-b border-border lg:max-h-none lg:border-b-0 lg:border-e",
+          class: "content-code-tree-list",
         },
         renderRows(tree, openPaths, activePath),
       ),
       h(
         "div",
-        { class: "content-code-tree-pane min-w-0 overflow-hidden lg:col-span-2" },
+        { class: "content-code-tree-pane" },
         leaves.map((leaf) =>
           h(
             "div",
             {
               key: leaf.path,
-              class: "h-full",
+              class: "content-code-tree-panel",
               style: activePath === leaf.path ? undefined : { display: "none" },
             },
             [cloneVNode(leaf.node)],

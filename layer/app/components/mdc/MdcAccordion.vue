@@ -56,6 +56,7 @@ onMounted(() => {
       v-model="value"
       :type="props.type"
       :collapsible="props.collapsible"
+      :unmount-on-hide="false"
       data-slot="accordion"
       :data-appearance="appearance"
       :class="cn('content-accordion not-prose', props.class)"

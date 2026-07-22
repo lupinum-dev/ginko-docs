@@ -2,14 +2,7 @@ import type { GinkoDocsAppConfig } from "../shared/types/app-config";
 export default {
   ginkoDocs: {
     prose: {
-      appearance: "quiet",
-      // Voice components keep the tint & bar DNA by default (RFC-001).
-      components: {
-        callout: "tint",
-        aside: "tint",
-        excerpt: "tint",
-        tabs: "tint",
-      },
+      appearance: "tint",
     },
     site: {
       name: { en: "Ginko Docs", de: "Ginko Docs" },
@@ -37,10 +30,6 @@ export default {
     toc: { depth: 3 },
     repository: undefined,
     landing: {
-      eyebrow: {
-        en: "Documentation for readers and agents",
-        de: "Dokumentation für Leser und Agenten",
-      },
       title: {
         en: "Publish structured documentation.",
         de: "Veröffentliche strukturierte Dokumentation.",

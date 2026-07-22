@@ -121,7 +121,6 @@ export interface GinkoDocsAppConfig {
     contentDirectory?: string;
   };
   landing: {
-    eyebrow?: GinkoDocsLocalizedText;
     title: GinkoDocsLocalizedText;
     description: GinkoDocsLocalizedText;
     primary: GinkoDocsLink;

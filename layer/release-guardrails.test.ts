@@ -184,6 +184,10 @@ describe("ginko docs release guardrails", () => {
     expect(Object.keys(contentComponentPolicy.components).sort()).toEqual(customTags.sort());
   });
 
+  it("preserves authored accordion trees across disclosure cycles", () => {
+    expect(read("layer/app/components/mdc/MdcAccordion.vue")).toContain(':unmount-on-hide="false"');
+  });
+
   it("accepts both Iconify and Nuxt icon names in MDC props", () => {
     expect(resolveIconifyIcon("lucide:server")).toBe("lucide:server");
     expect(resolveIconifyIcon("server")).toBe("lucide:server");

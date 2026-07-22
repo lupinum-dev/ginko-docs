@@ -20,10 +20,6 @@ export default {
       contentDirectory: "playground/content",
     },
     landing: {
-      eyebrow: {
-        en: "Nuxt layer for product documentation",
-        de: "Nuxt-Layer für Produktdokumentation",
-      },
       title: {
         en: "Publish documentation from Markdown.",
         de: "Veröffentliche Dokumentation aus Markdown.",

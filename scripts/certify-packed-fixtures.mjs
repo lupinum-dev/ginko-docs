@@ -18,11 +18,16 @@ import { chromium } from "playwright-core";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const playground = resolve(root, "playground");
+const workspaceManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+const configuredContentDependency = workspaceManifest.pnpm?.overrides?.["@lupinum/ginko-content"];
+const configuredContentArchive = configuredContentDependency?.startsWith("file:")
+  ? resolve(root, configuredContentDependency.slice("file:".length))
+  : null;
 const contentArchive = process.env.GINKO_CONTENT_TARBALL
   ? resolve(process.env.GINKO_CONTENT_TARBALL)
-  : null;
+  : configuredContentArchive;
 if (contentArchive && !existsSync(contentArchive)) {
-  throw new Error(`GINKO_CONTENT_TARBALL does not exist: ${contentArchive}`);
+  throw new Error(`Configured Ginko Content tarball does not exist: ${contentArchive}`);
 }
 const archive = readdirSync(resolve(root, "layer/.pack"))
   .filter((entry) => entry.endsWith(".tgz"))
