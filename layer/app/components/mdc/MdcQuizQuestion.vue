@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Ref, VNode } from "vue";
-import { h, inject, ref, computed, watch, useSlots, resolveComponent } from "vue";
+import type { Ref } from "vue";
+import { h, inject, ref, computed, watch, useSlots } from "vue";
 import { cn } from "../../utils";
 import { Icon } from "#components";
 import { useI18n } from "#imports";
@@ -56,7 +56,7 @@ const text = computed(() => {
     reset: props.resetLabel ?? (isGerman ? "Erneut versuchen" : "Try Again"),
     multipleChoice:
       props.multipleChoiceLabel ??
-      (isGerman ? "(mehrere Antworten moeglich)" : "(select all that apply)"),
+      (isGerman ? "(mehrere Antworten möglich)" : "(select all that apply)"),
   };
 });
 
@@ -67,22 +67,10 @@ function normalizeYamlOption(opt: YamlOption): { text: string; correct: boolean 
 
 const useYaml = computed(() => Array.isArray(props.options) && props.options.length > 0);
 
-function getOptionNodes(): VNode[] {
-  return (slots.default?.() ?? []).filter((node): node is VNode => Boolean(node?.type));
-}
-
 const isCorrect = computed(() => {
-  if (useYaml.value) {
-    return props.options!.every((opt, i) => {
-      const { correct } = normalizeYamlOption(opt);
-      return correct === selectedOptions.value.has(i);
-    });
-  }
-  const nodes = getOptionNodes();
-  return nodes.every((node, i) => {
-    const correct = node.props?.correct !== undefined && node.props?.correct !== false;
-    const selected = selectedOptions.value.has(i);
-    return correct === selected;
+  return (props.options ?? []).every((opt, i) => {
+    const { correct } = normalizeYamlOption(opt);
+    return correct === selectedOptions.value.has(i);
   });
 });
 
@@ -132,37 +120,52 @@ function renderButton(
       ),
       onClick: options.onClick,
     },
-    () => label,
+    label,
   );
 }
 
 function renderOptions() {
-  if (useYaml.value) {
-    const QuizOption = resolveComponent("MdcQuizOption");
-    return props.options!.map((opt, i) => {
-      const { text, correct } = normalizeYamlOption(opt);
-      return h(QuizOption, {
+  return (props.options ?? []).map((opt, i) => {
+    const { text: label, correct } = normalizeYamlOption(opt);
+    const selected = selectedOptions.value.has(i);
+    const state = isSubmitted.value
+      ? correct
+        ? "correct"
+        : selected
+          ? "incorrect"
+          : "idle"
+      : selected
+        ? "selected"
+        : "idle";
+    const resultIcon =
+      state === "correct"
+        ? "lucide:circle-check"
+        : state === "incorrect"
+          ? "lucide:circle-x"
+          : null;
+    return h(
+      "button",
+      {
         key: i,
-        optionIndex: i,
-        correct,
-        label: text,
-        selected: selectedOptions.value.has(i),
+        type: "button",
         disabled: isSubmitted.value,
-        showResult: isSubmitted.value,
-        onSelect: () => handleSelect(i),
-      });
-    });
-  }
-  return getOptionNodes().map((node, i) =>
-    h(node, {
-      key: i,
-      optionIndex: i,
-      selected: selectedOptions.value.has(i),
-      disabled: isSubmitted.value,
-      showResult: isSubmitted.value,
-      onSelect: () => handleSelect(i),
-    }),
-  );
+        class: "content-quiz-option",
+        "data-state": state,
+        onClick: () => handleSelect(i),
+      },
+      [
+        h(
+          "span",
+          { class: "content-quiz-option-key", "aria-hidden": "true" },
+          String.fromCharCode(65 + i),
+        ),
+        h("span", { class: "content-quiz-option-label" }, label),
+        resultIcon
+          ? h(Icon, { name: resultIcon, class: "content-quiz-option-result", ariaHidden: true })
+          : null,
+      ],
+    );
+  });
 }
 
 function renderQuestion() {
@@ -200,12 +203,11 @@ function renderQuestion() {
               : null,
           ]),
     ]),
-    isSubmitted.value && props.explanation
+    isSubmitted.value && (props.explanation || useYaml.value)
       ? h(
           "div",
           {
-            class:
-              "flex gap-2 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm text-foreground",
+            class: "content-quiz-explanation",
           },
           [
             h(Icon, {
@@ -213,7 +215,9 @@ function renderQuestion() {
               class: "mt-0.5 size-4 shrink-0 text-info",
               ariaHidden: true,
             }),
-            h("span", props.explanation),
+            props.explanation
+              ? h("span", props.explanation)
+              : h("div", { class: "content-prose content-prose-trim" }, slots.default?.()),
           ],
         )
       : null,

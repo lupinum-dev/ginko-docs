@@ -1,5 +1,27 @@
 export type GinkoDocsLocalizedText = { en: string; de?: string };
 
+export type GinkoDocsProseAppearance = "quiet" | "tint";
+export type GinkoDocsProseFamily =
+  | "callout"
+  | "aside"
+  | "excerpt"
+  | "cards"
+  | "readMore"
+  | "accordion"
+  | "tabs"
+  | "code"
+  | "files"
+  | "api"
+  | "figure"
+  | "quiz"
+  | "steps"
+  | "timeline";
+
+export interface GinkoDocsProseConfig {
+  appearance: GinkoDocsProseAppearance;
+  components?: Partial<Record<GinkoDocsProseFamily, GinkoDocsProseAppearance>>;
+}
+
 export interface GinkoDocsLink {
   label: GinkoDocsLocalizedText;
   to: GinkoDocsLocalizedText;
@@ -36,6 +58,7 @@ export type GinkoDocsPlausibleExtension =
   | "manual";
 
 export interface GinkoDocsAppConfig {
+  prose: GinkoDocsProseConfig;
   site: {
     name: GinkoDocsLocalizedText;
     description: GinkoDocsLocalizedText;

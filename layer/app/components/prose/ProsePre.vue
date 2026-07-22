@@ -4,6 +4,7 @@ import { computed, onMounted, ref, useId } from "vue";
 import { useClipboard, useEventListener, useResizeObserver } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 import {
   EXTENSION_ICONS,
   FALLBACK_FILE_ICON,
@@ -22,7 +23,9 @@ const props = defineProps<{
   icon?: string | null;
   inGroup?: boolean;
   class?: HTMLAttributes["class"];
+  appearance?: "quiet" | "tint";
 }>();
+const appearance = useProseAppearance("code", () => props.appearance);
 
 const { copy, copied } = useClipboard();
 const { t } = useI18n();
@@ -93,6 +96,7 @@ useResizeObserver(scrollElement, measureOverflow);
   <figure
     dir="ltr"
     data-fd-codeblock
+    :data-appearance="appearance"
     tabindex="-1"
     :class="
       cn(

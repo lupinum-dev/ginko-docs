@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import type { VNode } from "vue";
-import { computed, onMounted, ref, useId, useSlots } from "vue";
+import { computed, onMounted, ref, useId } from "vue";
 import { cn } from "../../utils";
-import {
-  apiEntryId,
-  normalizeApiGroups,
-  parseApiSource,
-  signatureTail,
-  splitInlineCode,
-} from "./api.utils";
+import { apiEntryId, normalizeApiGroups, signatureTail, splitInlineCode } from "./api.utils";
 import { resolveIconifyIcon } from "./icons";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 const props = defineProps<{
   title?: string;
@@ -17,40 +11,11 @@ const props = defineProps<{
   method?: string;
   path?: string;
   groups?: unknown;
+  appearance?: "quiet" | "tint";
 }>();
+const appearance = useProseAppearance("api", () => props.appearance);
 
-const slots = useSlots();
-
-function textFromNode(input: unknown): string {
-  if (typeof input === "string") return input;
-  if (Array.isArray(input)) return input.map(textFromNode).join("");
-  if (input && typeof input === "object") {
-    const children = (input as VNode).children;
-    if (typeof children === "string" || Array.isArray(children)) return textFromNode(children);
-    // Component vnodes carry their content as a slots object.
-    if (children && typeof (children as { default?: unknown }).default === "function") {
-      return textFromNode((children as { default: () => unknown }).default());
-    }
-  }
-  return "";
-}
-
-// The authored data is the yaml code block in the default slot. The rendered
-// pre vnode exposes the language as a prop; the source text sits in its slot
-// children (shiki keeps newline text nodes between highlighted lines).
-function slotSource(): string {
-  for (const node of slots.default?.() ?? []) {
-    const nodeProps = (node.props ?? {}) as { code?: string; language?: string | null };
-    if (nodeProps.language === "yaml" || nodeProps.language === "yml") {
-      return nodeProps.code ?? textFromNode(node);
-    }
-  }
-  return "";
-}
-
-const groups = computed(() =>
-  props.groups ? normalizeApiGroups(props.groups) : parseApiSource(slotSource()),
-);
+const groups = computed(() => normalizeApiGroups(props.groups));
 const activeIndex = ref(0);
 const panelId = useId();
 
@@ -74,7 +39,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="groups.length" class="content-tabs not-prose">
+  <div
+    v-if="groups.length"
+    class="content-api content-tabs not-prose"
+    :data-appearance="appearance"
+  >
     <div class="content-tabs-header">
       <span
         v-if="method && path"

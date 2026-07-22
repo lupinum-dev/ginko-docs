@@ -1,5 +1,3 @@
-import { parse as parseYaml } from "yaml";
-
 export type ApiEntry = {
   name: string;
   annotation?: string;
@@ -67,26 +65,6 @@ export function normalizeApiGroups(input: unknown): ApiGroup[] {
 
     return entries.length ? [{ label, entries }] : [];
   });
-}
-
-/**
- * Parse the authored YAML source from the panel's code block. Accepts either a
- * top-level `groups:` key or a bare list of groups; invalid YAML yields no
- * groups instead of throwing.
- */
-export function parseApiSource(source: string): ApiGroup[] {
-  if (!source.trim()) return [];
-  let parsed: unknown;
-  try {
-    parsed = parseYaml(source);
-  } catch {
-    return [];
-  }
-  if (Array.isArray(parsed)) return normalizeApiGroups(parsed);
-  if (typeof parsed === "object" && parsed !== null && "groups" in parsed) {
-    return normalizeApiGroups((parsed as Record<string, unknown>).groups);
-  }
-  return [];
 }
 
 /**

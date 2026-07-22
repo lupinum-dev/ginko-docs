@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
 import { computed } from "vue";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 import { cn } from "../../utils";
 import { resolveIconifyIcon } from "./icons";
 
-type CalloutType = "note" | "alert" | "info" | "warn" | "warning" | "error" | "success" | "idea";
+type CalloutType = "note" | "info" | "warning" | "error" | "success" | "idea";
 
 const props = withDefaults(
   defineProps<{
     title?: string;
     type?: CalloutType;
     icon?: string;
+    appearance?: "quiet" | "tint";
     class?: HTMLAttributes["class"];
   }>(),
   {
@@ -18,11 +20,7 @@ const props = withDefaults(
   },
 );
 
-const normalizedType = computed(() => {
-  if (props.type === "warn" || props.type === "alert") return "warning";
-
-  return props.type;
-});
+const appearance = useProseAppearance("callout", () => props.appearance);
 
 const iconName = computed(() => {
   if (props.icon) return resolveIconifyIcon(props.icon) ?? props.icon;
@@ -35,7 +33,7 @@ const iconName = computed(() => {
       error: "lucide:circle-x",
       success: "lucide:circle-check",
       idea: "lucide:lightbulb",
-    }[normalizedType.value] ?? "lucide:info"
+    }[props.type] ?? "lucide:info"
   );
 });
 </script>
@@ -43,8 +41,9 @@ const iconName = computed(() => {
 <template>
   <div
     data-slot="alert"
-    role="alert"
-    :class="cn('content-callout not-prose my-4', `content-callout-${normalizedType}`, props.class)"
+    :data-appearance="appearance"
+    role="note"
+    :class="cn('content-callout not-prose my-4', `content-callout-${props.type}`, props.class)"
   >
     <span class="content-callout-bar" aria-hidden="true" />
     <span data-slot="alert-icon" class="content-callout-icon" aria-hidden="true">

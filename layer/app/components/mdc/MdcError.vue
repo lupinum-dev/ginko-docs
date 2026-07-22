@@ -5,12 +5,19 @@ import MdcCallout from "./MdcCallout.vue";
 const props = defineProps<{
   title?: string;
   icon?: string;
+  appearance?: "quiet" | "tint";
   class?: HTMLAttributes["class"];
 }>();
 </script>
 
 <template>
-  <MdcCallout :title="title" :icon="icon" type="error" :class="props.class">
+  <MdcCallout
+    :title="title"
+    :icon="icon"
+    type="error"
+    :appearance="appearance"
+    :class="props.class"
+  >
     <slot />
   </MdcCallout>
 </template>

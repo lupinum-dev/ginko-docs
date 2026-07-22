@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { VNode } from "vue";
-import { h, provide, reactive, ref, computed, useSlots } from "vue";
+import { cloneVNode, h, provide, reactive, ref, computed, useSlots } from "vue";
 import { Icon } from "#components";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 const props = defineProps<{
   title?: string;
@@ -16,7 +17,9 @@ const props = defineProps<{
   perfectLabel?: string;
   retryPrompt?: string;
   resetLabel?: string;
+  appearance?: "quiet" | "tint";
 }>();
+const appearance = useProseAppearance("quiz", () => props.appearance);
 
 const MDC_QUIZ = Symbol.for("mdc.quiz");
 
@@ -68,7 +71,7 @@ const text = computed(() => {
   return {
     question: props.questionLabel ?? (isGerman ? "Frage" : "Question"),
     of: isGerman ? "von" : "of",
-    back: props.backLabel ?? (isGerman ? "Zurueck" : "Back"),
+    back: props.backLabel ?? (isGerman ? "Zurück" : "Back"),
     next: props.nextLabel ?? (isGerman ? "Weiter" : "Next"),
     results: props.resultsLabel ?? (isGerman ? "Ergebnis anzeigen" : "See Results"),
     correct: props.correctSummaryLabel ?? (isGerman ? "richtig" : "correct"),
@@ -105,12 +108,12 @@ function renderButton(
       ),
       onClick: options.onClick,
     },
-    () => children,
+    children,
   );
 }
 
 function renderHeader() {
-  return h("div", { class: "flex flex-row items-center gap-4 px-6" }, () => [
+  return h("div", { class: "flex flex-row items-center gap-4 px-6" }, [
     h(
       "div",
       {
@@ -121,10 +124,10 @@ function renderHeader() {
     ),
     h("div", { class: "min-w-0 flex-1" }, [
       props.title
-        ? h("div", { class: "font-semibold leading-none tracking-tight" }, () => props.title)
+        ? h("div", { class: "font-semibold leading-none tracking-tight" }, props.title)
         : null,
       props.description
-        ? h("div", { class: "text-sm text-muted-foreground" }, () => props.description)
+        ? h("div", { class: "text-sm text-muted-foreground" }, props.description)
         : null,
     ]),
   ]);
@@ -156,7 +159,7 @@ function renderDots() {
 function renderFooter() {
   const isLast = activeIndex.value === state.totalQuestions - 1;
 
-  return h("div", { class: "flex items-center justify-between border-t px-6 py-4" }, () => [
+  return h("div", { class: "flex items-center justify-between border-t px-6 py-4" }, [
     h(
       "span",
       { class: "text-sm text-muted-foreground" },
@@ -202,7 +205,7 @@ function renderFooter() {
 function renderResults() {
   const perfect = correctCount.value === state.totalQuestions;
 
-  return h("div", { class: "flex flex-col items-center gap-4 px-6 py-8 text-center" }, () => [
+  return h("div", { class: "flex flex-col items-center gap-4 px-6 py-8 text-center" }, [
     h(
       "div",
       {
@@ -246,7 +249,9 @@ function renderQuiz() {
     children.push(renderResults());
   } else {
     children.push(
-      h("div", { class: "px-6" }, () =>
+      h(
+        "div",
+        { class: "px-6" },
         items.map((node, i) =>
           h(
             "div",
@@ -254,7 +259,7 @@ function renderQuiz() {
               key: i,
               style: i === activeIndex.value ? undefined : { display: "none" },
             },
-            [h(node)],
+            [cloneVNode(node)],
           ),
         ),
       ),
@@ -268,10 +273,10 @@ function renderQuiz() {
     "div",
     {
       "data-slot": "card",
-      class:
-        "not-prose my-8 flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-xs",
+      "data-appearance": appearance.value,
+      class: "content-quiz not-prose",
     },
-    () => children,
+    children,
   );
 }
 </script>

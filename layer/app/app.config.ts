@@ -1,6 +1,9 @@
 import type { GinkoDocsAppConfig } from "../shared/types/app-config";
 export default {
   ginkoDocs: {
+    prose: {
+      appearance: "tint",
+    },
     site: {
       name: { en: "Ginko Docs", de: "Ginko Docs" },
       description: {

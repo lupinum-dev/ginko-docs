@@ -1,6 +1,11 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  fmt: {
+    // Oxfmt does not understand YAML frontmatter nested inside MDC containers
+    // and rewrites valid component syntax. Content has parser/build checks.
+    ignorePatterns: ["playground/content/**/*.md"],
+  },
   test: {
     exclude: [
       "**/node_modules/**",

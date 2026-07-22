@@ -1,26 +1,22 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 import { cn } from "../../utils";
 
 const props = defineProps<{
   label?: string;
+  appearance?: "quiet" | "tint";
   class?: HTMLAttributes["class"];
 }>();
+const appearance = useProseAppearance("aside", () => props.appearance);
 </script>
 
 <template>
-  <aside
-    :class="
-      cn(
-        'not-prose my-4 rounded-lg border-l-2 border-muted-foreground/20 bg-muted/20 px-4 py-3',
-        props.class,
-      )
-    "
-  >
-    <p v-if="label" class="mb-2 text-xs font-medium tracking-wider text-muted-foreground uppercase">
+  <aside :data-appearance="appearance" :class="cn('content-aside not-prose', props.class)">
+    <p v-if="label" class="content-aside-label">
       {{ label }}
     </p>
-    <div :class="cn('content-prose content-prose-trim text-muted-foreground')">
+    <div class="content-aside-body content-prose content-prose-trim">
       <slot />
     </div>
   </aside>

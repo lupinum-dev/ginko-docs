@@ -151,9 +151,32 @@ describe("ginko docs release guardrails", () => {
     );
 
     const componentsEntry = await import(pathToFileURL(join(root, "layer/components.ts")).href);
-    expect(componentsEntry.ginkoDocsComponentTags.callout).toBe("MdcCallout");
-    expect(componentsEntry.ginkoDocsComponentNames).toContain("MdcCallout");
+    expect(componentsEntry.ginkoDocsComponentTags.note).toBe("MdcNote");
+    expect(componentsEntry.ginkoDocsComponentTags.excerpt).toBe("MdcExcerpt");
+    expect(componentsEntry.ginkoDocsComponentNames).toContain("MdcCards");
     expect(componentsEntry.ginkoDocsComponentPolicy).toBe(contentComponentPolicy);
+  });
+
+  it("exposes only the canonical greenfield component tags", () => {
+    const removed = [
+      "alert",
+      "callout",
+      "danger",
+      "warn",
+      "passage",
+      "card-group",
+      "read-more-group",
+      "file",
+      "folder",
+      "field",
+      "field-group",
+      "doc-img",
+      "quiz-option",
+      "step",
+      "shortcut",
+    ];
+    expect(Object.keys(contentComponentTags)).toHaveLength(33);
+    expect(removed.every((tag) => !(tag in contentComponentTags))).toBe(true);
   });
 
   it("declares an explicit render policy for every custom MDC tag", () => {

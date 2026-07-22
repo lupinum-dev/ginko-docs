@@ -3,6 +3,7 @@ import { NuxtLink } from "#components";
 import { computed, inject, useSlots, type CSSProperties, type HTMLAttributes } from "vue";
 import { cn } from "../../utils";
 import { isExternalLink, resolveIconifyIcon } from "./icons";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 type CardIconColor =
   | "muted"
@@ -27,6 +28,7 @@ const props = withDefaults(
     horizontal?: boolean;
     inStack?: boolean;
     class?: HTMLAttributes["class"];
+    appearance?: "quiet" | "tint";
   }>(),
   {
     showLinkIcon: true,
@@ -37,6 +39,7 @@ const props = withDefaults(
 
 const slots = useSlots();
 const inGroup = inject("contentCardInGroup", false);
+const appearance = useProseAppearance("cards", () => props.appearance);
 
 const wrapperTag = computed(() => (props.to ? (isExternalLink(props.to) ? "a" : NuxtLink) : "div"));
 
@@ -93,10 +96,11 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
   <component
     :is="wrapperTag"
     v-bind="linkProps || {}"
+    :data-appearance="appearance"
     :class="
       cn(
-        'content-card group not-prose relative block h-auto',
-        !inStack && !inGroup && 'my-4',
+        'content-card group not-prose',
+        !inStack && !inGroup && 'content-card-standalone',
         to &&
           'rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
         props.class,
@@ -107,7 +111,7 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
       data-slot="card"
       :class="
         cn(
-          'content-card-surface relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs transition-colors p-0',
+          'content-card-surface',
           to && 'cursor-pointer hover:bg-accent/50',
           showOutgoingLinkIcon && (hasBody || hasFooter ? '' : 'pr-10'),
           inStack &&

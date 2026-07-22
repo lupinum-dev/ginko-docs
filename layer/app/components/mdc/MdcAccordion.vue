@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { AccordionRoot } from "reka-ui";
 import { cn } from "../../utils";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 const props = withDefaults(
   defineProps<{
@@ -9,12 +10,14 @@ const props = withDefaults(
     collapsible?: boolean;
     defaultValue?: string | string[];
     class?: string;
+    appearance?: "quiet" | "tint";
   }>(),
   {
     type: "single",
     collapsible: true,
   },
 );
+const appearance = useProseAppearance("accordion", () => props.appearance);
 
 const root = ref<HTMLElement | null>(null);
 const value = ref<string | string[]>(
@@ -54,9 +57,8 @@ onMounted(() => {
       :type="props.type"
       :collapsible="props.collapsible"
       data-slot="accordion"
-      :class="
-        cn('not-prose my-4 w-full divide-y overflow-hidden rounded-lg border bg-card', props.class)
-      "
+      :data-appearance="appearance"
+      :class="cn('content-accordion not-prose', props.class)"
     >
       <slot />
     </AccordionRoot>

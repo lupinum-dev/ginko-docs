@@ -6,6 +6,7 @@ import { useI18n } from "#imports";
 import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 import { cn } from "../../utils";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 const props = withDefaults(
   defineProps<{
@@ -19,6 +20,7 @@ const props = withDefaults(
     fit?: "cover" | "contain";
     zoom?: boolean | string;
     class?: HTMLAttributes["class"];
+    appearance?: "quiet" | "tint";
   }>(),
   {
     // Vue casts an absent Boolean-typed prop to false; "auto" preserves the
@@ -26,6 +28,7 @@ const props = withDefaults(
     zoom: "auto",
   },
 );
+const appearance = useProseAppearance("figure", () => props.appearance);
 
 const { t } = useI18n();
 const config = useGinkoDocsConfig();
@@ -56,6 +59,7 @@ const imageClass = computed(() =>
   <figure
     :class="cn('content-media not-prose', props.class)"
     :data-bleed="shouldBleed ? 'true' : undefined"
+    :data-appearance="appearance"
   >
     <template v-if="src">
       <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">

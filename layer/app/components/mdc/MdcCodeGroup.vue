@@ -4,6 +4,7 @@ import { Comment, cloneVNode, computed, h, ref, resolveComponent, useSlots } fro
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
+import { useProseAppearance } from "../../composables/useProseAppearance";
 
 type CodeBlockProps = {
   code?: string;
@@ -24,6 +25,8 @@ const slots = useSlots();
 const activeValue = ref("");
 const { copy, copied } = useClipboard();
 const { t } = useI18n();
+const props = defineProps<{ appearance?: "quiet" | "tint" }>();
+const appearance = useProseAppearance("code", () => props.appearance);
 
 const PACKAGE_ICONS: Record<string, string> = {
   bun: "logos:bun",
@@ -113,6 +116,7 @@ function renderCodeGroup() {
     "div",
     {
       class: "content-codegroup not-prose group",
+      "data-appearance": appearance.value,
     },
     [
       h("div", { class: "content-codegroup-header" }, [

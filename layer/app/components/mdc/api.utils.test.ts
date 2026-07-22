@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import {
-  apiEntryId,
-  normalizeApiGroups,
-  parseApiSource,
-  signatureTail,
-  splitInlineCode,
-} from "./api.utils";
+import { apiEntryId, normalizeApiGroups, signatureTail, splitInlineCode } from "./api.utils";
 
 describe("normalizeApiGroups", () => {
   it("normalizes a valid YAML groups structure", () => {
@@ -66,34 +60,6 @@ describe("normalizeApiGroups", () => {
     expect(normalizeApiGroups(undefined)).toEqual([]);
     expect(normalizeApiGroups("groups")).toEqual([]);
     expect(normalizeApiGroups({ label: "Props" })).toEqual([]);
-  });
-});
-
-describe("parseApiSource", () => {
-  it("parses YAML with a top-level groups key", () => {
-    const source = [
-      "groups:",
-      "  - label: Props",
-      "    entries:",
-      "      - name: src",
-      "        annotation: string",
-      "        required: true",
-    ].join("\n");
-
-    const groups = parseApiSource(source);
-    expect(groups).toHaveLength(1);
-    expect(groups[0]?.entries[0]).toMatchObject({ name: "src", required: true });
-  });
-
-  it("parses a bare list of groups", () => {
-    const source = ["- label: Flags", "  entries:", "    - name: --force"].join("\n");
-    expect(parseApiSource(source)[0]?.label).toBe("Flags");
-  });
-
-  it("returns no groups for empty or invalid YAML", () => {
-    expect(parseApiSource("")).toEqual([]);
-    expect(parseApiSource("groups: [unclosed")).toEqual([]);
-    expect(parseApiSource("just a string")).toEqual([]);
   });
 });
 

@@ -126,7 +126,7 @@ export default {
       },
       features: [
         {
-          title: { en: "44 authoring tags", de: "44 Authoring-Tags" },
+          title: { en: "33 canonical tags", de: "33 kanonische Tags" },
           description: {
             en: "Use callouts, steps, tabs, code groups, file trees, timelines, quizzes, and media in Markdown.",
             de: "Nutze Callouts, Schritte, Tabs, Code-Gruppen, Dateibäume, Timelines, Quizze und Medien in Markdown.",

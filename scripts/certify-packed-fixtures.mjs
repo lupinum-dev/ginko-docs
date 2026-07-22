@@ -18,6 +18,12 @@ import { chromium } from "playwright-core";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const playground = resolve(root, "playground");
+const contentArchive = process.env.GINKO_CONTENT_TARBALL
+  ? resolve(process.env.GINKO_CONTENT_TARBALL)
+  : null;
+if (contentArchive && !existsSync(contentArchive)) {
+  throw new Error(`GINKO_CONTENT_TARBALL does not exist: ${contentArchive}`);
+}
 const archive = readdirSync(resolve(root, "layer/.pack"))
   .filter((entry) => entry.endsWith(".tgz"))
   .map((entry) => resolve(root, "layer/.pack", entry));
@@ -121,7 +127,7 @@ function copyFixture(variant, directory) {
         private: true,
         type: "module",
         dependencies: {
-          "@lupinum/ginko-content": "0.3.0-rc.5",
+          "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : "0.3.0-rc.5",
           "@lupinum/ginko-docs": `file:${archive[0]}`,
           nuxt: "^4.4.8",
           vue: "^3.5.35",
@@ -222,7 +228,7 @@ async function certifyBrowser(variant, directory) {
 
     const startPath = variant.singleLocale ? "/docs" : "/docs/getting-started";
     await page.goto(`${server.baseURL}${startPath}`, { waitUntil: "networkidle" });
-    const sidebar = page.locator("#nd-sidebar");
+    const sidebar = page.locator('aside[data-variant="desktop"]');
     await sidebar.waitFor({ state: "visible" });
     await sidebar.locator(`[data-slot="docs-sidebar-${variant.switcher}"]`).waitFor({
       state: "visible",
@@ -250,7 +256,7 @@ async function certifyBrowser(variant, directory) {
       await language.click();
       await page.locator('a[lang="de"]').first().click();
       await page.waitForURL((url) => url.pathname.startsWith("/de/"));
-      await page.locator("#nd-sidebar").waitFor({ state: "visible" });
+      await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
     }
     if (failures.length)
       throw new Error(`${variant.name} browser failures:\n${failures.join("\n")}`);
@@ -269,12 +275,18 @@ try {
     run("vp", ["exec", "nuxi", "typecheck"], directory);
     run("vp", ["exec", "nuxt", "build"], directory);
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
+    const installedContent = JSON.parse(
+      readFileSync(resolve(directory, "node_modules/@lupinum/ginko-content/package.json"), "utf8"),
+    );
     const contentVersions = new Set(
       [...lock.matchAll(/@lupinum\/ginko-content@([^:'()\s]+)[(:]/g)].map((match) => match[1]),
     );
-    if (contentVersions.size !== 1 || !contentVersions.has("0.3.0-rc.5")) {
+    if (
+      installedContent.version !== "0.3.0-rc.5" ||
+      (!contentArchive && (contentVersions.size !== 1 || !contentVersions.has("0.3.0-rc.5")))
+    ) {
       throw new Error(
-        `${variant.name} did not resolve exactly one Ginko Content rc.2 installation.`,
+        `${variant.name} did not resolve exactly one Ginko Content rc.5 installation.`,
       );
     }
     await certifyBrowser(variant, directory);
