@@ -114,7 +114,7 @@ export const contentComponentPolicy = {
     column: block({ size: optional("string") }),
     dropcap: block({ lines: optional("json") }),
     error: notice,
-    excerpt: block({ source: optional("string"), ...appearance }),
+    excerpt: block({ label: optional("string"), source: optional("string"), ...appearance }),
     figure: block(
       {
         ...appearance,
@@ -171,6 +171,7 @@ export const contentComponentPolicy = {
       date: optional("string"),
       label: optional("string"),
       title: optional("string"),
+      icon: optional("string"),
       active: optional("boolean"),
     }),
     toc: block(

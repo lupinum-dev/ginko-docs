@@ -247,9 +247,31 @@ async function certifyBrowser(variant, directory) {
     });
 
     if (variant.switcher === "list") {
-      if ((await sidebar.locator("button[aria-expanded]").count()) === 0) {
+      // The docs architecture is flat: sections switched via the list, with
+      // headed groups inside each section (no collapsible folders in the
+      // fixture content). Structural navigation therefore means group
+      // headings render and the list switches between sections.
+      if ((await sidebar.locator('[data-slot="docs-sidebar-group-title"]').count()) === 0) {
         throw new Error("The list fixture did not render a structural navigation group.");
       }
+      const linksBefore = await links.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("href")),
+      );
+      await sidebar
+        .locator('[data-slot="docs-sidebar-list"] button[aria-pressed="false"]')
+        .first()
+        .click();
+      await page
+        .waitForFunction((before) => {
+          const sidebarElement = document.querySelector('aside[data-variant="desktop"]');
+          const hrefs = [...(sidebarElement?.querySelectorAll('a[href^="/docs/"]') ?? [])].map(
+            (element) => element.getAttribute("href"),
+          );
+          return JSON.stringify(hrefs) !== before;
+        }, JSON.stringify(linksBefore))
+        .catch(() => {
+          throw new Error("The list fixture did not switch structural sections.");
+        });
     }
     if (!variant.singleLocale) {
       const language = page.getByRole("button", { name: /language/i }).first();

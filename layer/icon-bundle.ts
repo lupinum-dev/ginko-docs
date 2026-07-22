@@ -19,6 +19,7 @@ export const layerIconNames = [
   "lucide:blocks",
   "lucide:book-open",
   "lucide:bookmark",
+  "lucide:calendar",
   "lucide:braces",
   "lucide:building-2",
   "lucide:check",

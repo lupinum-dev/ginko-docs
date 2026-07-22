@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue";
-import { computed, onMounted, ref, useId } from "vue";
+import type { ComputedRef, HTMLAttributes } from "vue";
+import { computed, inject, onMounted, ref, useId } from "vue";
 import { useClipboard, useEventListener, useResizeObserver } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { cn } from "../../utils";
@@ -25,7 +25,12 @@ const props = defineProps<{
   class?: HTMLAttributes["class"];
   appearance?: "quiet" | "tint";
 }>();
-const appearance = useProseAppearance("code", () => props.appearance);
+// Instance prop wins, then a surrounding ::collapse wrapper, then config.
+const wrapperAppearance = inject<ComputedRef<"quiet" | "tint"> | null>(
+  "contentCodeAppearance",
+  null,
+);
+const appearance = useProseAppearance("code", () => props.appearance ?? wrapperAppearance?.value);
 
 const { copy, copied } = useClipboard();
 const { t } = useI18n();

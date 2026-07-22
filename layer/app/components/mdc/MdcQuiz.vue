@@ -100,12 +100,7 @@ function renderButton(
     {
       type: "button",
       disabled: options.disabled,
-      class: cn(
-        "inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4",
-        options.variant === "ghost"
-          ? "hover:bg-accent hover:text-accent-foreground"
-          : "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
-      ),
+      class: cn("content-quiz-button", options.variant === "ghost" && "content-quiz-button-ghost"),
       onClick: options.onClick,
     },
     children,
@@ -113,22 +108,11 @@ function renderButton(
 }
 
 function renderHeader() {
-  return h("div", { class: "flex flex-row items-center gap-4 px-6" }, [
-    h(
-      "div",
-      {
-        class:
-          "flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary",
-      },
-      [h(Icon, { name: "lucide:circle-help", class: "size-4", ariaHidden: true })],
-    ),
-    h("div", { class: "min-w-0 flex-1" }, [
-      props.title
-        ? h("div", { class: "font-semibold leading-none tracking-tight" }, props.title)
-        : null,
-      props.description
-        ? h("div", { class: "text-sm text-muted-foreground" }, props.description)
-        : null,
+  return h("div", { class: "content-quiz-header" }, [
+    h(Icon, { name: "lucide:circle-help", class: "content-quiz-header-icon", ariaHidden: true }),
+    h("div", { class: "content-quiz-heading" }, [
+      props.title ? h("div", { class: "content-quiz-title" }, props.title) : null,
+      props.description ? h("div", { class: "content-quiz-description" }, props.description) : null,
     ]),
   ]);
 }
@@ -136,18 +120,15 @@ function renderHeader() {
 function renderDots() {
   return h(
     "div",
-    { class: "flex items-center gap-1.5" },
+    { class: "content-quiz-dots" },
     Array.from({ length: state.totalQuestions }, (_, i) =>
       h("button", {
         type: "button",
-        class: cn(
-          "size-2 rounded-full transition-all",
-          i === activeIndex.value
-            ? "scale-125 bg-primary ring-2 ring-primary/30"
-            : state.answers.has(i)
-              ? "bg-primary"
-              : "bg-muted-foreground/30",
-        ),
+        class: "content-quiz-dot",
+        "data-state":
+          i === activeIndex.value ? "active" : state.answers.has(i) ? "answered" : undefined,
+        "aria-label": `${text.value.question} ${i + 1}`,
+        "aria-current": i === activeIndex.value ? "true" : undefined,
         onClick: () => {
           activeIndex.value = i;
         },
@@ -159,26 +140,20 @@ function renderDots() {
 function renderFooter() {
   const isLast = activeIndex.value === state.totalQuestions - 1;
 
-  return h("div", { class: "flex items-center justify-between border-t px-6 py-4" }, [
+  return h("div", { class: "content-quiz-footer" }, [
     h(
       "span",
-      { class: "text-sm text-muted-foreground" },
+      { class: "content-quiz-progress" },
       `${text.value.question} ${activeIndex.value + 1} ${text.value.of} ${state.totalQuestions}`,
     ),
     renderDots(),
-    h("div", { class: "flex items-center gap-2" }, [
-      renderButton(
-        [
-          h(Icon, { name: "lucide:chevron-left", class: "size-4", ariaHidden: true }),
-          text.value.back,
-        ],
-        {
-          disabled: activeIndex.value === 0,
-          onClick: () => {
-            activeIndex.value--;
-          },
+    h("div", { class: "content-quiz-nav" }, [
+      renderButton([h(Icon, { name: "lucide:chevron-left", ariaHidden: true }), text.value.back], {
+        disabled: activeIndex.value === 0,
+        onClick: () => {
+          activeIndex.value--;
         },
-      ),
+      }),
       isLast
         ? renderButton(text.value.results, {
             disabled: !currentAnswered.value,
@@ -187,10 +162,7 @@ function renderFooter() {
             },
           })
         : renderButton(
-            [
-              text.value.next,
-              h(Icon, { name: "lucide:chevron-right", class: "size-4", ariaHidden: true }),
-            ],
+            [text.value.next, h(Icon, { name: "lucide:chevron-right", ariaHidden: true })],
             {
               disabled: !currentAnswered.value,
               onClick: () => {
@@ -205,32 +177,24 @@ function renderFooter() {
 function renderResults() {
   const perfect = correctCount.value === state.totalQuestions;
 
-  return h("div", { class: "flex flex-col items-center gap-4 px-6 py-8 text-center" }, [
+  return h("div", { class: "content-quiz-results" }, [
     h(
       "div",
       {
-        class: cn(
-          "flex size-12 items-center justify-center rounded-full",
-          perfect ? "bg-success/10" : "bg-muted",
-        ),
+        class: "content-quiz-results-icon",
+        "data-state": perfect ? "perfect" : undefined,
       },
-      [
-        h(Icon, {
-          name: "lucide:trophy",
-          class: cn("size-6", perfect ? "text-success" : "text-muted-foreground"),
-          ariaHidden: true,
-        }),
-      ],
+      [h(Icon, { name: "lucide:trophy", ariaHidden: true })],
     ),
     h("div", {}, [
       h(
         "p",
-        { class: "text-lg font-semibold text-foreground" },
+        { class: "content-quiz-results-score" },
         `${correctCount.value} ${text.value.of} ${state.totalQuestions} ${text.value.correct}`,
       ),
       h(
         "p",
-        { class: "mt-1 text-sm text-muted-foreground" },
+        { class: "content-quiz-results-note" },
         perfect ? text.value.perfect : text.value.retryPrompt,
       ),
     ]),
@@ -246,12 +210,12 @@ function renderQuiz() {
   const children: VNode[] = [renderHeader()];
 
   if (showResults.value) {
-    children.push(renderResults());
+    children.push(h("div", { class: "content-quiz-body" }, [renderResults()]));
   } else {
     children.push(
       h(
         "div",
-        { class: "px-6" },
+        { class: "content-quiz-body" },
         items.map((node, i) =>
           h(
             "div",
@@ -272,7 +236,6 @@ function renderQuiz() {
   return h(
     "div",
     {
-      "data-slot": "card",
       "data-appearance": appearance.value,
       class: "content-quiz not-prose",
     },

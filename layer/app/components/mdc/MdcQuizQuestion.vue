@@ -112,12 +112,7 @@ function renderButton(
     {
       type: "button",
       disabled: options.disabled,
-      class: cn(
-        "inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
-        options.variant === "ghost"
-          ? "hover:bg-accent hover:text-accent-foreground"
-          : "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
-      ),
+      class: cn("content-quiz-button", options.variant === "ghost" && "content-quiz-button-ghost"),
       onClick: options.onClick,
     },
     label,
@@ -169,59 +164,62 @@ function renderOptions() {
 }
 
 function renderQuestion() {
-  return h("div", { class: quizContext?.inQuiz ? "space-y-4" : "not-prose my-6 space-y-4" }, [
-    h("p", { class: "font-semibold text-foreground" }, [
-      props.type === "multiple"
+  return h(
+    "div",
+    {
+      class: cn(
+        "content-quiz-question",
+        !quizContext?.inQuiz && "content-quiz-question-standalone not-prose",
+      ),
+    },
+    [
+      h("p", { class: "content-quiz-question-title" }, [
+        props.question,
+        props.type === "multiple"
+          ? h("span", { class: "content-quiz-question-hint" }, text.value.multipleChoice)
+          : null,
+      ]),
+      h("div", { class: "content-quiz-options" }, renderOptions()),
+      h("div", { class: "content-quiz-actions" }, [
+        !isSubmitted.value
+          ? renderButton(text.value.check, {
+              disabled: selectedOptions.value.size === 0,
+              onClick: handleSubmit,
+            })
+          : h("div", { class: "content-quiz-actions" }, [
+              h(
+                "span",
+                {
+                  class: "content-quiz-result",
+                  "data-state": isCorrect.value ? "correct" : "incorrect",
+                },
+                isCorrect.value ? text.value.correct : text.value.incorrect,
+              ),
+              !quizContext?.inQuiz
+                ? renderButton(text.value.reset, { variant: "ghost", onClick: handleReset })
+                : null,
+            ]),
+      ]),
+      isSubmitted.value && (props.explanation || useYaml.value)
         ? h(
-            "span",
-            { class: "text-xs font-normal text-muted-foreground mr-2" },
-            text.value.multipleChoice,
+            "div",
+            {
+              class: "content-quiz-explanation",
+            },
+            [
+              h(Icon, {
+                name: "lucide:info",
+                class: "content-quiz-explanation-icon",
+                ariaHidden: true,
+              }),
+              props.explanation
+                ? h("span", props.explanation)
+                : h("div", { class: "content-prose content-prose-trim" }, slots.default?.()),
+            ],
           )
         : null,
-      props.question,
-    ]),
-    h("div", { class: "space-y-2" }, renderOptions()),
-    h("div", { class: "flex items-center gap-3" }, [
-      !isSubmitted.value
-        ? renderButton(text.value.check, {
-            disabled: selectedOptions.value.size === 0,
-            onClick: handleSubmit,
-          })
-        : h("div", { class: "flex items-center gap-3" }, [
-            h(
-              "span",
-              {
-                class: cn(
-                  "text-sm font-medium",
-                  isCorrect.value ? "text-success" : "text-destructive",
-                ),
-              },
-              isCorrect.value ? text.value.correct : text.value.incorrect,
-            ),
-            !quizContext?.inQuiz
-              ? renderButton(text.value.reset, { variant: "ghost", onClick: handleReset })
-              : null,
-          ]),
-    ]),
-    isSubmitted.value && (props.explanation || useYaml.value)
-      ? h(
-          "div",
-          {
-            class: "content-quiz-explanation",
-          },
-          [
-            h(Icon, {
-              name: "lucide:info",
-              class: "mt-0.5 size-4 shrink-0 text-info",
-              ariaHidden: true,
-            }),
-            props.explanation
-              ? h("span", props.explanation)
-              : h("div", { class: "content-prose content-prose-trim" }, slots.default?.()),
-          ],
-        )
-      : null,
-  ]);
+    ],
+  );
 }
 </script>
 

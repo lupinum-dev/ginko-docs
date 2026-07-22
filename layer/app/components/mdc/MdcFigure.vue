@@ -78,7 +78,7 @@ const imageClass = computed(() =>
       <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
     </template>
     <slot />
-    <figcaption v-if="caption || alt" class="text-center">
+    <figcaption v-if="caption || alt">
       {{ caption || alt }}
     </figcaption>
   </figure>

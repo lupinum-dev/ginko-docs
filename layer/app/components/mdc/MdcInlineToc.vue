@@ -37,25 +37,14 @@ const defaultOpen = computed(
   <Collapsible
     v-if="items.length"
     :default-open="defaultOpen"
-    :class="
-      cn(
-        'content-inline-toc not-prose my-4 rounded-xl border bg-card text-card-foreground shadow-xs',
-        props.class,
-      )
-    "
+    :class="cn('content-inline-toc not-prose', props.class)"
   >
-    <CollapsibleTrigger
-      class="group flex w-full items-center gap-2 rounded-[inherit] px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-    >
-      <Icon name="lucide:list" class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span class="min-w-0 truncate">{{ title ?? t("docs.toc") }}</span>
-      <Icon
-        name="lucide:chevron-down"
-        class="ms-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out group-data-[state=open]:rotate-180"
-        aria-hidden="true"
-      />
+    <CollapsibleTrigger class="content-inline-toc-trigger">
+      <Icon name="lucide:list" class="content-inline-toc-icon" aria-hidden="true" />
+      <span class="content-inline-toc-title">{{ title ?? t("docs.toc") }}</span>
+      <Icon name="lucide:chevron-down" class="content-inline-toc-chevron" aria-hidden="true" />
     </CollapsibleTrigger>
-    <CollapsibleContent class="px-4 pb-4">
+    <CollapsibleContent class="content-inline-toc-content">
       <DocsToc :items="items" :show-title="false" />
     </CollapsibleContent>
   </Collapsible>

@@ -111,6 +111,11 @@
 }
 
 :root {
+  /* Surface elevation for prose components (RFC-001). Declared explicitly:
+     Tailwind only emits --shadow-* variables where shadow utilities are used,
+     and prose.css consumes this via var(). */
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+
   /* Docs layout (Fumadocs-style shell) */
   --site-header-height: 3.5rem;
   /* Currently visible banner height; SiteBanner is the single writer. */
@@ -202,6 +207,7 @@
 }
 
 .dark {
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.4);
   --background: oklch(0.135 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.19 0 0);

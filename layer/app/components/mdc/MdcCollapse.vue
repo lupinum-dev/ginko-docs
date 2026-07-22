@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useId } from "vue";
+import { computed, onMounted, provide, ref, useId } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import { useI18n } from "#imports";
 import { useProseAppearance } from "../../composables/useProseAppearance";
 
 const props = defineProps<{ appearance?: "quiet" | "tint" }>();
 const appearance = useProseAppearance("code", () => props.appearance);
+// The clipped code block must render on the surface the collapse declares.
+provide("contentCodeAppearance", appearance);
 
 // Clips tall authored content (usually a long code block) at a fixed height
 // until the reader expands it. Expanding removes the cap entirely, so the page

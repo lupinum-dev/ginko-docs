@@ -14,6 +14,8 @@ const props = withDefaults(
 
 provide("contentCardInGroup", true);
 const appearance = useProseAppearance("cards", () => props.appearance);
+// Children must render on the same surface as the tray they sit in.
+provide("contentCardsAppearance", appearance);
 const columns = computed(() => Math.min(3, Math.max(1, Number(props.cols) || 2)));
 </script>
 

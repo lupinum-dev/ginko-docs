@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { NuxtLink } from "#components";
-import { computed, inject, useSlots, type CSSProperties, type HTMLAttributes } from "vue";
+import {
+  computed,
+  inject,
+  useSlots,
+  type ComputedRef,
+  type CSSProperties,
+  type HTMLAttributes,
+} from "vue";
 import { cn } from "../../utils";
 import { isExternalLink, resolveIconifyIcon } from "./icons";
 import { useProseAppearance } from "../../composables/useProseAppearance";
@@ -39,7 +46,12 @@ const props = withDefaults(
 
 const slots = useSlots();
 const inGroup = inject("contentCardInGroup", false);
-const appearance = useProseAppearance("cards", () => props.appearance);
+// Instance prop wins, then the surrounding ::cards tray, then config.
+const groupAppearance = inject<ComputedRef<"quiet" | "tint"> | null>(
+  "contentCardsAppearance",
+  null,
+);
+const appearance = useProseAppearance("cards", () => props.appearance ?? groupAppearance?.value);
 
 const wrapperTag = computed(() => (props.to ? (isExternalLink(props.to) ? "a" : NuxtLink) : "div"));
 
@@ -101,61 +113,38 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
       cn(
         'content-card group not-prose',
         !inStack && !inGroup && 'content-card-standalone',
-        to &&
-          'rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
+        inStack && 'content-card-in-stack',
+        to && 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
         props.class,
       )
     "
   >
-    <div
-      data-slot="card"
-      :class="
-        cn(
-          'content-card-surface',
-          to && 'cursor-pointer hover:bg-accent/50',
-          showOutgoingLinkIcon && (hasBody || hasFooter ? '' : 'pr-10'),
-          inStack &&
-            'rounded-none border-x-0 shadow-none first:rounded-t-xl first:border-t last:rounded-b-xl last:border-b',
-        )
-      "
-    >
-      <img v-if="img" :src="img" alt="" class="w-full border-b border-border object-cover" />
+    <div data-slot="card" class="content-card-surface">
+      <img v-if="img" :src="img" alt="" class="content-card-media" />
 
       <div
         v-if="hasHeader"
-        :class="
-          cn(
-            hasBody || hasFooter ? 'p-4 pb-0' : 'p-4',
-            showOutgoingLinkIcon && 'pr-10',
-            horizontal && 'flex items-start gap-3',
-          )
-        "
+        class="content-card-header"
+        :data-trailing="hasBody || hasFooter ? 'true' : undefined"
+        :data-horizontal="horizontal ? 'true' : undefined"
+        :data-reserve-link-icon="showOutgoingLinkIcon ? 'true' : undefined"
       >
         <div
           v-if="iconName"
           v-bind="cardIconStyle ? { style: cardIconStyle } : {}"
-          :class="
-            cn(
-              'content-card-icon flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted shadow-xs [&_.iconify]:size-5',
-              horizontal ? '' : 'mb-2',
-            )
-          "
+          class="content-card-icon content-card-tile"
         >
           <Icon :name="iconName" aria-hidden="true" />
         </div>
 
-        <div :class="cn('min-w-0', horizontal ? 'flex-1 space-y-1' : 'space-y-1')">
-          <div
-            v-if="title || $slots.title"
-            data-slot="card-title"
-            :class="cn('text-sm font-medium', !horizontal && 'mb-0')"
-          >
+        <div class="content-card-copy">
+          <div v-if="title || $slots.title" data-slot="card-title" class="content-card-title">
             <slot name="title">{{ title }}</slot>
           </div>
           <div
             v-if="description || $slots.description"
             data-slot="card-description"
-            class="text-sm leading-snug text-pretty"
+            class="content-card-description"
           >
             <slot name="description">{{ description }}</slot>
           </div>
@@ -165,23 +154,20 @@ const cardIconStyle = computed<CSSProperties | undefined>(() =>
       <div
         v-if="hasBody"
         data-slot="card-content"
-        class="content-prose content-prose-trim p-4 pt-2 text-muted-foreground"
+        class="content-card-body content-prose content-prose-trim"
+        :data-reserve-link-icon="showOutgoingLinkIcon && !hasHeader ? 'true' : undefined"
       >
         <slot unwrap="p" />
       </div>
 
-      <div
-        v-if="hasFooter"
-        data-slot="card-footer"
-        class="flex flex-col items-stretch border-t px-4 py-3 text-xs text-muted-foreground [&_p]:my-0 [&_p]:leading-normal"
-      >
+      <div v-if="hasFooter" data-slot="card-footer" class="content-card-footer">
         <slot name="footer">{{ footer }}</slot>
       </div>
 
       <Icon
         v-if="showOutgoingLinkIcon"
         name="lucide:arrow-up-right"
-        class="pointer-events-none absolute top-4 right-4 size-4 text-muted-foreground/50 transition-colors group-hover:text-foreground"
+        class="content-card-arrow"
         aria-hidden="true"
       />
     </div>

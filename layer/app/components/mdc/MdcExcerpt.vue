@@ -4,6 +4,7 @@ import { useProseAppearance } from "../../composables/useProseAppearance";
 import { cn } from "../../utils";
 
 const props = defineProps<{
+  label?: string;
   source?: string;
   appearance?: "quiet" | "tint";
   class?: HTMLAttributes["class"];
@@ -14,6 +15,9 @@ const appearance = useProseAppearance("excerpt", () => props.appearance);
 
 <template>
   <figure :class="cn('content-excerpt not-prose', props.class)" :data-appearance="appearance">
+    <p v-if="label" class="content-excerpt-label">
+      {{ label }}
+    </p>
     <blockquote class="content-excerpt-body content-prose content-prose-trim">
       <slot />
     </blockquote>

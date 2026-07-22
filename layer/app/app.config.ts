@@ -2,7 +2,14 @@ import type { GinkoDocsAppConfig } from "../shared/types/app-config";
 export default {
   ginkoDocs: {
     prose: {
-      appearance: "tint",
+      appearance: "quiet",
+      // Voice components keep the tint & bar DNA by default (RFC-001).
+      components: {
+        callout: "tint",
+        aside: "tint",
+        excerpt: "tint",
+        tabs: "tint",
+      },
     },
     site: {
       name: { en: "Ginko Docs", de: "Ginko Docs" },
