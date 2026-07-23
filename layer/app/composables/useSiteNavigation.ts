@@ -5,11 +5,6 @@ import { computed } from "vue";
 import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
 import { resolveBanner, resolveMainNav, type NavItem } from "./site-navigation.utils";
 
-export interface SidebarSection {
-  title: string;
-  items: { label: string; href: string; badge?: string }[];
-}
-
 export const useSiteNavigation = () => {
   const config = useGinkoDocsConfig();
   const { locale, t } = useI18n();
@@ -32,8 +27,6 @@ export const useSiteNavigation = () => {
   const banner = computed(() =>
     resolveBanner(config.banner, {
       locale: locale.value,
-      blogPath: blogPath.value,
-      blogExists: blogExists.value,
       defaultText: t("banner.text"),
       defaultLinkLabel: t("banner.linkLabel"),
     }),
@@ -74,15 +67,5 @@ export const useSiteNavigation = () => {
     }),
   );
 
-  const footerNav = computed<{
-    product: NavItem[];
-    resources: NavItem[];
-    company: NavItem[];
-  }>(() => ({
-    product: [],
-    resources: [...socialLinks.value],
-    company: [],
-  }));
-
-  return { site, banner, mainNav, footerNav, socialLinks };
+  return { site, banner, mainNav, socialLinks };
 };

@@ -3,17 +3,15 @@ import { computed } from "vue";
 import { useI18n } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
-import { useDocsEntryPath } from "#ginko-docs/features/docs/composables/useDocsEntryPath";
 
-const { site, footerNav } = useSiteNavigation();
+const { site, socialLinks } = useSiteNavigation();
 const { t } = useI18n();
 const localizedPath = useLocalizedPath();
-const docsEntryPath = await useDocsEntryPath();
 
 const currentYearDate = new Date();
 const resources = computed(() => [
-  { label: t("nav.documentation"), href: docsEntryPath.value, external: false },
-  ...footerNav.value.resources,
+  { label: t("nav.documentation"), href: localizedPath("docs"), external: false },
+  ...socialLinks.value,
 ]);
 </script>
 

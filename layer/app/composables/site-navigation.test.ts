@@ -18,8 +18,6 @@ const navContext: MainNavContext = {
 
 const bannerContext: BannerContext = {
   locale: "en",
-  blogPath: "/blog",
-  blogExists: true,
   defaultText: "Announcement",
   defaultLinkLabel: "Read more",
 };
@@ -62,17 +60,10 @@ describe("resolveMainNav", () => {
 });
 
 describe("resolveBanner", () => {
-  const config = { enabled: "auto", id: "default", showOnLanding: true } as const;
+  const config = { enabled: false, id: "default", showOnLanding: true } as const;
 
-  it("keeps the legacy blog-gated behavior on auto", () => {
-    expect(resolveBanner(config, bannerContext).show).toBe(true);
-    expect(resolveBanner(config, { ...bannerContext, blogExists: false }).show).toBe(false);
-  });
-
-  it("honors explicit enable/disable regardless of blog presence", () => {
-    expect(
-      resolveBanner({ ...config, enabled: true }, { ...bannerContext, blogExists: false }).show,
-    ).toBe(true);
+  it("honors explicit enable and disable", () => {
+    expect(resolveBanner({ ...config, enabled: true }, bannerContext).show).toBe(true);
     expect(resolveBanner({ ...config, enabled: false }, bannerContext).show).toBe(false);
   });
 
@@ -93,14 +84,11 @@ describe("resolveBanner", () => {
     const fallback = resolveBanner(config, bannerContext);
     expect(fallback.text).toBe("Announcement");
     expect(fallback.linkLabel).toBe("Read more");
-    expect(fallback.linkHref).toBe("/blog");
+    expect(fallback.linkHref).toBeUndefined();
   });
 
-  it("omits the link when nothing to announce links to", () => {
-    const resolved = resolveBanner(
-      { ...config, enabled: true },
-      { ...bannerContext, blogExists: false },
-    );
+  it("omits the link when it is not configured", () => {
+    const resolved = resolveBanner({ ...config, enabled: true }, bannerContext);
     expect(resolved.linkHref).toBeUndefined();
   });
 

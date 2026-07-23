@@ -79,8 +79,7 @@ export interface GinkoDocsAppConfig {
     links: "auto" | GinkoDocsLink[];
   };
   banner: {
-    /** "auto" shows the banner when blog routes exist (legacy behavior). */
-    enabled: boolean | "auto";
+    enabled: boolean;
     /** Dismissal storage key — change it to re-show the banner after an update. */
     id: string;
     text?: GinkoDocsLocalizedText;

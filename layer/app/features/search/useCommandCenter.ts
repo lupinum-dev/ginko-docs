@@ -8,7 +8,6 @@ import {
   getDocsNavigationGroups,
   type DocsNavigationItem,
 } from "#ginko-docs/features/docs/docs-navigation";
-import { useDocsEntryPath } from "#ginko-docs/features/docs/composables/useDocsEntryPath";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
 import {
   dedupeCommandCenterItems,
@@ -68,17 +67,15 @@ export async function useCommandCenter() {
   } = useCommandCenterState();
   const recentSelections = useLocalStorage<StoredRecentItem[]>("site-command-center-recent", []);
 
-  const { mainNav, footerNav, socialLinks } = useSiteNavigation();
+  const { mainNav, socialLinks } = useSiteNavigation();
   // Start every context-bound composable before the first await. Calling a
   // Nuxt/i18n composable after an awaited operation loses the setup context.
-  const docsEntryPathResult = useDocsEntryPath();
   const docsNavigationResult = useDocsNavigation();
   const contentSearchResult = useContentSearch({
     limit: 12,
     locale: () => locale.value,
   });
   const [
-    docsEntryPath,
     { sections },
     {
       query: searchQuery,
@@ -87,7 +84,7 @@ export async function useCommandCenter() {
       error: searchError,
       isEmpty: searchIsEmpty,
     },
-  ] = await Promise.all([docsEntryPathResult, docsNavigationResult, contentSearchResult]);
+  ] = await Promise.all([docsNavigationResult, contentSearchResult]);
 
   const contentSearchItems = computed<CommandCenterItem[]>(() =>
     searchResults.value.map((hit) => {
@@ -128,11 +125,10 @@ export async function useCommandCenter() {
       keywords: ["navigation", item.label],
     }));
 
-    const footerResources = [
-      { label: t("nav.documentation"), href: docsEntryPath.value },
-      ...footerNav.value.resources,
-    ];
-    const fromFooter = [...footerNav.value.product, ...footerResources, ...footerNav.value.company]
+    const fromFooter = [
+      { label: t("nav.documentation"), href: localizedPath("docs") },
+      ...socialLinks.value,
+    ]
       .filter((item) => !(item as { external?: boolean }).external)
       .map<CommandCenterItem>((item) => ({
         id: `page-footer-${item.href}`,

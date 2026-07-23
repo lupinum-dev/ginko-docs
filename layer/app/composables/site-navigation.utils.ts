@@ -62,8 +62,6 @@ export function resolveMainNav(
 
 export interface BannerContext {
   locale: string;
-  blogPath: string;
-  blogExists: boolean;
   defaultText: string;
   defaultLinkLabel: string;
 }
@@ -84,16 +82,17 @@ export function resolveBanner(
   config: GinkoDocsAppConfig["banner"],
   ctx: BannerContext,
 ): ResolvedBanner {
-  const show = config.enabled === "auto" ? ctx.blogExists : config.enabled;
   const text = config.text ? getLocalizedSiteText(config.text, ctx.locale) : ctx.defaultText;
-  const linkHref = config.link?.to
-    ? getLocalizedSiteText(config.link.to, ctx.locale)
-    : ctx.blogExists
-      ? ctx.blogPath
-      : undefined;
+  const linkHref = config.link?.to ? getLocalizedSiteText(config.link.to, ctx.locale) : undefined;
   const linkLabel = config.link?.label
     ? getLocalizedSiteText(config.link.label, ctx.locale)
     : ctx.defaultLinkLabel;
 
-  return { show, text, linkLabel, linkHref, storageKey: bannerStorageKey(config.id) };
+  return {
+    show: config.enabled,
+    text,
+    linkLabel,
+    linkHref,
+    storageKey: bannerStorageKey(config.id),
+  };
 }

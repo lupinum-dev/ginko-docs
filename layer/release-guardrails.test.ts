@@ -358,7 +358,7 @@ describe("ginko docs release guardrails", () => {
   it("ships safe defaults for navigation, banner, and integrations", () => {
     const defaults = read("layer/app/app.config.ts");
     expect(defaults).toContain('nav: { links: "auto" }');
-    expect(defaults).toContain('enabled: "auto"');
+    expect(defaults).toContain("enabled: false");
     expect(defaults).toContain("showOnLanding: true");
     expect(defaults).toContain('ogImage: { enabled: true, component: "GinkoDocs" }');
     expect(defaults).toContain("markdownActions: { chatGpt: true, claude: true, mcp: true }");

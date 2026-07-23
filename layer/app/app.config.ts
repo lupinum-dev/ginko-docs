@@ -21,7 +21,7 @@ export default {
     },
     nav: { links: "auto" },
     banner: {
-      enabled: "auto",
+      enabled: false,
       id: "default",
       showOnLanding: true,
     },
