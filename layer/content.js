@@ -23,12 +23,14 @@ const routeSlugs = {
 };
 //#endregion
 //#region layer/content.ts
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
+const nonEmptyString = z.string().trim().min(1);
 const docsSchema = z.object({
   title: z.string(),
   description: z.string(),
   icon: z.string().optional(),
   badge: z.string().optional(),
-  updated: z.string().optional(),
+  updated: isoDate.optional(),
   sidebar: z.enum(["section", "group"]).optional(),
   navigation: z
     .object({
@@ -43,8 +45,8 @@ const blogSchema = z.object({
   title: z.string(),
   description: z.string(),
   badge: z.string().optional(),
-  date: z.string(),
-  readingTime: z.string(),
+  date: isoDate,
+  readingTime: nonEmptyString,
   author: reference("authors"),
   image: z.string().optional(),
 });

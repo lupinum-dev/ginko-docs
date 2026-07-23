@@ -7,11 +7,13 @@ import { computed } from "vue";
 import { definePageMeta, useAppConfig, useAsyncData, useHead, useI18n, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 
+const MAX_BLOG_POSTS = 50;
+
 definePageMeta({ layout: "blog" });
 
 const { locale, t } = useI18n();
 const postsKey = computed(() => `blog-posts:${locale.value}`);
-const { data: posts } = await useAsyncData(
+const { data: queriedPosts, error } = await useAsyncData(
   postsKey,
   () =>
     many("blog", {
@@ -19,10 +21,17 @@ const { data: posts } = await useAsyncData(
       fallback: true,
       populate: { author: "authors" },
       sort: { date: "desc" },
-      limit: 50,
+      limit: MAX_BLOG_POSTS + 1,
     }),
   { watch: [locale] },
 );
+if (error.value) throw error.value;
+if ((queriedPosts.value?.length ?? 0) > MAX_BLOG_POSTS) {
+  throw new Error(
+    `Blog supports at most ${MAX_BLOG_POSTS} posts; add pagination before publishing more`,
+  );
+}
+const posts = computed(() => queriedPosts.value ?? []);
 const canonicalUrl = useCanonicalUrl();
 const config = useAppConfig().ginkoDocs;
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
@@ -49,7 +58,10 @@ useHead(() => ({
       <p class="mt-2 text-muted-foreground">{{ t("blog.description") }}</p>
     </div>
 
-    <div class="divide-y divide-border">
+    <p v-if="posts.length === 0" class="py-12 text-center text-sm text-muted-foreground">
+      {{ t("blog.empty") }}
+    </p>
+    <div v-else class="divide-y divide-border">
       <article v-for="post in posts" :key="post.route.resolvedPath" class="group py-8">
         <NuxtLink
           :to="post.route.resolvedPath"

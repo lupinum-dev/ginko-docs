@@ -2,7 +2,6 @@
 import { Badge } from "#ginko-docs/components/ui/badge";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
 import { Button } from "#ginko-docs/components/ui/button";
-import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { createArticleSchema, createBreadcrumbSchema } from "#ginko-docs/lib/schema-org";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import {
@@ -14,6 +13,7 @@ import {
 import { computed, watch } from "vue";
 import {
   definePageMeta,
+  createError,
   useAppConfig,
   useContentPage,
   useHead,
@@ -47,7 +47,7 @@ const {
   surround: true,
 });
 if (error.value) throw error.value;
-if (!post.value) throw createContentNotFoundError();
+if (!post.value) throw createError({ statusCode: 404, statusMessage: "Not Found" });
 syncContentRouteAlternates(post);
 
 const pageTitle = computed(() => post.value?.title ?? t("blog.fallbackTitle"));

@@ -4,7 +4,6 @@ import { messages } from "../i18n/messages/index";
 import { normalizeAppError } from "./lib/errors";
 import { computed } from "vue";
 import { clearError, useHead } from "#imports";
-import { useDocsEntryPath } from "#ginko-docs/features/docs/composables/useDocsEntryPath";
 import { localeFromPath, localizedPath } from "../i18n/locales";
 
 type NuxtErrorLike = {
@@ -29,8 +28,8 @@ const copy = computed(() => {
   const catalog = messages[locale.value].errors;
   return catalog[normalized.value.kind] ?? catalog.unavailable;
 });
-const docsPath = await useDocsEntryPath();
 const homePath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].home));
+const docsPath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].docs));
 const title = computed(() => `${normalized.value.statusCode} - ${copy.value.title}`);
 // Keep the full site chrome for content-level errors (404 and friends); hard
 // server failures fall back to the bare page so the error screen cannot crash.
@@ -59,9 +58,6 @@ const handleError = () => clearError({ redirect: homePath.value });
           {{ normalized.statusCode }}
         </p>
 
-        <p class="mb-3 text-sm font-medium tracking-wider text-primary uppercase">
-          {{ normalized.statusMessage }}
-        </p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {{ copy.title }}
         </h1>

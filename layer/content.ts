@@ -9,6 +9,9 @@ import type { ContentCollectionConfig, ContentConfig } from "@lupinum/ginko-cont
 import { z } from "zod";
 import { routeSlugs } from "./shared/route-slugs";
 
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
+const nonEmptyString = z.string().trim().min(1);
+
 export interface GinkoDocsContentOptions {
   site: {
     name: string | { en: string; de: string };
@@ -24,7 +27,7 @@ const docsSchema = z.object({
   description: z.string(),
   icon: z.string().optional(),
   badge: z.string().optional(),
-  updated: z.string().optional(),
+  updated: isoDate.optional(),
   sidebar: z.enum(["section", "group"]).optional(),
   navigation: z
     .object({
@@ -39,8 +42,8 @@ const blogSchema = z.object({
   title: z.string(),
   description: z.string(),
   badge: z.string().optional(),
-  date: z.string(),
-  readingTime: z.string(),
+  date: isoDate,
+  readingTime: nonEmptyString,
   author: reference("authors"),
   image: z.string().optional(),
 });

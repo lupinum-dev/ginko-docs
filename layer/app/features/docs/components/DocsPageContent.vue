@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { createContentNotFoundError } from "#ginko-docs/lib/errors";
 import { filterTocByDepth, flattenTocLinks, getMarkdownTocLinks } from "#ginko-docs/utils/content";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
 import DocsBreadcrumb from "./DocsBreadcrumb.vue";
@@ -9,7 +8,15 @@ import DocsToc from "./DocsToc.vue";
 import DocsContributeLinks from "./DocsContributeLinks.vue";
 import { computed, provide, ref, watch } from "vue";
 import { docsTocKey } from "#ginko-docs/features/docs/toc-context";
-import { useAppConfig, useContentPage, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
+import {
+  createError,
+  useAppConfig,
+  useContentPage,
+  useHead,
+  useI18n,
+  useRoute,
+  useSeoMeta,
+} from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useScrollspy } from "#ginko-docs/features/docs/composables/useScrollspy";
@@ -41,12 +48,14 @@ const {
   page,
   previous,
   next: nextContent,
+  error,
 } = await useContentPage("docs", {
   locale: () => locale.value,
   fallback: true,
   surround: true,
 });
-if (!page.value) throw createContentNotFoundError();
+if (error.value) throw error.value;
+if (!page.value) throw createError({ statusCode: 404, statusMessage: "Not Found" });
 syncContentRouteAlternates(page);
 const { trail } = await useDocsNavigation();
 

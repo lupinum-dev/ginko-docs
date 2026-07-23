@@ -11,4 +11,8 @@ export const blog = {
   toc: { de: "Im Artikel", en: "In this article" },
   readMore: { de: "Weiterlesen", en: "Read more" },
   moreArticles: { de: "Weitere Artikel", en: "More articles" },
+  empty: {
+    de: "Noch keine Artikel veröffentlicht.",
+    en: "No articles have been published yet.",
+  },
 } as const;
