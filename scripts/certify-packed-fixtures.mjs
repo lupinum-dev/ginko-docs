@@ -1,4 +1,5 @@
 import { execFileSync, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
@@ -11,21 +12,20 @@ import {
 } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const playground = resolve(root, "playground");
-const workspaceManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-const configuredContentDependency = workspaceManifest.pnpm?.overrides?.["@lupinum/ginko-content"];
-const configuredContentArchive = configuredContentDependency?.startsWith("file:")
-  ? resolve(root, configuredContentDependency.slice("file:".length))
-  : null;
+const layerManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"), "utf8"));
+const contentVersion =
+  layerManifest.peerDependencies["@lupinum/ginko-content"].match(/>=([^ ]+)/)?.[1];
+if (!contentVersion) throw new Error("Could not derive the minimum Ginko Content peer version.");
 const contentArchive = process.env.GINKO_CONTENT_TARBALL
   ? resolve(process.env.GINKO_CONTENT_TARBALL)
-  : configuredContentArchive;
+  : null;
 if (contentArchive && !existsSync(contentArchive)) {
   throw new Error(`Configured Ginko Content tarball does not exist: ${contentArchive}`);
 }
@@ -34,6 +34,7 @@ const archive = readdirSync(resolve(root, "layer/.pack"))
   .map((entry) => resolve(root, "layer/.pack", entry));
 
 if (archive.length !== 1) throw new Error(`Expected one release archive, found ${archive.length}.`);
+const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
 const variants = [
   { name: "single-tabs", switcher: "tabs", singleLocale: true },
@@ -132,7 +133,7 @@ function copyFixture(variant, directory) {
         private: true,
         type: "module",
         dependencies: {
-          "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : "0.3.0-rc.5",
+          "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
           "@lupinum/ginko-docs": `file:${archive[0]}`,
           nuxt: "^4.4.8",
           vue: "^3.5.35",
@@ -309,11 +310,11 @@ try {
       [...lock.matchAll(/@lupinum\/ginko-content@([^:'()\s]+)[(:]/g)].map((match) => match[1]),
     );
     if (
-      installedContent.version !== "0.3.0-rc.5" ||
-      (!contentArchive && (contentVersions.size !== 1 || !contentVersions.has("0.3.0-rc.5")))
+      installedContent.version !== contentVersion ||
+      (!contentArchive && (contentVersions.size !== 1 || !contentVersions.has(contentVersion)))
     ) {
       throw new Error(
-        `${variant.name} did not resolve exactly one Ginko Content rc.5 installation.`,
+        `${variant.name} did not resolve exactly one Ginko Content ${contentVersion} installation.`,
       );
     }
     await certifyBrowser(variant, directory);
@@ -322,5 +323,31 @@ try {
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
 }
+
+const releaseArtifactPath = resolve(root, "layer/.pack/release-artifact.json");
+const releaseArtifact = JSON.parse(readFileSync(releaseArtifactPath, "utf8"));
+const docsHash = sha256(archive[0]);
+if (releaseArtifact.tarball !== basename(archive[0]) || releaseArtifact.sha256 !== docsHash) {
+  throw new Error("Certification input does not match the packed release artifact.");
+}
+writeFileSync(
+  resolve(root, "layer/.pack/release-certification.json"),
+  `${JSON.stringify(
+    {
+      packageName: layerManifest.name,
+      packageVersion: layerManifest.version,
+      commit: releaseArtifact.commit,
+      tarball: releaseArtifact.tarball,
+      sha256: docsHash,
+      contentVersion,
+      contentSource: contentArchive ? "tarball" : "registry",
+      contentSha256: contentArchive ? sha256(contentArchive) : undefined,
+      releaseEvidence: !contentArchive,
+      lanes: variants.map((variant) => variant.name),
+    },
+    null,
+    2,
+  )}\n`,
+);
 
 console.log("Packed single-locale, i18n dropdown, and structural-list fixtures passed.");

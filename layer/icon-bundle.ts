@@ -53,6 +53,7 @@ export const layerIconNames = [
   "lucide:lightbulb",
   "lucide:link",
   "lucide:linkedin",
+  "lucide:loader-circle",
   "lucide:list",
   "lucide:menu",
   "lucide:message-circle",

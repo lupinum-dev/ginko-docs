@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = resolve(root, "layer/.pack");
+const sourceManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"), "utf8"));
 
 function run(command, args, cwd = root, stdio = "inherit") {
   return execFileSync(command, args, {
@@ -48,11 +49,17 @@ function inspectPackage(path, temporaryRoot) {
   const manifestPath = resolve(extract, "package/package.json");
   if (!existsSync(manifestPath)) throw new Error("Packed layer is missing package.json.");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (manifest.name !== "@lupinum/ginko-docs" || manifest.version !== "0.2.2") {
-    throw new Error("Packed layer identity does not match @lupinum/ginko-docs@0.2.2.");
+  if (manifest.name !== sourceManifest.name || manifest.version !== sourceManifest.version) {
+    throw new Error("Packed layer identity does not match its source manifest.");
   }
-  if (manifest.peerDependencies?.["@lupinum/ginko-content"] !== ">=0.3.0-rc.5 <0.4.0") {
+  if (
+    manifest.peerDependencies?.["@lupinum/ginko-content"] !==
+    sourceManifest.peerDependencies["@lupinum/ginko-content"]
+  ) {
     throw new Error("Packed layer does not declare the supported Ginko Content peer range.");
+  }
+  if (manifest.engines?.node !== sourceManifest.engines.node) {
+    throw new Error("Packed layer does not preserve the supported Node.js range.");
   }
   for (const field of [
     "dependencies",
@@ -95,7 +102,18 @@ try {
   const dirty = run("git", ["status", "--porcelain"], root, "pipe").trim().length > 0;
   writeFileSync(
     resolve(output, "release-artifact.json"),
-    `${JSON.stringify({ commit, dirty, releaseEligible: !dirty, sha256: first.hash, tarball: first.filename }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        packageName: sourceManifest.name,
+        packageVersion: sourceManifest.version,
+        commit,
+        sourceClean: !dirty,
+        sha256: first.hash,
+        tarball: first.filename,
+      },
+      null,
+      2,
+    )}\n`,
   );
   console.log(`Prepared ${first.filename} (${first.hash}).`);
 } finally {

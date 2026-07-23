@@ -12,20 +12,23 @@ vp install
 vp run release:verify
 ```
 
-Inspect `layer/.pack/release-artifact.json` and the single tarball. A release is
-eligible only from a clean commit whose CI gate passed and whose artifact says
-`releaseEligible: true`.
+Inspect the single tarball, `layer/.pack/release-artifact.json`, and
+`layer/.pack/release-certification.json`. A release is eligible only when the
+source artifact says `sourceClean: true`, certification used the registry
+Ginko Content dependency with `releaseEvidence: true`, and both JSON files
+name the same tarball and SHA-256.
 
-## Release 0.2.2
+## Release
 
 Publishing is a human-only action. The repository's `release:publish` script is
 disabled intentionally.
 
 ```bash
-VERSION=0.2.2
+VERSION=$(node -p "require('./layer/package.json').version")
 npm view @lupinum/ginko-docs@$VERSION version --registry=https://registry.npmjs.org/
 tar -tzf layer/.pack/lupinum-ginko-docs-$VERSION.tgz | less
 cat layer/.pack/release-artifact.json
+cat layer/.pack/release-certification.json
 npm login --registry=https://registry.npmjs.org/
 npm publish layer/.pack/lupinum-ginko-docs-$VERSION.tgz \
   --access public \

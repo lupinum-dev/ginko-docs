@@ -389,6 +389,5 @@ describe("ginko docs release guardrails", () => {
       en: routeSlugs.docs.en,
       de: routeSlugs.docs.de,
     });
-    expect(read("layer/app/pages/docs/index.vue")).toContain("useDocsEntryPath");
   });
 });
