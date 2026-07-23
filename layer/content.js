@@ -1,5 +1,4 @@
 import {
-  defineAgentAppPage,
   defineAgentMetadataFields,
   defineAgentSection,
   defineCollection,
@@ -66,10 +65,13 @@ const authorsSchema = z.object({
 });
 function defineGinkoDocsConfig(options) {
   const locales = options.locales ?? ["en"];
-  const defaultLocale = options.defaultLocale ?? locales[0] ?? "en";
-  const i18n = locales.length > 1;
-  const routeMap = (key) =>
-    Object.fromEntries(locales.map((locale) => [locale, routeSlugs[key][locale]]));
+  if (
+    !(locales.length === 1
+      ? locales[0] === "en"
+      : locales.length === 2 && locales[0] === "en" && locales[1] === "de")
+  )
+    throw new TypeError('locales must be exactly ["en"] or ["en", "de"]');
+  const i18n = locales.length === 2;
   const metadata = defineAgentMetadataFields([
     "title",
     "description",
@@ -85,7 +87,7 @@ function defineGinkoDocsConfig(options) {
     type: "page",
     source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
     i18n: i18n ? true : void 0,
-    route: i18n ? routeMap("docs") : routeSlugs.docs[defaultLocale],
+    route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
     agent: {
       section: "optional",
       markdown: true,
@@ -95,9 +97,9 @@ function defineGinkoDocsConfig(options) {
   });
   const blog = defineCollection({
     type: "page",
-    source: "2.blog/**/*.md",
+    source: "2.blog/*.md",
     i18n: i18n ? true : void 0,
-    route: i18n ? routeMap("blog") : routeSlugs.blog[defaultLocale],
+    route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
     agent: {
       section: "blog",
       markdown: true,
@@ -131,28 +133,21 @@ function defineGinkoDocsConfig(options) {
           ? [
               defineAgentSection({
                 id: "blog",
-                title: "Blog",
+                title: {
+                  en: "Blog",
+                  de: "Blog",
+                },
                 order: 40,
               }),
             ]
           : []),
         defineAgentSection({
           id: "optional",
-          title: "Documentation",
+          title: {
+            en: "Documentation",
+            de: "Dokumentation",
+          },
           order: 100,
-        }),
-      ],
-      pages: [
-        defineAgentAppPage({
-          id: "home",
-          route: Object.fromEntries(
-            locales.map((locale) => [locale, locale === defaultLocale ? "/" : `/${locale}`]),
-          ),
-          section: "optional",
-          title: options.site.name,
-          description: options.site.description,
-          metadata,
-          render: () => `# ${options.site.name}\n\n> ${options.site.description}`,
         }),
       ],
     },

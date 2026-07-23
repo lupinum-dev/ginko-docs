@@ -46,7 +46,6 @@ import { site } from "./site";
 export default defineGinkoDocsConfig({
   site,
   locales: ["en"],
-  defaultLocale: "en",
   blog: false,
 });
 ```

@@ -71,7 +71,6 @@ export interface GinkoDocsAppConfig {
     description: GinkoDocsLocalizedText;
     url: string;
     logo: { light: string; dark: string };
-    localeSwitcher: "dropdown" | "segmented";
     docsSidebarSwitcher: "dropdown" | "list" | "tabs";
     lupinumAttribution: boolean;
   };

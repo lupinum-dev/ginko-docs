@@ -1,5 +1,4 @@
 import {
-  defineAgentAppPage,
   defineAgentMetadataFields,
   defineAgentSection,
   defineCollection,
@@ -11,9 +10,12 @@ import { z } from "zod";
 import { routeSlugs } from "./shared/route-slugs";
 
 export interface GinkoDocsContentOptions {
-  site: { name: string; description: string; url: string };
-  locales?: Array<"en" | "de">;
-  defaultLocale?: "en" | "de";
+  site: {
+    name: string | { en: string; de: string };
+    description: string | { en: string; de: string };
+    url: string;
+  };
+  locales?: readonly ["en"] | readonly ["en", "de"];
   blog?: boolean;
 }
 
@@ -69,10 +71,14 @@ export function defineGinkoDocsConfig(
   options: GinkoDocsContentOptions,
 ): DocsContentConfig | DocsBlogContentConfig {
   const locales = options.locales ?? ["en"];
-  const defaultLocale = options.defaultLocale ?? locales[0] ?? "en";
-  const i18n = locales.length > 1;
-  const routeMap = (key: "docs" | "blog") =>
-    Object.fromEntries(locales.map((locale) => [locale, routeSlugs[key][locale]]));
+  const validLocales =
+    locales.length === 1
+      ? locales[0] === "en"
+      : locales.length === 2 && locales[0] === "en" && locales[1] === "de";
+  if (!validLocales) {
+    throw new TypeError('locales must be exactly ["en"] or ["en", "de"]');
+  }
+  const i18n = locales.length === 2;
   const metadata = defineAgentMetadataFields([
     "title",
     "description",
@@ -88,16 +94,16 @@ export function defineGinkoDocsConfig(
     type: "page",
     source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
     i18n: i18n ? true : undefined,
-    route: i18n ? routeMap("docs") : routeSlugs.docs[defaultLocale],
+    route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
     agent: { section: "optional", markdown: true },
     strict: true,
     schema: docsSchema,
   });
   const blog = defineCollection({
     type: "page",
-    source: "2.blog/**/*.md",
+    source: "2.blog/*.md",
     i18n: i18n ? true : undefined,
-    route: i18n ? routeMap("blog") : routeSlugs.blog[defaultLocale],
+    route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
     agent: { section: "blog", markdown: true },
     strict: true,
     schema: blogSchema,
@@ -119,20 +125,13 @@ export function defineGinkoDocsConfig(
       },
       markdown: { metadata: { enabled: true, defaultFields: metadata } },
       sections: [
-        ...(options.blog ? [defineAgentSection({ id: "blog", title: "Blog", order: 40 })] : []),
-        defineAgentSection({ id: "optional", title: "Documentation", order: 100 }),
-      ],
-      pages: [
-        defineAgentAppPage({
-          id: "home",
-          route: Object.fromEntries(
-            locales.map((locale) => [locale, locale === defaultLocale ? "/" : `/${locale}`]),
-          ),
-          section: "optional",
-          title: options.site.name,
-          description: options.site.description,
-          metadata,
-          render: () => `# ${options.site.name}\n\n> ${options.site.description}`,
+        ...(options.blog
+          ? [defineAgentSection({ id: "blog", title: { en: "Blog", de: "Blog" }, order: 40 })]
+          : []),
+        defineAgentSection({
+          id: "optional",
+          title: { en: "Documentation", de: "Dokumentation" },
+          order: 100,
         }),
       ],
     },
