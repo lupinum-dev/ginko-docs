@@ -108,7 +108,7 @@ export const contentComponentPolicy = {
     "code-tree": block({
       ...appearance,
       defaultValue: optional("string"),
-      expandAll: optional("json"),
+      expandAll: optional("boolean"),
     }),
     collapse: block(appearance),
     column: block({ size: optional("string") }),

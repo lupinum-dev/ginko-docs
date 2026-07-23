@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { VNode } from "vue";
-import { Comment, cloneVNode, computed, h, ref, resolveComponent, useSlots } from "vue";
+import { Comment, cloneVNode, h, ref, resolveComponent, useSlots } from "vue";
 import { cn } from "../../utils";
 import { resolveFileIcon } from "../../utils/file-icons";
 import { useProseAppearance } from "../../composables/useProseAppearance";
+import { validateCodeTreePaths } from "./code-tree.utils";
 
 type CodeBlockProps = {
   code?: string;
@@ -26,7 +27,7 @@ type TreeNode = {
 const props = defineProps<{
   /** Path of the file to show initially, e.g. "app/app.config.ts". */
   defaultValue?: string;
-  expandAll?: boolean | string;
+  expandAll?: boolean;
   appearance?: "quiet" | "tint";
 }>();
 const appearance = useProseAppearance("code", () => props.appearance);
@@ -52,12 +53,17 @@ function labelFromMeta(meta: string | null | undefined): string {
 }
 
 function resolveLeaves(): TreeLeaf[] {
-  return (slots.default?.() || []).filter(isRenderableNode).map((node, index) => {
+  const leaves = (slots.default?.() || []).filter(isRenderableNode).map((node) => {
     const nodeProps = (node.props || {}) as CodeBlockProps;
-    const path =
-      cleanLabel(nodeProps.filename) || labelFromMeta(nodeProps.meta) || `file-${index + 1}`;
+    const path = cleanLabel(nodeProps.filename) || labelFromMeta(nodeProps.meta);
+    if (!path) throw new TypeError("Every code tree block requires a filename label");
     return { path, node };
   });
+  validateCodeTreePaths(
+    leaves.map((leaf) => leaf.path),
+    props.defaultValue,
+  );
+  return leaves;
 }
 
 function buildTree(paths: string[]): TreeNode[] {
@@ -93,10 +99,6 @@ function ancestorsOf(path: string): string[] {
   const parts = path.split("/");
   return parts.slice(0, -1).map((_, i) => parts.slice(0, i + 1).join("/"));
 }
-
-const expandAllEnabled = computed(
-  () => props.expandAll !== undefined && props.expandAll !== false && props.expandAll !== "false",
-);
 
 const selectedPath = ref(props.defaultValue ?? "");
 const expanded = ref(new Set<string>());
@@ -188,9 +190,7 @@ function renderCodeTree() {
     ? selectedPath.value
     : leaves[0]!.path;
   const initialOpenPaths = new Set(
-    expandAllEnabled.value
-      ? leaves.flatMap((leaf) => ancestorsOf(leaf.path))
-      : ancestorsOf(activePath),
+    props.expandAll ? leaves.flatMap((leaf) => ancestorsOf(leaf.path)) : ancestorsOf(activePath),
   );
   const openPaths = expansionChanged.value ? expanded.value : initialOpenPaths;
   const tree = buildTree(leaves.map((leaf) => leaf.path));
