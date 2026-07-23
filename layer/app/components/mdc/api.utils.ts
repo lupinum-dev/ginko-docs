@@ -19,51 +19,74 @@ export type InlinePart = {
   text: string;
 };
 
-function asBoolean(value: unknown): boolean {
-  return value === true || value === "true";
+function authoredError(message: string): never {
+  throw new TypeError(`Invalid API groups: ${message}`);
 }
 
-function asText(value: unknown): string | undefined {
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  return undefined;
+function requiredText(value: unknown, path: string): string {
+  if (typeof value !== "string" || !value.trim())
+    authoredError(`${path} must be a non-empty string`);
+  return value.trim();
 }
 
-/**
- * Normalize the authored `groups` YAML into a strict structure. Groups without
- * a label or without at least one named entry are dropped, so a partially
- * authored document renders its valid parts instead of failing.
- */
+function optionalText(value: unknown, path: string): string | undefined {
+  if (value === undefined) return undefined;
+  return requiredText(value, path);
+}
+
+function optionalBoolean(value: unknown, path: string): boolean {
+  if (value === undefined) return false;
+  if (typeof value !== "boolean") authoredError(`${path} must be a boolean`);
+  return value;
+}
+
 export function normalizeApiGroups(input: unknown): ApiGroup[] {
-  if (!Array.isArray(input)) return [];
+  if (!Array.isArray(input) || input.length === 0) {
+    authoredError("groups must be a non-empty array");
+  }
 
-  return input.flatMap((group): ApiGroup[] => {
-    if (typeof group !== "object" || group === null) return [];
+  const labels = new Set<string>();
+  const ids = new Set<string>();
+  return input.map((group, groupIndex): ApiGroup => {
+    if (typeof group !== "object" || group === null || Array.isArray(group)) {
+      authoredError(`groups[${groupIndex}] must be an object`);
+    }
     const raw = group as Record<string, unknown>;
-    const label = asText(raw.label)?.trim();
-    if (!label || !Array.isArray(raw.entries)) return [];
+    const label = requiredText(raw.label, `groups[${groupIndex}].label`);
+    if (labels.has(label)) authoredError(`duplicate group label "${label}"`);
+    labels.add(label);
+    if (!Array.isArray(raw.entries) || raw.entries.length === 0) {
+      authoredError(`groups[${groupIndex}].entries must be a non-empty array`);
+    }
 
-    const entries = raw.entries.flatMap((entry): ApiEntry[] => {
-      if (typeof entry !== "object" || entry === null) return [];
+    const names = new Set<string>();
+    const entries = raw.entries.map((entry, entryIndex): ApiEntry => {
+      const path = `groups[${groupIndex}].entries[${entryIndex}]`;
+      if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+        authoredError(`${path} must be an object`);
+      }
       const rawEntry = entry as Record<string, unknown>;
-      const name = asText(rawEntry.name)?.trim();
-      if (!name) return [];
-      const required = asBoolean(rawEntry.required);
-      return [
-        {
-          name,
-          annotation: asText(rawEntry.annotation),
-          optional: asBoolean(rawEntry.optional) && !required,
-          required,
-          deprecated: asBoolean(rawEntry.deprecated),
-          since: asText(rawEntry.since),
-          default: asText(rawEntry.default),
-          description: asText(rawEntry.description),
-        },
-      ];
+      const name = requiredText(rawEntry.name, `${path}.name`);
+      if (names.has(name)) authoredError(`duplicate entry name "${name}" in group "${label}"`);
+      names.add(name);
+      const required = optionalBoolean(rawEntry.required, `${path}.required`);
+      const optional = optionalBoolean(rawEntry.optional, `${path}.optional`);
+      if (required && optional) authoredError(`${path} cannot be both required and optional`);
+      const id = apiEntryId(label, name);
+      if (ids.has(id)) authoredError(`duplicate generated entry id "${id}"`);
+      ids.add(id);
+      return {
+        name,
+        annotation: optionalText(rawEntry.annotation, `${path}.annotation`),
+        optional,
+        required,
+        deprecated: optionalBoolean(rawEntry.deprecated, `${path}.deprecated`),
+        since: optionalText(rawEntry.since, `${path}.since`),
+        default: optionalText(rawEntry.default, `${path}.default`),
+        description: optionalText(rawEntry.description, `${path}.description`),
+      };
     });
-
-    return entries.length ? [{ label, entries }] : [];
+    return { label, entries };
   });
 }
 

@@ -154,7 +154,7 @@ export const contentComponentPolicy = {
       question: required("string"),
       type: optional("string"),
       explanation: optional("string"),
-      options: optional("json"),
+      options: required("json"),
       checkLabel: optional("string"),
       correctLabel: optional("string"),
       incorrectLabel: optional("string"),

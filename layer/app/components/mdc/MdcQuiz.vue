@@ -41,15 +41,6 @@ function registerQuestion(): number {
 
 function markAnswered(index: number, correct: boolean) {
   state.answers.set(index, correct);
-  setTimeout(() => {
-    if (showResults.value) return;
-    for (let i = index + 1; i < state.totalQuestions; i++) {
-      if (!state.answers.has(i)) {
-        activeIndex.value = i;
-        return;
-      }
-    }
-  }, 1200);
 }
 
 function reset() {
@@ -63,6 +54,7 @@ provide(MDC_QUIZ, { registerQuestion, markAnswered, resetKey, inQuiz: true });
 
 const correctCount = computed(() => [...state.answers.values()].filter(Boolean).length);
 const currentAnswered = computed(() => state.answers.has(activeIndex.value));
+const allAnswered = computed(() => state.answers.size === state.totalQuestions);
 const { locale } = useI18n();
 
 const text = computed(() => {
@@ -156,7 +148,7 @@ function renderFooter() {
       }),
       isLast
         ? renderButton(text.value.results, {
-            disabled: !currentAnswered.value,
+            disabled: !allAnswered.value,
             onClick: () => {
               showResults.value = true;
             },

@@ -4,15 +4,14 @@ import { h, inject, ref, computed, watch, useSlots } from "vue";
 import { cn } from "../../utils";
 import { Icon } from "#components";
 import { useI18n } from "#imports";
-
-type YamlOption = { text: string; correct?: boolean } | string;
+import { parseQuizOptions, type QuizOption, type QuizType } from "./quiz.utils";
 
 const props = withDefaults(
   defineProps<{
     question: string;
-    type?: "single" | "multiple";
+    type?: QuizType;
     explanation?: string;
-    options?: YamlOption[];
+    options: QuizOption[];
     checkLabel?: string;
     correctLabel?: string;
     incorrectLabel?: string;
@@ -60,18 +59,13 @@ const text = computed(() => {
   };
 });
 
-function normalizeYamlOption(opt: YamlOption): { text: string; correct: boolean } {
-  if (typeof opt === "string") return { text: opt, correct: false };
-  return { text: opt.text, correct: opt.correct ?? false };
-}
-
-const useYaml = computed(() => Array.isArray(props.options) && props.options.length > 0);
+const options = computed(() => parseQuizOptions(props.options, props.type));
+const useYaml = computed(() => options.value.length > 0);
 
 const isCorrect = computed(() => {
-  return (props.options ?? []).every((opt, i) => {
-    const { correct } = normalizeYamlOption(opt);
-    return correct === selectedOptions.value.has(i);
-  });
+  return options.value.every(
+    (option, index) => option.correct === selectedOptions.value.has(index),
+  );
 });
 
 function handleSelect(index: number) {
@@ -120,8 +114,7 @@ function renderButton(
 }
 
 function renderOptions() {
-  return (props.options ?? []).map((opt, i) => {
-    const { text: label, correct } = normalizeYamlOption(opt);
+  return options.value.map(({ text: label, correct }, i) => {
     const selected = selectedOptions.value.has(i);
     const state = isSubmitted.value
       ? correct

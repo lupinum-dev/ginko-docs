@@ -20,46 +20,22 @@ describe("normalizeApiGroups", () => {
     expect(groups[0]?.entries[1]?.default).toBe('"md"');
   });
 
-  it("coerces string booleans and numeric values from inline props", () => {
-    const groups = normalizeApiGroups([
-      {
-        label: "Flags",
-        entries: [{ name: "--force", required: "true", default: false, since: 2.1 }],
-      },
-    ]);
-
-    const entry = groups[0]?.entries[0];
-    expect(entry?.required).toBe(true);
-    expect(entry?.default).toBe("false");
-    expect(entry?.since).toBe("2.1");
-  });
-
-  it("lets required win over optional", () => {
-    const groups = normalizeApiGroups([
-      { label: "Props", entries: [{ name: "src", optional: true, required: true }] },
-    ]);
-
-    expect(groups[0]?.entries[0]?.required).toBe(true);
-    expect(groups[0]?.entries[0]?.optional).toBe(false);
-  });
-
-  it("drops groups without label or entries and entries without a name", () => {
-    const groups = normalizeApiGroups([
-      { label: "Props", entries: [{ annotation: "string" }, { name: "alt" }] },
-      { label: "Empty", entries: [] },
-      { entries: [{ name: "orphan" }] },
-      "not a group",
-      null,
-    ]);
-
-    expect(groups).toHaveLength(1);
-    expect(groups[0]?.entries.map((entry) => entry.name)).toEqual(["alt"]);
-  });
-
-  it("returns an empty list for non-array input", () => {
-    expect(normalizeApiGroups(undefined)).toEqual([]);
-    expect(normalizeApiGroups("groups")).toEqual([]);
-    expect(normalizeApiGroups({ label: "Props" })).toEqual([]);
+  it.each([
+    undefined,
+    [],
+    "groups",
+    [{ label: "", entries: [{ name: "src" }] }],
+    [{ label: "Props", entries: [] }],
+    [{ label: "Props", entries: [{ annotation: "string" }] }],
+    [{ label: "Props", entries: [{ name: "src", required: "true" }] }],
+    [{ label: "Props", entries: [{ name: "src", required: true, optional: true }] }],
+    [{ label: "Props", entries: [{ name: "src" }, { name: "src" }] }],
+    [
+      { label: "Response 200", entries: [{ name: "value" }] },
+      { label: "Response-200", entries: [{ name: "value" }] },
+    ],
+  ])("rejects malformed authored groups %#", (input) => {
+    expect(() => normalizeApiGroups(input)).toThrow("Invalid API groups:");
   });
 });
 

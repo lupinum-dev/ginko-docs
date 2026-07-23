@@ -21,14 +21,13 @@ const props = withDefaults(
 const appearance = useProseAppearance("tabs", () => props.appearance);
 
 const slots = useSlots();
-const activeValue = ref("");
+const activeIndex = ref(0);
 const tabsId = useId();
 
 type TabItem = {
   icon?: string;
   label: string;
   node: VNode;
-  value: string;
 };
 
 function getTabLabel(node: VNode, index: number) {
@@ -48,7 +47,6 @@ function getItems(): TabItem[] {
       icon: getTabIcon(node),
       label: getTabLabel(node, index),
       node,
-      value: getTabLabel(node, index),
     }));
 }
 
@@ -61,7 +59,7 @@ function handleKeydown(event: KeyboardEvent, items: TabItem[], currentIndex: num
   if (nextIndex === undefined) return;
 
   event.preventDefault();
-  activeValue.value = items[nextIndex]!.value;
+  activeIndex.value = nextIndex;
   const buttons = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>(
     '[role="tab"]',
   );
@@ -71,9 +69,7 @@ function handleKeydown(event: KeyboardEvent, items: TabItem[], currentIndex: num
 function renderTabs() {
   const items = getItems();
   const Icon = resolveComponent("Icon");
-  const resolvedValue = items.some((item) => item.value === activeValue.value)
-    ? activeValue.value
-    : activeValue.value || items[0]?.value || "";
+  const resolvedIndex = Math.min(activeIndex.value, items.length - 1);
 
   if (!items.length) {
     return null;
@@ -99,19 +95,16 @@ function renderTabs() {
             h(
               "button",
               {
-                key: item.value,
+                key: index,
                 type: "button",
                 role: "tab",
                 id: `${tabsId}-tab-${index}`,
                 "aria-controls": `${tabsId}-panel-${index}`,
-                "aria-selected": resolvedValue === item.value,
-                tabindex: resolvedValue === item.value ? 0 : -1,
-                class: cn(
-                  "content-tabs-tab",
-                  resolvedValue === item.value && "content-tabs-tab-active",
-                ),
+                "aria-selected": resolvedIndex === index,
+                tabindex: resolvedIndex === index ? 0 : -1,
+                class: cn("content-tabs-tab", resolvedIndex === index && "content-tabs-tab-active"),
                 onClick: () => {
-                  activeValue.value = item.value;
+                  activeIndex.value = index;
                 },
                 onKeydown: (event: KeyboardEvent) => handleKeydown(event, items, index),
               },
@@ -136,13 +129,12 @@ function renderTabs() {
           h(
             "div",
             {
-              key: item.value,
-              value: item.value,
+              key: index,
               role: "tabpanel",
               id: `${tabsId}-panel-${index}`,
               "aria-labelledby": `${tabsId}-tab-${index}`,
               class: cn("content-tabs-content-area content-prose content-prose-trim"),
-              style: resolvedValue === item.value ? undefined : { display: "none" },
+              style: resolvedIndex === index ? undefined : { display: "none" },
             },
             [cloneVNode(item.node, { inGroup: true })],
           ),
