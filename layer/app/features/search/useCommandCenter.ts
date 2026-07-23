@@ -11,7 +11,6 @@ import {
 import { useDocsEntryPath } from "#ginko-docs/features/docs/composables/useDocsEntryPath";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
 import {
-  contentSearchGroup,
   dedupeCommandCenterItems,
   groupCommandCenterItems,
   PAGE_HIGHLIGHT_STORAGE_KEY,
@@ -20,14 +19,6 @@ import {
   type CommandCenterItem,
   type StoredRecentItem,
 } from "#ginko-docs/features/search/command-center";
-
-type ContentSearchHit = {
-  collection: string;
-  path: string;
-  title: string;
-  excerpt?: string;
-  anchor?: string;
-};
 
 const MAX_DEFAULT_PAGE_ITEMS = 6;
 const MAX_DEFAULT_DOC_ITEMS = 3;
@@ -86,12 +77,20 @@ export async function useCommandCenter() {
     limit: 12,
     locale: () => locale.value,
   });
-  const [docsEntryPath, { sections }, { query: searchQuery, results: searchResults }] =
-    await Promise.all([docsEntryPathResult, docsNavigationResult, contentSearchResult]);
+  const [
+    docsEntryPath,
+    { sections },
+    {
+      query: searchQuery,
+      results: searchResults,
+      pending: searchPending,
+      error: searchError,
+      isEmpty: searchIsEmpty,
+    },
+  ] = await Promise.all([docsEntryPathResult, docsNavigationResult, contentSearchResult]);
 
   const contentSearchItems = computed<CommandCenterItem[]>(() =>
-    searchResults.value.map((hit: ContentSearchHit) => {
-      const group = contentSearchGroup(hit.collection);
+    searchResults.value.map((hit) => {
       const href = hit.anchor ? `${hit.path}#${hit.anchor}` : hit.path;
 
       return {
@@ -99,10 +98,9 @@ export async function useCommandCenter() {
         title: hit.title,
         subtitle: hit.excerpt,
         href,
-        group,
-        icon: group === "blog" ? "lucide:newspaper" : "lucide:book-open",
-        keywords: [group, hit.title, hit.excerpt ?? ""],
-        badge: group === "blog" ? t("nav.blog") : t("docs.label"),
+        group: "search",
+        icon: hit.collection === "blog" ? "lucide:newspaper" : "lucide:book-open",
+        badge: hit.collection === "blog" ? t("nav.blog") : t("docs.label"),
       };
     }),
   );
@@ -175,7 +173,7 @@ export async function useCommandCenter() {
               title: section.title,
               subtitle: t("command.pages.documentation"),
               href: section.path,
-              group: "docs",
+              group: "docs_nav",
               icon: section.icon ?? "lucide:book-open",
               keywords: [section.title],
             },
@@ -204,30 +202,19 @@ export async function useCommandCenter() {
       : [];
   });
 
-  // Cross-group dedupe: a page reachable via nav can also appear as a content
-  // search hit with the same href. First occurrence wins, so nav entries
-  // (higher group priority) shadow duplicate search results while anchored
-  // hits (#section) stay distinct.
-  const allItems = computed(() =>
-    dedupeCommandCenterItems([
-      ...pageItems.value,
-      ...docsItems.value,
-      ...contentSearchItems.value,
-      ...actionItems.value,
-    ]),
+  const canonicalItems = computed(() =>
+    dedupeCommandCenterItems([...pageItems.value, ...docsItems.value, ...actionItems.value]),
   );
 
   const recentItems = computed<CommandCenterItem[]>(() => {
     if (query.value) return [];
 
-    return resolveRecentItems(recentSelections.value, allItems.value);
+    return resolveRecentItems(recentSelections.value, canonicalItems.value);
   });
 
   const defaultItems = computed<CommandCenterItem[]>(() => {
     const recentSourceIds = new Set(recentItems.value.map((item) => item.sourceId));
-    const docSectionItems = docsItems.value
-      .filter((item) => item.id.startsWith("doc-switcher-"))
-      .slice(0, MAX_DEFAULT_DOC_ITEMS);
+    const docSectionItems = docsItems.value.slice(0, MAX_DEFAULT_DOC_ITEMS);
 
     return dedupeCommandCenterItems([
       ...pageItems.value.slice(0, MAX_DEFAULT_PAGE_ITEMS),
@@ -237,16 +224,30 @@ export async function useCommandCenter() {
   });
 
   const groupedItems = computed(() => {
-    const candidates = query.value.trim()
-      ? allItems.value
-      : [...recentItems.value, ...defaultItems.value];
-    return groupCommandCenterItems(candidates, query.value, (group) =>
+    if (query.value.trim()) {
+      return contentSearchItems.value.length
+        ? [
+            {
+              id: "search" as const,
+              title: t("command.groups.search"),
+              items: contentSearchItems.value,
+            },
+          ]
+        : [];
+    }
+    return groupCommandCenterItems([...recentItems.value, ...defaultItems.value], (group) =>
       t(`command.groups.${group}`),
     );
   });
 
   function rememberSelection(item: CommandCenterItem) {
-    recentSelections.value = rememberRecentItem(item, recentSelections.value);
+    const canonicalItem =
+      item.group === "search"
+        ? canonicalItems.value.find((candidate) => candidate.href === item.href)
+        : item;
+    if (canonicalItem) {
+      recentSelections.value = rememberRecentItem(canonicalItem, recentSelections.value);
+    }
   }
 
   function closeCommandCenter() {
@@ -293,6 +294,9 @@ export async function useCommandCenter() {
     open,
     query,
     groupedItems,
+    searchPending,
+    searchError,
+    searchIsEmpty,
     openCommandCenter,
     closeCommandCenter,
     selectItem,

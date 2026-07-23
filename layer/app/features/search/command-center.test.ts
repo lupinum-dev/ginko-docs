@@ -13,7 +13,7 @@ const fixtures: CommandCenterItem[] = [
     title: "Navigation",
     subtitle: "Hierarchical documentation navigation",
     href: "/docs/essentials/navigation",
-    group: "docs",
+    group: "docs_nav",
     keywords: ["sidebar tree", "hierarchy"],
   },
   {
@@ -21,7 +21,7 @@ const fixtures: CommandCenterItem[] = [
     title: "Agent interfaces",
     subtitle: "Markdown and MCP output",
     href: "/docs/essentials/platform-capabilities/agent-interfaces",
-    group: "docs",
+    group: "docs_nav",
     keywords: ["llm", "mcp"],
   },
   {
@@ -33,14 +33,10 @@ const fixtures: CommandCenterItem[] = [
 ];
 
 describe("command-center domain", () => {
-  test.each([
-    ["sidebar tree", "docs-navigation"],
-    ["navigation", "docs-navigation"],
-    ["mcp", "docs-agents"],
-    ["agent interfaces", "docs-agents"],
-  ])("ranks the expected bilingual result for %s", (query, expectedId) => {
-    const groups = groupCommandCenterItems(fixtures, query, String);
-    expect(groups.flatMap((group) => group.items)[0]?.id).toBe(expectedId);
+  test("groups browse items without inventing a second search ranking", () => {
+    const groups = groupCommandCenterItems(fixtures, String);
+    expect(groups.map((group) => group.id)).toEqual(["docs_nav", "pages"]);
+    expect(groups[0]?.items.map((item) => item.id)).toEqual(["docs-navigation", "docs-agents"]);
   });
 
   test("deduplicates navigation and search hits by destination", () => {

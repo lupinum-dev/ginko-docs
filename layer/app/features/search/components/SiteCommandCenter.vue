@@ -16,9 +16,11 @@ const { t } = useI18n();
 const route = useRoute();
 const inputRef = useTemplateRef<HTMLInputElement>("input");
 const highlightedId = ref("");
-const { open, query, groupedItems, selectItem } = await useCommandCenter();
+const { open, query, groupedItems, searchPending, searchError, searchIsEmpty, selectItem } =
+  await useCommandCenter();
 
 const visibleItems = computed(() => groupedItems.value.flatMap((g) => g.items));
+const isSearching = computed(() => query.value.trim().length > 0);
 
 // ── text highlighting ──────────────────────────────────────────────────────
 function highlightTokens(text: string, q: string): { text: string; match: boolean }[] {
@@ -164,8 +166,26 @@ onMounted(async () => {
 
         <!-- Results -->
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2">
+          <div
+            v-if="isSearching && searchPending"
+            class="flex items-center justify-center gap-2 px-6 py-12 text-sm text-muted-foreground"
+            role="status"
+          >
+            <Icon name="lucide:loader-circle" class="size-4 animate-spin" aria-hidden="true" />
+            {{ t("command.loading") }}
+          </div>
+
+          <div
+            v-else-if="isSearching && searchError"
+            class="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center"
+            role="alert"
+          >
+            <Icon name="lucide:circle-alert" class="size-5 text-destructive" aria-hidden="true" />
+            <p class="max-w-sm text-sm font-medium text-foreground">{{ t("command.error") }}</p>
+          </div>
+
           <!-- Groups -->
-          <template v-if="visibleItems.length">
+          <template v-else-if="visibleItems.length">
             <div v-for="group in groupedItems" :key="group.id" class="mb-1 px-2 last:mb-0">
               <div class="flex items-center gap-2 px-2 pt-1.5 pb-1">
                 <span class="text-[11px] font-medium text-muted-foreground">{{ group.title }}</span>
@@ -274,7 +294,7 @@ onMounted(async () => {
 
           <!-- Empty state -->
           <div
-            v-else
+            v-else-if="!isSearching || searchIsEmpty"
             class="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center"
           >
             <div

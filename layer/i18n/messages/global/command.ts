@@ -19,9 +19,13 @@ export const command = {
     recent: { de: "Zuletzt", en: "Recent" },
     pages: { de: "Navigation", en: "Navigation" },
     docs_nav: { de: "Docs-Navigation", en: "Docs Navigation" },
-    blog: { de: "Blog-Ergebnisse", en: "Blog Results" },
-    docs: { de: "Docs-Ergebnisse", en: "Docs Results" },
+    search: { de: "Suchergebnisse", en: "Search results" },
     actions: { de: "Aktionen", en: "Actions" },
+  },
+  loading: { de: "Suche läuft …", en: "Searching…" },
+  error: {
+    de: "Die Suche ist gerade nicht verfügbar. Versuche es erneut.",
+    en: "Search is temporarily unavailable. Please try again.",
   },
   pages: {
     home: {
