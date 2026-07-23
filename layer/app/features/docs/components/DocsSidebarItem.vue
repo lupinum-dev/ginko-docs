@@ -13,7 +13,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "#ginko-docs/components/ui/collapsible";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 
 defineOptions({
   name: "DocsSidebarItem",

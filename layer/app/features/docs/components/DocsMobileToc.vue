@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "#ginko-docs/components/ui/sheet";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 import type { FlatTocItem } from "#ginko-docs/utils/content";
 import DocsToc from "./DocsToc.vue";
 import { useI18n, useRoute } from "#imports";

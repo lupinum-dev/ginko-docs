@@ -3,7 +3,7 @@ import type { DialogContentEmits, DialogContentProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 import { reactiveOmit } from "@vueuse/core";
 import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from "reka-ui";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 import SheetOverlay from "./SheetOverlay.vue";
 
 interface SheetContentProps extends DialogContentProps {

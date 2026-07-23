@@ -3,7 +3,7 @@ import type { DropdownMenuRadioItemEmits, DropdownMenuRadioItemProps } from "rek
 import type { HTMLAttributes } from "vue";
 import { reactiveOmit } from "@vueuse/core";
 import { DropdownMenuItemIndicator, DropdownMenuRadioItem, useForwardPropsEmits } from "reka-ui";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 
 const props = defineProps<DropdownMenuRadioItemProps & { class?: HTMLAttributes["class"] }>();
 

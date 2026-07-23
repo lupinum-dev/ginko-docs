@@ -3,7 +3,7 @@ import type { DialogOverlayProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 import { reactiveOmit } from "@vueuse/core";
 import { DialogOverlay } from "reka-ui";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 
 const props = defineProps<DialogOverlayProps & { class?: HTMLAttributes["class"] }>();
 

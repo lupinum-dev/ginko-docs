@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "vue";
 import { Button } from "#ginko-docs/components/ui/button";
 import { computed } from "vue";
 import { useColorMode, useI18n } from "#imports";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,

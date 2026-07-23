@@ -2,7 +2,7 @@
 import type { HTMLAttributes } from "vue";
 import { nextTick, onMounted, ref, watch } from "vue";
 import { useEventListener } from "@vueuse/core";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 import type { FlatTocItem } from "#ginko-docs/utils/content";
 import { useI18n } from "#imports";
 

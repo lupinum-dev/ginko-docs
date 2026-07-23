@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
 import {
   docsNavigationSectionContainsPath,

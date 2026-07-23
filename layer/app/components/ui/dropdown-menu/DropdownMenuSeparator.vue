@@ -3,7 +3,7 @@ import type { DropdownMenuSeparatorProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 import { reactiveOmit } from "@vueuse/core";
 import { DropdownMenuSeparator } from "reka-ui";
-import { cn } from "#ginko-docs/lib/utils";
+import { cn } from "#ginko-docs/utils";
 
 const props = defineProps<
   DropdownMenuSeparatorProps & {
