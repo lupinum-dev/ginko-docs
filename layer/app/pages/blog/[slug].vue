@@ -43,7 +43,6 @@ const {
   next,
   error,
 } = await useContentPage("blog", {
-  locale: () => locale.value,
   fallback: true,
   populate: { author: "authors" },
   surround: true,

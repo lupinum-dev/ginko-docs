@@ -47,7 +47,6 @@ const localizedPath = useLocalizedPath();
 const canonicalUrl = useCanonicalUrl();
 const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
 const contentPageResult = useContentPage("docs", {
-  locale: () => locale.value,
   fallback: true,
   surround: true,
 });
