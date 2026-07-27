@@ -69,7 +69,6 @@ export default defineNuxtConfig({
       { path: join(app, "components/prose"), pathPrefix: false, global: true },
     ],
   },
-  imports: { autoImport: false },
   colorMode: { classSuffix: "" },
   icon: {
     provider: "none",

@@ -1,6 +1,6 @@
-import site from "../site.json" with { type: "json" };
+import site from "../site.json";
 
-export default {
+export default defineAppConfig({
   ginkoDocs: {
     theme: {
       neutral: "custom",
@@ -121,7 +121,7 @@ export default {
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.0-rc.5",
+        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.1",
       },
       features: [
         {
@@ -202,4 +202,4 @@ export default {
       },
     },
   },
-};
+});

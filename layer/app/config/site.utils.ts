@@ -2,7 +2,7 @@ import type { GinkoDocsLocalizedText } from "../../shared/types/app-config";
 import { defaultLocale, type LocaleCode } from "../../i18n/locales";
 
 export function getLocalizedSiteText(
-  value: GinkoDocsLocalizedText | string,
+  value: GinkoDocsLocalizedText,
   locale: string,
   fallbackLocale: LocaleCode = defaultLocale,
 ): string {

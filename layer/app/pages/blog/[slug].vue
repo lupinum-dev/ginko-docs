@@ -18,7 +18,6 @@ import {
   useContentPage,
   useHead,
   useI18n,
-  useNuxtApp,
   useRoute,
   useSeoMeta,
 } from "#imports";
@@ -37,7 +36,6 @@ const config = useAppConfig().ginkoDocs;
 const route = useRoute();
 const localizedPath = useLocalizedPath();
 const canonicalUrl = useCanonicalUrl();
-const nuxtApp = useNuxtApp();
 const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
 const {
   page: post,
@@ -64,54 +62,52 @@ const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.va
 const articleAuthor = computed(() => post.value?.author?.name ?? siteName.value);
 const suggestions = computed(() => [previous.value, next.value].filter((entry) => entry !== null));
 
-nuxtApp.runWithContext(() => {
-  useSeoMeta({
-    title: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    description: pageDescription,
-    ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    ogDescription: pageDescription,
-    ogUrl: canonicalUrl,
-    twitterCard: "summary_large_image",
-    twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    twitterDescription: pageDescription,
-  });
-
-  // Social card with the raw post title (no site-name suffix baked in).
-  useGinkoOgImage({
-    title: pageTitle.value,
-    description: pageDescription.value,
-    locale: locale.value,
-  });
-
-  useHead(() => ({
-    link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
-    meta: [{ property: "og:type", content: "article" }],
-  }));
-
-  useSchemaJsonLd(() =>
-    post.value
-      ? [
-          createBreadcrumbSchema(
-            [
-              { name: t("blog.title"), path: localizedPath("blog") },
-              { name: post.value.title, path: post.value.route.resolvedPath },
-            ],
-            config.site.url,
-          ),
-          createArticleSchema(
-            {
-              date: post.value.date,
-              description: post.value.description,
-              title: post.value.title,
-            },
-            canonicalUrl.value,
-            articleAuthor.value,
-            locale.value,
-          ),
-        ]
-      : [],
-  );
+useSeoMeta({
+  title: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  description: pageDescription,
+  ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  ogDescription: pageDescription,
+  ogUrl: canonicalUrl,
+  twitterCard: "summary_large_image",
+  twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  twitterDescription: pageDescription,
 });
+
+// Social card with the raw post title (no site-name suffix baked in).
+useGinkoOgImage({
+  title: pageTitle.value,
+  description: pageDescription.value,
+  locale: locale.value,
+});
+
+useHead(() => ({
+  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+  meta: [{ property: "og:type", content: "article" }],
+}));
+
+useSchemaJsonLd(() =>
+  post.value
+    ? [
+        createBreadcrumbSchema(
+          [
+            { name: t("blog.title"), path: localizedPath("blog") },
+            { name: post.value.title, path: post.value.route.resolvedPath },
+          ],
+          config.site.url,
+        ),
+        createArticleSchema(
+          {
+            date: post.value.date,
+            description: post.value.description,
+            title: post.value.title,
+          },
+          canonicalUrl.value,
+          articleAuthor.value,
+          locale.value,
+        ),
+      ]
+    : [],
+);
 </script>
 
 <template>

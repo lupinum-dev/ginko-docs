@@ -1,7 +1,7 @@
 export type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
 import type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
 
-export type GinkoDocsLocalizedText = { en: string; de?: string };
+export type GinkoDocsLocalizedText = string | { en: string; de?: string };
 
 export type GinkoDocsProseAppearance = "quiet" | "tint";
 export type GinkoDocsProseFamily =

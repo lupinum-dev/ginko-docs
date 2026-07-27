@@ -8,30 +8,30 @@ Ginko Docs is a Nuxt layer for focused documentation sites. It combines Ginko Co
 - Nuxt `>=4.4.7 <5`
 - Vue `^3.5.35`
 - Vue Router `^5.1.0`
-- Ginko Content `>=0.3.0-rc.5 <0.4.0`
+- Ginko Content `>=0.3.1 <0.4.0`
 
 ## Install
 
 Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.0-rc.5
+pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.1
 ```
 
 Keep the public identity in one shared value:
 
-```ts [site.ts]
-export const site = {
-  name: "Example Docs",
-  description: "Documentation for Example.",
-  url: "https://docs.example.com",
-};
+```json [site.json]
+{
+  "name": "Example Docs",
+  "description": "Documentation for Example.",
+  "url": "https://docs.example.com"
+}
 ```
 
 Extend the layer and configure the canonical origin:
 
 ```ts [nuxt.config.ts]
-import { site } from "./site";
+import site from "./site.json" with { type: "json" };
 
 export default defineNuxtConfig({
   extends: ["@lupinum/ginko-docs"],
@@ -44,7 +44,7 @@ Define the content collections in `content.config.ts`:
 
 ```ts [content.config.ts]
 import { defineGinkoDocsConfig } from "@lupinum/ginko-docs/content";
-import { site } from "./site";
+import site from "./site.json" with { type: "json" };
 
 export default defineGinkoDocsConfig({
   site,
@@ -71,7 +71,7 @@ The bare `/docs` route redirects to the first navigable document.
 Presentation settings live in `app/app.config.ts`:
 
 ```ts [app/app.config.ts]
-import { site } from "../site";
+import site from "../site.json";
 
 export default defineAppConfig({
   ginkoDocs: {
@@ -93,7 +93,7 @@ export default defineAppConfig({
 
 Localized values use `{ en, de? }`. Use English as the default locale; supported content layouts are English-only and bilingual English/German.
 
-Set the production URL once in `site.ts`, then pass it to the content configuration, app configuration, Nuxt Site configuration, and Nuxt i18n `baseUrl`. The layer uses it for canonical links, structured data, social cards, and agent catalogs.
+Set the production URL once in `site.json`, then pass it to the content configuration, app configuration, Nuxt Site configuration, and Nuxt i18n `baseUrl`. JSON keeps the shared identity portable across each configuration loader. The layer uses it for canonical links, structured data, social cards, and agent catalogs.
 
 ## Enable the blog
 

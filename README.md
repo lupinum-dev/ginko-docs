@@ -12,23 +12,23 @@ This repository contains two workspaces:
 Use a Nuxt application on Node `^22.18.0 || ^24.11.0 || >=26.0.0`. The effective Nuxt range is `>=4.4.7 <5`. Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.0-rc.5
+pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.1
 ```
 
 Keep the public identity in one shared value:
 
-```ts [site.ts]
-export const site = {
-  name: "Example Docs",
-  description: "Documentation for Example.",
-  url: "https://docs.example.com",
-};
+```json [site.json]
+{
+  "name": "Example Docs",
+  "description": "Documentation for Example.",
+  "url": "https://docs.example.com"
+}
 ```
 
 Extend the layer and give Nuxt Site Config and Nuxt i18n the same origin:
 
 ```ts [nuxt.config.ts]
-import { site } from "./site";
+import site from "./site.json" with { type: "json" };
 
 export default defineNuxtConfig({
   extends: ["@lupinum/ginko-docs"],
@@ -41,7 +41,7 @@ Define the documentation collection in `content.config.ts`:
 
 ```ts [content.config.ts]
 import { defineGinkoDocsConfig } from "@lupinum/ginko-docs/content";
-import { site } from "./site";
+import site from "./site.json" with { type: "json" };
 
 export default defineGinkoDocsConfig({
   site,
@@ -53,7 +53,7 @@ export default defineGinkoDocsConfig({
 Set the public identity in `app/app.config.ts`:
 
 ```ts [app/app.config.ts]
-import { site } from "../site";
+import site from "../site.json";
 
 export default defineAppConfig({
   ginkoDocs: {
@@ -100,7 +100,7 @@ Ginko Content owns document identity, routes, search data, sitemap entries, and 
 Public build-time settings live under `ginkoDocs` in `app/app.config.ts`. Define only the values the site overrides.
 
 ```ts [app/app.config.ts]
-import { site } from "../site";
+import site from "../site.json";
 
 export default defineAppConfig({
   ginkoDocs: {

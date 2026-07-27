@@ -136,6 +136,36 @@ describe("ginko docs release guardrails", () => {
     expect(contentEntry.defineGinkoDocsConfig).toBeTypeOf("function");
   });
 
+  it("types nested app-config overrides and keeps consumer config on the typed boundary", () => {
+    const declarations = read("layer/index.d.ts");
+    const layerConfig = read("layer/nuxt.config.ts");
+    const playgroundConfig = read("playground/app/app.config.ts");
+
+    expect(declarations).toContain("type GinkoDocsAppConfigInput<T>");
+    expect(declarations).toContain("ginkoDocs?: GinkoDocsAppConfigInput<GinkoDocsAppConfig>");
+    expect(layerConfig).not.toContain("autoImport: false");
+    expect(playgroundConfig).toContain("export default defineAppConfig({");
+    expect(playgroundConfig).not.toContain("eyebrow");
+    expect(playgroundConfig).not.toContain("localeSwitcher");
+  });
+
+  it("documents portable shared site data instead of loader-specific TypeScript imports", () => {
+    const publicDocs = [
+      read("README.md"),
+      read("layer/README.md"),
+      ...sourceFiles(join(root, "playground/content"))
+        .filter((path) => path.endsWith(".md"))
+        .map((path) => readFileSync(path, "utf8")),
+    ].join("\n");
+
+    expect(publicDocs).not.toContain("site.ts");
+    expect(publicDocs).not.toContain('from "./site"');
+    expect(publicDocs).not.toContain('from "../site"');
+    expect(publicDocs).not.toContain("0.3.0-rc.5");
+    expect(publicDocs).toContain("site.json");
+    expect(publicDocs).toContain('with { type: "json" }');
+  });
+
   it("exposes Nuxt-native customization seams without parallel component lookup", async () => {
     const config = read("layer/nuxt.config.ts");
     expect(config).toContain('"SiteHeader.vue"');

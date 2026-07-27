@@ -14,7 +14,6 @@ import {
   useContentPage,
   useHead,
   useI18n,
-  useNuxtApp,
   useRoute,
   useSeoMeta,
 } from "#imports";
@@ -46,18 +45,18 @@ const config = useAppConfig().ginkoDocs;
 const route = useRoute();
 const localizedPath = useLocalizedPath();
 const canonicalUrl = useCanonicalUrl();
-const nuxtApp = useNuxtApp();
 const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
-const pageResult = useContentPage("docs", {
+const {
+  page,
+  previous,
+  next: nextContent,
+  error,
+} = await useContentPage("docs", {
   locale: () => locale.value,
   fallback: true,
   surround: true,
 });
-const navigationResult = useDocsNavigation();
-const [{ page, previous, next: nextContent, error }, { trail }] = await Promise.all([
-  pageResult,
-  navigationResult,
-]);
+const { trail } = await useDocsNavigation();
 if (error.value) throw error.value;
 if (!page.value) throw createError({ statusCode: 404, statusMessage: "Not Found" });
 syncContentRouteAlternates(page);
@@ -95,52 +94,50 @@ watch(activeIds, () => {
   requestAnimationFrame(revealActiveTocLink);
 });
 
-nuxtApp.runWithContext(() => {
-  useSeoMeta({
-    title: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    description: pageDescription,
-    ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    ogDescription: pageDescription,
-    ogUrl: canonicalUrl,
-    twitterCard: "summary_large_image",
-    twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-    twitterDescription: pageDescription,
-  });
-
-  // Social card with the raw page title (no site-name suffix baked in).
-  useGinkoOgImage({
-    title: pageTitle.value,
-    description: pageDescription.value,
-    locale: locale.value,
-  });
-
-  useSchemaJsonLd(() => [
-    {
-      "@type": "TechArticle",
-      headline: pageTitle.value,
-      description: pageDescription.value,
-      url: canonicalUrl.value,
-      inLanguage: locale.value,
-      dateModified: page.value?.updated,
-      isPartOf: { "@type": "WebSite", name: siteName.value, url: config.site.url },
-      publisher: { "@type": "Organization", name: siteName.value, url: config.site.url },
-    },
-    {
-      "@type": "BreadcrumbList",
-      itemListElement: schemaBreadcrumbs.value.map((item, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: item.name,
-        item: new URL(item.path, config.site.url).toString(),
-      })),
-    },
-  ]);
-
-  useHead(() => ({
-    link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
-    meta: [{ property: "og:type", content: "article" }],
-  }));
+useSeoMeta({
+  title: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  description: pageDescription,
+  ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  ogDescription: pageDescription,
+  ogUrl: canonicalUrl,
+  twitterCard: "summary_large_image",
+  twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+  twitterDescription: pageDescription,
 });
+
+// Social card with the raw page title (no site-name suffix baked in).
+useGinkoOgImage({
+  title: pageTitle.value,
+  description: pageDescription.value,
+  locale: locale.value,
+});
+
+useSchemaJsonLd(() => [
+  {
+    "@type": "TechArticle",
+    headline: pageTitle.value,
+    description: pageDescription.value,
+    url: canonicalUrl.value,
+    inLanguage: locale.value,
+    dateModified: page.value?.updated,
+    isPartOf: { "@type": "WebSite", name: siteName.value, url: config.site.url },
+    publisher: { "@type": "Organization", name: siteName.value, url: config.site.url },
+  },
+  {
+    "@type": "BreadcrumbList",
+    itemListElement: schemaBreadcrumbs.value.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: new URL(item.path, config.site.url).toString(),
+    })),
+  },
+]);
+
+useHead(() => ({
+  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+  meta: [{ property: "og:type", content: "article" }],
+}));
 
 function scrollToTop() {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
