@@ -6,7 +6,7 @@ import { isLocaleCode } from "../../i18n/locales";
 export function useLocalizedRouteSwitch() {
   const route = useRoute();
   const switchLocalePath = useSwitchLocalePath();
-  const alternates = useContentRouteAlternates();
+  const { current: alternates } = useContentRouteAlternates();
 
   function switchPathname(targetLocale: string) {
     if (!isLocaleCode(targetLocale)) {

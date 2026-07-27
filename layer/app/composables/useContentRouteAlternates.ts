@@ -18,26 +18,18 @@ export function useContentRouteAlternates() {
     state.value.sourcePath === route.path ? state.value.alternates : [],
   );
 
-  return current;
-}
+  function sync(page: Ref<{ route?: { alternates?: ContentAlternate[] } } | null | undefined>) {
+    watch(
+      page,
+      (document) => {
+        state.value = {
+          sourcePath: route.path,
+          alternates: document?.route?.alternates ?? [],
+        };
+      },
+      { immediate: true },
+    );
+  }
 
-export function syncContentRouteAlternates(
-  page: Ref<{ route?: { alternates?: ContentAlternate[] } } | null | undefined>,
-) {
-  const route = useRoute();
-  const state = useState<ContentRouteAlternatesState>("content-route-alternates", () => ({
-    sourcePath: "",
-    alternates: [],
-  }));
-
-  watch(
-    page,
-    (document) => {
-      state.value = {
-        sourcePath: route.path,
-        alternates: document?.route?.alternates ?? [],
-      };
-    },
-    { immediate: true },
-  );
+  return { current, sync };
 }

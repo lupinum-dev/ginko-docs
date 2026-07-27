@@ -13,6 +13,24 @@ definePageMeta({ layout: "blog" });
 
 const { locale, t } = useI18n();
 const postsKey = computed(() => `blog-posts:${locale.value}`);
+const canonicalUrl = useCanonicalUrl();
+const config = useAppConfig().ginkoDocs;
+const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
+const fullTitle = computed(() => `${t("blog.pageTitle")} - ${siteName.value}`);
+
+useSeoMeta({
+  title: fullTitle,
+  description: computed(() => t("blog.description")),
+  ogTitle: fullTitle,
+  ogDescription: computed(() => t("blog.description")),
+  ogUrl: canonicalUrl,
+  twitterCard: "summary_large_image",
+});
+
+useHead(() => ({
+  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+}));
+
 const { data: queriedPosts, error } = await useAsyncData(
   postsKey,
   () =>
@@ -32,23 +50,6 @@ if ((queriedPosts.value?.length ?? 0) > MAX_BLOG_POSTS) {
   );
 }
 const posts = computed(() => queriedPosts.value ?? []);
-const canonicalUrl = useCanonicalUrl();
-const config = useAppConfig().ginkoDocs;
-const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
-const fullTitle = computed(() => `${t("blog.pageTitle")} - ${siteName.value}`);
-
-useSeoMeta({
-  title: fullTitle,
-  description: computed(() => t("blog.description")),
-  ogTitle: fullTitle,
-  ogDescription: computed(() => t("blog.description")),
-  ogUrl: canonicalUrl,
-  twitterCard: "summary_large_image",
-});
-
-useHead(() => ({
-  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
-}));
 </script>
 
 <template>

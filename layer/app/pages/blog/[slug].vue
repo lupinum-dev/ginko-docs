@@ -18,6 +18,7 @@ import {
   useContentPage,
   useHead,
   useI18n,
+  useNuxtApp,
   useRoute,
   useSeoMeta,
 } from "#imports";
@@ -27,7 +28,7 @@ import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import DocumentPageShell from "#ginko-docs/components/content/DocumentPageShell.vue";
 import PageMarkdownCopy from "#ginko-docs/components/content/PageMarkdownCopy.vue";
-import { syncContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
+import { useContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
 
 definePageMeta({ layout: "blog" });
 
@@ -35,6 +36,9 @@ const { locale, t } = useI18n();
 const config = useAppConfig().ginkoDocs;
 const route = useRoute();
 const localizedPath = useLocalizedPath();
+const canonicalUrl = useCanonicalUrl();
+const nuxtApp = useNuxtApp();
+const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
 const {
   page: post,
   previous,
@@ -52,7 +56,6 @@ syncContentRouteAlternates(post);
 
 const pageTitle = computed(() => post.value?.title ?? t("blog.fallbackTitle"));
 const pageDescription = computed(() => post.value?.description ?? t("blog.fallbackDescription"));
-const canonicalUrl = useCanonicalUrl();
 const tocItems = computed(() =>
   filterTocByDepth(flattenTocLinks(getMarkdownTocLinks(post.value?.body)), config.toc?.depth ?? 3),
 );
@@ -61,52 +64,54 @@ const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.va
 const articleAuthor = computed(() => post.value?.author?.name ?? siteName.value);
 const suggestions = computed(() => [previous.value, next.value].filter((entry) => entry !== null));
 
-useSeoMeta({
-  title: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  description: pageDescription,
-  ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  ogDescription: pageDescription,
-  ogUrl: canonicalUrl,
-  twitterCard: "summary_large_image",
-  twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  twitterDescription: pageDescription,
+nuxtApp.runWithContext(() => {
+  useSeoMeta({
+    title: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    description: pageDescription,
+    ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    ogDescription: pageDescription,
+    ogUrl: canonicalUrl,
+    twitterCard: "summary_large_image",
+    twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    twitterDescription: pageDescription,
+  });
+
+  // Social card with the raw post title (no site-name suffix baked in).
+  useGinkoOgImage({
+    title: pageTitle.value,
+    description: pageDescription.value,
+    locale: locale.value,
+  });
+
+  useHead(() => ({
+    link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+    meta: [{ property: "og:type", content: "article" }],
+  }));
+
+  useSchemaJsonLd(() =>
+    post.value
+      ? [
+          createBreadcrumbSchema(
+            [
+              { name: t("blog.title"), path: localizedPath("blog") },
+              { name: post.value.title, path: post.value.route.resolvedPath },
+            ],
+            config.site.url,
+          ),
+          createArticleSchema(
+            {
+              date: post.value.date,
+              description: post.value.description,
+              title: post.value.title,
+            },
+            canonicalUrl.value,
+            articleAuthor.value,
+            locale.value,
+          ),
+        ]
+      : [],
+  );
 });
-
-// Social card with the raw post title (no site-name suffix baked in).
-useGinkoOgImage({
-  title: pageTitle.value,
-  description: pageDescription.value,
-  locale: locale.value,
-});
-
-useHead(() => ({
-  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
-  meta: [{ property: "og:type", content: "article" }],
-}));
-
-useSchemaJsonLd(() =>
-  post.value
-    ? [
-        createBreadcrumbSchema(
-          [
-            { name: t("blog.title"), path: localizedPath("blog") },
-            { name: post.value.title, path: post.value.route.resolvedPath },
-          ],
-          config.site.url,
-        ),
-        createArticleSchema(
-          {
-            date: post.value.date,
-            description: post.value.description,
-            title: post.value.title,
-          },
-          canonicalUrl.value,
-          articleAuthor.value,
-          locale.value,
-        ),
-      ]
-    : [],
-);
 </script>
 
 <template>

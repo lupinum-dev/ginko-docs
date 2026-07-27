@@ -14,6 +14,7 @@ import {
   useContentPage,
   useHead,
   useI18n,
+  useNuxtApp,
   useRoute,
   useSeoMeta,
 } from "#imports";
@@ -27,7 +28,7 @@ import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
-import { syncContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
+import { useContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
 
 type DocsNavLink = {
   path: string;
@@ -44,25 +45,26 @@ const { locale, t } = useI18n();
 const config = useAppConfig().ginkoDocs;
 const route = useRoute();
 const localizedPath = useLocalizedPath();
-const {
-  page,
-  previous,
-  next: nextContent,
-  error,
-} = await useContentPage("docs", {
+const canonicalUrl = useCanonicalUrl();
+const nuxtApp = useNuxtApp();
+const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
+const pageResult = useContentPage("docs", {
   locale: () => locale.value,
   fallback: true,
   surround: true,
 });
+const navigationResult = useDocsNavigation();
+const [{ page, previous, next: nextContent, error }, { trail }] = await Promise.all([
+  pageResult,
+  navigationResult,
+]);
 if (error.value) throw error.value;
 if (!page.value) throw createError({ statusCode: 404, statusMessage: "Not Found" });
 syncContentRouteAlternates(page);
-const { trail } = await useDocsNavigation();
 
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
 const pageTitle = computed(() => page.value?.title ?? t("docs.fallbackTitle"));
 const pageDescription = computed(() => page.value?.description ?? t("docs.fallbackDescription"));
-const canonicalUrl = useCanonicalUrl();
 const tocItems = computed(() =>
   filterTocByDepth(flattenTocLinks(getMarkdownTocLinks(page.value?.body)), config.toc?.depth ?? 3),
 );
@@ -93,55 +95,57 @@ watch(activeIds, () => {
   requestAnimationFrame(revealActiveTocLink);
 });
 
-useSeoMeta({
-  title: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  description: pageDescription,
-  ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  ogDescription: pageDescription,
-  ogUrl: canonicalUrl,
-  twitterCard: "summary_large_image",
-  twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
-  twitterDescription: pageDescription,
-});
+nuxtApp.runWithContext(() => {
+  useSeoMeta({
+    title: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    description: pageDescription,
+    ogTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    ogDescription: pageDescription,
+    ogUrl: canonicalUrl,
+    twitterCard: "summary_large_image",
+    twitterTitle: computed(() => `${pageTitle.value} - ${siteName.value}`),
+    twitterDescription: pageDescription,
+  });
 
-// Social card with the raw page title (no site-name suffix baked in).
-useGinkoOgImage({
-  title: pageTitle.value,
-  description: pageDescription.value,
-  locale: locale.value,
-});
-
-useSchemaJsonLd(() => [
-  {
-    "@type": "TechArticle",
-    headline: pageTitle.value,
+  // Social card with the raw page title (no site-name suffix baked in).
+  useGinkoOgImage({
+    title: pageTitle.value,
     description: pageDescription.value,
-    url: canonicalUrl.value,
-    inLanguage: locale.value,
-    dateModified: page.value?.updated,
-    isPartOf: { "@type": "WebSite", name: siteName.value, url: config.site.url },
-    publisher: { "@type": "Organization", name: siteName.value, url: config.site.url },
-  },
-  {
-    "@type": "BreadcrumbList",
-    itemListElement: schemaBreadcrumbs.value.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: new URL(item.path, config.site.url).toString(),
-    })),
-  },
-]);
+    locale: locale.value,
+  });
+
+  useSchemaJsonLd(() => [
+    {
+      "@type": "TechArticle",
+      headline: pageTitle.value,
+      description: pageDescription.value,
+      url: canonicalUrl.value,
+      inLanguage: locale.value,
+      dateModified: page.value?.updated,
+      isPartOf: { "@type": "WebSite", name: siteName.value, url: config.site.url },
+      publisher: { "@type": "Organization", name: siteName.value, url: config.site.url },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: schemaBreadcrumbs.value.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        item: new URL(item.path, config.site.url).toString(),
+      })),
+    },
+  ]);
+
+  useHead(() => ({
+    link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+    meta: [{ property: "og:type", content: "article" }],
+  }));
+});
 
 function scrollToTop() {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
 }
-
-useHead(() => ({
-  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
-  meta: [{ property: "og:type", content: "article" }],
-}));
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -44,6 +44,26 @@ const variants = [
 
 function run(command, args, cwd) {
   execFileSync(command, args, { cwd, stdio: "inherit" });
+}
+
+function runWithoutNuxtDiagnostics(command, args, cwd) {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    env: { ...process.env, NO_COLOR: "1" },
+    maxBuffer: 128 * 1024 * 1024,
+  });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} exited with status ${result.status}.`);
+  }
+  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+  const diagnostics = [...new Set(output.match(/NUXT_E\d{4}/g) ?? [])];
+  if (diagnostics.length > 0) {
+    throw new Error(`Nuxt emitted runtime diagnostics during build: ${diagnostics.join(", ")}`);
+  }
 }
 
 function replaceRequired(source, search, replacement, label) {
@@ -295,13 +315,14 @@ async function certifyBrowser(variant, directory) {
 }
 
 const temporaryRoot = mkdtempSync(resolve(tmpdir(), "ginko-docs-fixtures-"));
+let certificationPassed = false;
 try {
   for (const variant of variants) {
     const directory = resolve(temporaryRoot, variant.name);
     copyFixture(variant, directory);
     run("vp", ["install"], directory);
     run("vp", ["exec", "nuxi", "typecheck"], directory);
-    run("vp", ["exec", "nuxt", "build"], directory);
+    runWithoutNuxtDiagnostics("vp", ["exec", "nuxt", "build"], directory);
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
     const installedContent = JSON.parse(
       readFileSync(resolve(directory, "node_modules/@lupinum/ginko-content/package.json"), "utf8"),
@@ -320,8 +341,13 @@ try {
     await certifyBrowser(variant, directory);
     rmSync(directory, { recursive: true, force: true });
   }
+  certificationPassed = true;
 } finally {
-  rmSync(temporaryRoot, { recursive: true, force: true });
+  if (certificationPassed) {
+    rmSync(temporaryRoot, { recursive: true, force: true });
+  } else {
+    console.error(`Failed certification fixture retained at ${temporaryRoot}`);
+  }
 }
 
 const releaseArtifactPath = resolve(root, "layer/.pack/release-artifact.json");

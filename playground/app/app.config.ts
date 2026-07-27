@@ -2,6 +2,10 @@ import site from "../site.json" with { type: "json" };
 
 export default {
   ginkoDocs: {
+    theme: {
+      neutral: "custom",
+      primary: "custom",
+    },
     site: {
       url: site.url,
       name: { en: "Ginko Docs", de: "Ginko Docs" },

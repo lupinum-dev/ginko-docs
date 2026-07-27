@@ -1,0 +1,22 @@
+html[data-neutral="custom"] {
+  --theme-neutral-50: oklch(98.788% 0.0029 96.958);
+  --theme-neutral-100: oklch(97.335% 0.0029 60.951);
+  --theme-neutral-200: oklch(92.829% 0.0072 47.094);
+  --theme-neutral-300: oklch(87.397% 0.0139 49.967);
+  --theme-neutral-400: oklch(71.449% 0.0184 52.945);
+  --theme-neutral-500: oklch(55.484% 0.0164 54.254);
+  --theme-neutral-600: oklch(44.518% 0.0138 56.431);
+  --theme-neutral-700: oklch(37.452% 0.0121 58.654);
+  --theme-neutral-800: oklch(26.961% 0.0096 56.525);
+  --theme-neutral-900: oklch(21.68% 0.0076 52.401);
+  --theme-neutral-950: oklch(14.788% 0.0038 49.262);
+}
+
+html[data-primary="custom"] {
+  --theme-primary-light: oklch(51.345% 0.0644 184.398);
+  --theme-primary-light-foreground: oklch(98.424% 0.0095 178.947);
+  --theme-primary-light-ring: oklch(60.285% 0.0792 182.686);
+  --theme-primary-dark: oklch(78.033% 0.1023 179.993);
+  --theme-primary-dark-foreground: oklch(27.684% 0.0305 190.56);
+  --theme-primary-dark-ring: oklch(70.718% 0.0944 180.537);
+}

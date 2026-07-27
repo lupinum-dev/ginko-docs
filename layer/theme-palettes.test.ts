@@ -121,4 +121,21 @@ describe("theme palettes", () => {
     expect(copyButtonFocus).toContain("var(--foreground)");
     expect(copyButtonFocus).not.toContain("var(--ring)");
   });
+
+  it("applies the playground custom palettes with accessible primary pairs", () => {
+    const config = readFileSync(join(root, "playground/app/app.config.ts"), "utf8");
+    const custom = readFileSync(join(root, "playground/app/assets/css/theme.css"), "utf8");
+
+    expect(config).toContain('neutral: "custom"');
+    expect(config).toContain('primary: "custom"');
+    for (const shade of [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]) {
+      expect(variable(custom, `theme-neutral-${shade}`)).toBeTruthy();
+    }
+    for (const mode of ["light", "dark"] as const) {
+      const color = variable(custom, `theme-primary-${mode}`);
+      const foreground = variable(custom, `theme-primary-${mode}-foreground`);
+      expect(contrast(color!, foreground!), `custom ${mode}`).toBeGreaterThanOrEqual(4.5);
+      expect(variable(custom, `theme-primary-${mode}-ring`)).toBeTruthy();
+    }
+  });
 });

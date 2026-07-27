@@ -20,7 +20,7 @@
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.111",
-    "@lupinum/ginko-content": "file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz",
+    "@lupinum/ginko-content": "0.3.1",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/icon": "^2.2.3",
     "@types/node": "^25.9.1",
@@ -42,7 +42,7 @@
   "packageManager": "pnpm@10.32.1",
   "pnpm": {
     "overrides": {
-      "@lupinum/ginko-content": "file:../../workspace/ginko-content/.pack/lupinum-ginko-content-0.3.0-rc.5.tgz"
+      "@lupinum/ginko-content": "0.3.1"
     }
   }
 }
