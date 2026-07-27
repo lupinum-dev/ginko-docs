@@ -46,17 +46,16 @@ const route = useRoute();
 const localizedPath = useLocalizedPath();
 const canonicalUrl = useCanonicalUrl();
 const { sync: syncContentRouteAlternates } = useContentRouteAlternates();
-const {
-  page,
-  previous,
-  next: nextContent,
-  error,
-} = await useContentPage("docs", {
+const contentPageResult = useContentPage("docs", {
   locale: () => locale.value,
   fallback: true,
   surround: true,
 });
-const { trail } = await useDocsNavigation();
+const docsNavigationResult = useDocsNavigation();
+const [{ page, previous, next: nextContent, error }, { trail }] = await Promise.all([
+  contentPageResult,
+  docsNavigationResult,
+]);
 if (error.value) throw error.value;
 if (!page.value) throw createError({ statusCode: 404, statusMessage: "Not Found" });
 syncContentRouteAlternates(page);
