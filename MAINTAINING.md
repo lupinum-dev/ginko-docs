@@ -20,22 +20,19 @@ name the same tarball and SHA-256.
 
 ## Release
 
-Publishing is a human-only action. The repository's `release:publish` script is
-disabled intentionally.
+Publishing is a human-only action. After inspecting the verified artifact, run
+the guarded publish script:
 
 ```bash
-VERSION=$(node -p "require('./layer/package.json').version")
-npm view @lupinum/ginko-docs@$VERSION version --registry=https://registry.npmjs.org/
-tar -tzf layer/.pack/lupinum-ginko-docs-$VERSION.tgz | less
 cat layer/.pack/release-artifact.json
 cat layer/.pack/release-certification.json
 npm login --registry=https://registry.npmjs.org/
-npm publish layer/.pack/lupinum-ginko-docs-$VERSION.tgz \
-  --access public \
-  --tag latest \
-  --registry=https://registry.npmjs.org/
-npm view @lupinum/ginko-docs@$VERSION version --registry=https://registry.npmjs.org/
+vp run release:publish
 ```
+
+The script refuses to publish an existing version, a dirty source tree, or an
+artifact whose version, commit, SHA-256, or registry-backed certification does
+not match the current release.
 
 Tag only the exact green commit and attach the inspected tarball to its GitHub
 release. Never commit `layer/.pack`, `.nuxt`, `.output`, or generated archives.

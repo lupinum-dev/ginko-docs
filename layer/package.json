@@ -1,6 +1,6 @@
 {
   "name": "@lupinum/ginko-docs",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A Nuxt documentation layer powered by Ginko Content.",
   "keywords": [
     "content",

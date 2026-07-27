@@ -11,8 +11,9 @@
     "pack:layer": "vp run build:content-entry && vp pm pack --filter @lupinum/ginko-docs --pack-destination layer/.pack",
     "release:certify": "node scripts/certify-packed-fixtures.mjs",
     "release:pack": "node scripts/release-pack.mjs",
+    "release:publish:check": "node scripts/release-publish.mjs --check",
     "release:verify": "vp run check && vp test && vp run build && vp run release:pack && vp run release:certify",
-    "release:publish": "node -e \"console.error('Live publishing is disabled. Verify and inspect layer/.pack, then follow MAINTAINING.md.'); process.exit(1)\"",
+    "release:publish": "node scripts/release-publish.mjs",
     "test": "vp test",
     "typecheck": "vp run ginko-docs-playground#typecheck",
     "postinstall": "vp run ginko-docs-playground#prepare"
