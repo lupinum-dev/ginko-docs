@@ -37,9 +37,9 @@ if (archive.length !== 1) throw new Error(`Expected one release archive, found $
 const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
 const variants = [
-  { name: "single-tabs", switcher: "tabs", singleLocale: true },
-  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false },
-  { name: "i18n-list", switcher: "list", singleLocale: false },
+  { name: "single-tabs", switcher: "tabs", singleLocale: true, nuxtVersion: "4.4.7" },
+  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.0" },
+  { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.0" },
 ];
 
 function run(command, args, cwd) {
@@ -155,7 +155,7 @@ function copyFixture(variant, directory) {
         dependencies: {
           "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
           "@lupinum/ginko-docs": `file:${archive[0]}`,
-          nuxt: "^4.4.8",
+          nuxt: variant.nuxtVersion,
           vue: "^3.5.35",
           "vue-router": "^5.1.0",
         },
@@ -268,9 +268,11 @@ async function certifyBrowser(variant, directory) {
     if (!destination) throw new Error(`${variant.name} rendered a link without a destination.`);
     await sidebar.locator(`a[href="${destination}"]`).first().click();
     await page.waitForURL((url) => url.pathname === destination);
-    await sidebar.locator(`a[href="${destination}"][aria-current="page"]`).waitFor({
-      state: "visible",
-    });
+    await sidebar
+      .locator(`a[href="${destination}"][aria-current="page"][data-active="true"]`)
+      .waitFor({
+        state: "visible",
+      });
 
     if (variant.switcher === "list") {
       // The docs architecture is flat: sections switched via the list, with

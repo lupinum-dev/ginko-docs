@@ -30,9 +30,11 @@ npm login --registry=https://registry.npmjs.org/
 vp run release:publish
 ```
 
-The script refuses to publish an existing version, a dirty source tree, or an
-artifact whose version, commit, SHA-256, or registry-backed certification does
-not match the current release.
+The script derives npm's `latest` or `next` channel from the package version
+and refuses to publish an existing version, a dirty source tree, or an artifact
+whose version, commit, SHA-256, exact fixture lanes, or registry-backed
+certification does not match the current release. After publishing, it waits
+briefly for registry confirmation.
 
 Tag only the exact green commit and attach the inspected tarball to its GitHub
 release. Never commit `layer/.pack`, `.nuxt`, `.output`, or generated archives.

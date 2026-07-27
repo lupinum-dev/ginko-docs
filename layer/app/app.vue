@@ -46,14 +46,14 @@ useHead(() => ({
       const language = typeof entry === "string" ? entry : (entry.language ?? entry.code);
       return {
         key: `alternate-${code}`,
-        rel: "alternate",
+        rel: "alternate" as const,
         hreflang: language,
         href: new URL(switchPathname(code) || route.path, siteUrl).toString(),
       };
     }),
     {
       key: "alternate-x-default",
-      rel: "alternate",
+      rel: "alternate" as const,
       hreflang: "x-default",
       href: new URL(switchPathname(defaultLocale) || route.path, siteUrl).toString(),
     },

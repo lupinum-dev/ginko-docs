@@ -8,14 +8,14 @@ Ginko Docs is a Nuxt layer for focused documentation sites. It combines Ginko Co
 - Nuxt `>=4.4.7 <5`
 - Vue `^3.5.35`
 - Vue Router `^5.1.0`
-- Ginko Content `>=0.3.1 <0.4.0`
+- Ginko Content `>=0.3.2 <0.4.0`
 
 ## Install
 
 Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.1
+pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.2
 ```
 
 Keep the public identity in one shared value:
