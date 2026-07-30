@@ -79,68 +79,16 @@ export const layerIconNames = [
   "lucide:zap",
 ] as const;
 
-type IconTransform = {
-  width?: number;
-  height?: number;
-  left?: number;
-  top?: number;
-  rotate?: number;
-  hFlip?: boolean;
-  vFlip?: boolean;
-};
-type IconData = IconTransform & { body: string };
-type IconAlias = IconTransform & { parent: string };
 type IconCollection = {
   prefix: string;
   width?: number;
   height?: number;
-  icons: Record<string, IconData>;
-  aliases?: Record<string, IconAlias>;
+  icons: Record<string, { body: string }>;
+  aliases?: Record<string, { parent: string }>;
 };
 
 const require = createRequire(import.meta.url);
-const sourceCollections = new Map<string, IconCollection>(
-  ["circle-flags", "logos", "lucide"].map((prefix) => [
-    prefix,
-    require(`@iconify-json/${prefix}/icons.json`) as IconCollection,
-  ]),
+
+export const layerIconCollections = ["circle-flags", "logos", "lucide"].map(
+  (prefix) => require(`@iconify-json/${prefix}/icons.json`) as IconCollection,
 );
-
-export const layerIconCollections: IconCollection[] = [...sourceCollections.values()].map(
-  ({ prefix, width, height }) => ({ prefix, width, height, icons: {}, aliases: {} }),
-);
-
-const bundledCollections = new Map(
-  layerIconCollections.map((collection) => [collection.prefix, collection]),
-);
-
-function includeIcon(prefix: string, name: string, seen = new Set<string>()) {
-  const key = `${prefix}:${name}`;
-  if (seen.has(key)) return;
-  seen.add(key);
-
-  const source = sourceCollections.get(prefix);
-  const target = bundledCollections.get(prefix);
-  if (!source || !target) return;
-
-  const icon = source.icons[name];
-  if (icon) {
-    target.icons[name] = icon;
-    return;
-  }
-
-  const alias = source.aliases?.[name];
-  if (!alias) return;
-  target.aliases![name] = alias;
-  includeIcon(prefix, alias.parent, seen);
-}
-
-export function includeIconNames(names: Iterable<string>) {
-  for (const icon of names) {
-    const separator = icon.indexOf(":");
-    if (separator < 1) continue;
-    includeIcon(icon.slice(0, separator), icon.slice(separator + 1));
-  }
-}
-
-includeIconNames(layerIconNames);

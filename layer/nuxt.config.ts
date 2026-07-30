@@ -6,7 +6,7 @@ import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
-import { includeIconNames, layerIconCollections, layerIconNames } from "./icon-bundle";
+import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const app = join(root, "app");
@@ -151,9 +151,6 @@ export default defineNuxtConfig({
     },
   },
   hooks: {
-    "icon:clientBundleIcons"(icons) {
-      includeIconNames(icons);
-    },
     "components:dirs"(dirs) {
       const defaultComponentsDir = join(app, "components").replaceAll("\\", "/");
       const filtered = dirs.filter((entry) => {

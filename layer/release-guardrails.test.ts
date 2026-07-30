@@ -10,7 +10,7 @@ import { removeBlogPages } from "./modules/feature-routing";
 import { routeSlugs } from "./shared/route-slugs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { resolveIconifyIcon } from "./app/components/mdc/icons";
-import { layerIconNames } from "./icon-bundle";
+import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
@@ -288,6 +288,25 @@ describe("ginko docs release guardrails", () => {
     );
 
     expect([...referenced].filter((icon) => !layerIconNames.includes(icon as never))).toEqual([]);
+
+    const bundledCollections = new Map(
+      layerIconCollections.map((collection) => [collection.prefix, collection]),
+    );
+    const consumerSource = sourceFiles(join(root, "playground/app")).map((path) =>
+      readFileSync(path, "utf8"),
+    );
+    const consumerIcons = new Set(
+      consumerSource.flatMap((contents) =>
+        [...contents.matchAll(iconPattern)].map((match) => `${match[1]}:${match[2]}`),
+      ),
+    );
+    expect(
+      [...consumerIcons].filter((icon) => {
+        const [prefix, name] = icon.split(":");
+        const collection = prefix ? bundledCollections.get(prefix) : undefined;
+        return !name || (!collection?.icons[name] && !collection?.aliases?.[name]);
+      }),
+    ).toEqual([]);
   });
 
   it("does not redistribute the commercial Pressura font", () => {
