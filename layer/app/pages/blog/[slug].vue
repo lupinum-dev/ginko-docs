@@ -80,7 +80,16 @@ useGinkoOgImage({
 });
 
 useHead(() => ({
-  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+  link: [
+    { key: "canonical", rel: "canonical", href: canonicalUrl.value },
+    {
+      key: "rss",
+      rel: "alternate",
+      type: "application/rss+xml",
+      title: `${t("blog.title")} - ${siteName.value}`,
+      href: `${localizedPath("blog")}/rss.xml`,
+    },
+  ],
   meta: [{ property: "og:type", content: "article" }],
 }));
 

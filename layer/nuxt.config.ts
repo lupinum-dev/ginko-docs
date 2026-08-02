@@ -118,6 +118,9 @@ export default defineNuxtConfig({
   },
   content: {
     componentPolicy: contentComponentPolicy,
+    // Broken internal links and missing #anchors fail the build instead of
+    // only landing in the validation report.
+    validation: "error",
     i18n: {
       translatedSlugs: true,
     },
@@ -174,7 +177,15 @@ export default defineNuxtConfig({
       concurrency: 1,
       crawlLinks: true,
       failOnError: true,
-      routes: ["/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"],
+      routes: [
+        "/llms.txt",
+        "/llms-full.txt",
+        "/sitemap.xml",
+        "/robots.txt",
+        // Link page over every authored redirectFrom source; crawling it
+        // materializes the redirect stubs.
+        "/api/_ginko-docs/redirects",
+      ],
     },
   },
   vite: {

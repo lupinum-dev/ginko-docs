@@ -17,6 +17,7 @@ export const docs = {
   showAllLines: { de: "Alle {count} Zeilen anzeigen", en: "Show all {count} lines" },
   showMore: { de: "Mehr anzeigen", en: "Show more" },
   zoomImage: { de: "Bild vergrößern", en: "Zoom image" },
+  lastUpdated: { de: "Zuletzt aktualisiert", en: "Last updated" },
   moreActions: { de: "Weitere Seitenaktionen", en: "More page actions" },
   copyLink: { de: "Markdown-Link kopieren", en: "Copy Markdown link" },
   viewMarkdown: { de: "Als Markdown anzeigen", en: "View as Markdown" },

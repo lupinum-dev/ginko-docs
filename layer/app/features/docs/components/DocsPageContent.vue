@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { filterTocByDepth, flattenTocLinks, getMarkdownTocLinks } from "#ginko-docs/utils/content";
+import {
+  filterTocByDepth,
+  flattenTocLinks,
+  formatContentDate,
+  getMarkdownTocLinks,
+} from "#ginko-docs/utils/content";
 import ContentFeedback from "#ginko-docs/components/content/Feedback.vue";
 import DocsBreadcrumb from "./DocsBreadcrumb.vue";
 import DocsMobileToc from "./DocsMobileToc.vue";
@@ -182,6 +187,10 @@ function scrollToTop() {
           </div>
 
           <footer class="mt-12 border-t border-border pt-6">
+            <p v-if="page.updated" class="mb-4 text-sm text-muted-foreground">
+              {{ t("docs.lastUpdated") }}:
+              <time :datetime="page.updated">{{ formatContentDate(page.updated, locale) }}</time>
+            </p>
             <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
               <ContentFeedback :label="t('feedback.label')" />
               <DocsContributeLinks
