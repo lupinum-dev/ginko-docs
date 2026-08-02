@@ -98,9 +98,13 @@ async function copyInstallCommand() {
   await copy(landing.value.install?.command ?? "");
 }
 
+const landingTitle = computed(() => localize(config.site.name));
+const landingDescription = computed(() => localize(config.site.description));
 useSeoMeta({
-  title: computed(() => localize(config.site.name)),
-  description: computed(() => localize(config.site.description)),
+  title: landingTitle,
+  description: landingDescription,
+  ogTitle: landingTitle,
+  ogDescription: landingDescription,
 });
 </script>
 
