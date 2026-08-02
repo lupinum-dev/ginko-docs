@@ -3,7 +3,12 @@ import { useI18n, useRouter } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { computed } from "vue";
 import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
-import { resolveBanner, resolveMainNav, type NavItem } from "./site-navigation.utils";
+import {
+  resolveBanner,
+  resolveMainNav,
+  resolveSocialLinks,
+  type NavItem,
+} from "./site-navigation.utils";
 
 export const useSiteNavigation = () => {
   const config = useGinkoDocsConfig();
@@ -32,27 +37,7 @@ export const useSiteNavigation = () => {
     }),
   );
 
-  const socialLinks = computed<NavItem[]>(
-    () =>
-      [
-        config.social.github
-          ? {
-              label: t("nav.github"),
-              href: config.social.github,
-              external: true,
-              icon: "lucide:github",
-            }
-          : null,
-        config.social.linkedin
-          ? {
-              label: "LinkedIn",
-              href: config.social.linkedin,
-              external: true,
-              icon: "lucide:linkedin",
-            }
-          : null,
-      ].filter(Boolean) as NavItem[],
-  );
+  const socialLinks = computed<NavItem[]>(() => resolveSocialLinks(config.social));
 
   const mainNav = computed<NavItem[]>(() =>
     resolveMainNav(config.nav.links, {

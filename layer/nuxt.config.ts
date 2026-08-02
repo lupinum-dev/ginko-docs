@@ -41,7 +41,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.2.3",
+    version: "0.2.4",
   },
   components: {
     dirs: [
@@ -57,6 +57,7 @@ export default defineNuxtConfig({
           "SiteLocaleSwitcher.vue",
           "SiteLogoMark.vue",
           "SiteSkipLink.vue",
+          "SiteSocialLinks.vue",
         ],
       },
       {

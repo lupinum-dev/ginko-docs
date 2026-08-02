@@ -26,9 +26,11 @@ import {
   normalizeDocsNavigationItem,
 } from "#ginko-docs/features/docs/docs-navigation";
 import ModeToggle from "#ginko-docs/components/site/ModeToggle.vue";
+import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 
 const { mainNav, socialLinks } = useSiteNavigation();
 const { openCommandCenter } = useCommandCenterState();
+const config = useGinkoDocsConfig();
 const { t } = useI18n();
 const route = useRoute();
 const isMobileMenuOpen = ref(false);
@@ -192,6 +194,10 @@ watch(
           </template>
         </ClientOnly>
 
+        <div v-if="config.nav.socialIcons" class="hidden md:block">
+          <SiteSocialLinks />
+        </div>
+
         <SiteLocaleSwitcher class="hidden md:flex" />
         <Sheet v-model:open="isMobileMenuOpen">
           <SheetTrigger as-child>
@@ -348,7 +354,12 @@ watch(
                     </template>
                   </ClientOnly>
                   <SiteLocaleSwitcher variant="pill" class="flex" @navigate="closeMenu" />
-                  <span v-if="socialLinks.length" class="ml-auto flex items-center gap-2">
+                  <SiteSocialLinks
+                    v-if="config.nav.socialIcons"
+                    class="ml-auto"
+                    @navigate="closeMenu"
+                  />
+                  <span v-else-if="socialLinks.length" class="ml-auto flex items-center gap-2">
                     <NuxtLink
                       v-for="link in socialLinks"
                       :key="link.href"

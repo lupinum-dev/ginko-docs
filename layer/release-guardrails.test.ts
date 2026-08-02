@@ -115,7 +115,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.2 <0.4.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.3 <0.4.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -406,7 +406,8 @@ describe("ginko docs release guardrails", () => {
 
   it("ships safe defaults for navigation, banner, and integrations", () => {
     const defaults = read("layer/app/app.config.ts");
-    expect(defaults).toContain('nav: { links: "auto" }');
+    // Header social icons stay off so an upgrade never adds links to a site's bar.
+    expect(defaults).toContain('nav: { links: "auto", socialIcons: false }');
     expect(defaults).toContain("enabled: false");
     expect(defaults).toContain("showOnLanding: true");
     expect(defaults).toContain('ogImage: { enabled: true, component: "GinkoDocs" }');

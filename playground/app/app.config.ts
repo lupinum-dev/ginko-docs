@@ -16,6 +16,7 @@ export default defineAppConfig({
       logo: { light: "/lupinum_light.svg", dark: "/lupinum_dark.svg" },
       docsSidebarSwitcher: "tabs",
     },
+    nav: { socialIcons: true },
     social: { github: "https://github.com/Mat4m0/lupinum-docs-shadcn" },
     feedback: { enabled: false },
     repository: {
@@ -121,7 +122,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.2",
+        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.3",
       },
       features: [
         {

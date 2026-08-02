@@ -19,7 +19,7 @@ export default {
       docsSidebarSwitcher: "tabs",
       lupinumAttribution: true,
     },
-    nav: { links: "auto" },
+    nav: { links: "auto", socialIcons: false },
     banner: {
       enabled: false,
       id: "default",

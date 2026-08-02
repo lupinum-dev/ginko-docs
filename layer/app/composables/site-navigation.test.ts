@@ -3,6 +3,7 @@ import {
   bannerStorageKey,
   resolveBanner,
   resolveMainNav,
+  resolveSocialLinks,
   type BannerContext,
   type MainNavContext,
 } from "./site-navigation.utils";
@@ -56,6 +57,53 @@ describe("resolveMainNav", () => {
 
   it("returns no items for an explicit empty list", () => {
     expect(resolveMainNav([], navContext)).toEqual([]);
+  });
+});
+
+describe("resolveSocialLinks", () => {
+  it("applies the platform label and icon to a bare URL", () => {
+    expect(resolveSocialLinks({ github: "https://github.com/acme" })).toEqual([
+      {
+        label: "GitHub",
+        href: "https://github.com/acme",
+        external: true,
+        icon: "lucide:github",
+        platform: "github",
+      },
+    ]);
+  });
+
+  it("renders in configuration order rather than a fixed platform order", () => {
+    const items = resolveSocialLinks({
+      discord: "https://discord.gg/acme",
+      github: "https://github.com/acme",
+    });
+
+    expect(items.map((item) => item.platform)).toEqual(["discord", "github"]);
+  });
+
+  it("lets a site override the label and icon per entry", () => {
+    expect(
+      resolveSocialLinks({
+        discord: { href: "https://discord.gg/acme", label: "Community", icon: "acme:discord" },
+      }),
+    ).toEqual([
+      {
+        label: "Community",
+        href: "https://discord.gg/acme",
+        external: true,
+        icon: "acme:discord",
+        platform: "discord",
+      },
+    ]);
+  });
+
+  it("skips entries without a destination", () => {
+    expect(resolveSocialLinks({ github: "", linkedin: undefined })).toEqual([]);
+  });
+
+  it("returns no items when nothing is configured", () => {
+    expect(resolveSocialLinks({})).toEqual([]);
   });
 });
 
