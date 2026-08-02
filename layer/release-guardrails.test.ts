@@ -253,6 +253,9 @@ describe("ginko docs release guardrails", () => {
 
   it("keeps strict output and agent routes enabled at the layer boundary", () => {
     const config = read("layer/nuxt.config.ts");
+    // The content cache route emits a link page during prerender; crawling it
+    // is what prerenders every content page under a standard `nuxt build`.
+    expect(config).toContain("crawlLinks: true");
     expect(config).toContain("failOnError: true");
     expect(config).toContain("markdownNegotiation: true");
     expect(config).toContain('"/llms.txt"');

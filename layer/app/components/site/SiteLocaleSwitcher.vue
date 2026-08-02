@@ -13,13 +13,7 @@ import { useI18n } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
 import { locales as configuredLocales } from "../../../i18n/locales";
 
-type LocaleSwitcherVariant =
-  | "dropdown"
-  | "dropdown-outline"
-  | "menu-row"
-  | "menu-tile"
-  | "segmented"
-  | "pill";
+type LocaleSwitcherVariant = "dropdown" | "menu-row" | "menu-tile" | "segmented" | "pill";
 
 type LocaleEntry = {
   code: string;
@@ -105,17 +99,13 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
 
 <template>
   <div
-    v-if="localeLinks.length > 1 && (variant === 'dropdown' || variant === 'dropdown-outline')"
+    v-if="localeLinks.length > 1 && variant === 'dropdown'"
     :class="cn('items-center', props.class)"
   >
     <ClientOnly>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button
-            :variant="variant === 'dropdown-outline' ? 'outline' : 'ghost'"
-            class="h-9 gap-1.5 px-2.5"
-            :aria-label="t('nav.language')"
-          >
+          <Button variant="ghost" class="h-9 gap-1.5 px-2.5" :aria-label="t('nav.language')">
             <Icon
               v-if="currentLocale?.flagIcon"
               :name="currentLocale.flagIcon"
@@ -161,17 +151,8 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
       </DropdownMenu>
 
       <template #fallback>
-        <!-- Reserves the trigger's box before hydration; only the outlined
-             variant draws chrome, so the flat one does not flash a border. -->
-        <span
-          :class="
-            cn(
-              'inline-flex h-9 w-[4.25rem] rounded-md',
-              variant === 'dropdown-outline' && 'border border-border bg-background',
-            )
-          "
-          aria-hidden="true"
-        />
+        <!-- Reserves the trigger's box before hydration. -->
+        <span class="inline-flex h-9 w-[4.25rem] rounded-md" aria-hidden="true" />
       </template>
     </ClientOnly>
   </div>

@@ -17,6 +17,5 @@ export const nav = {
   company: { de: "Unternehmen", en: "Company" },
   documentation: { de: "Dokumentation", en: "Documentation" },
   blog: { de: "Blog", en: "Blog" },
-  github: { de: "GitHub", en: "GitHub" },
   externalLink: { de: "externer Link", en: "external link" },
 } as const;
