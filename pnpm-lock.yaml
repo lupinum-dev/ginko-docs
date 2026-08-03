@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lupinum/ginko-content': 0.3.3
+  '@lupinum/ginko-content': 0.3.5
 
 importers:
 
@@ -18,8 +18,8 @@ importers:
         specifier: ^1.2.111
         version: 1.2.111
       '@lupinum/ginko-content':
-        specifier: 0.3.3
-        version: 0.3.3(7d7281e502065b3bff187a04aa38c003)
+        specifier: 0.3.5
+        version: 0.3.5(7d7281e502065b3bff187a04aa38c003)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(magic-string@1.1.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.0)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.0)(rollup@4.61.1)(vite@8.1.5(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))(vite@8.1.5(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -165,8 +165,8 @@ importers:
   playground:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 0.3.3
-        version: 0.3.3(7d7281e502065b3bff187a04aa38c003)
+        specifier: 0.3.5
+        version: 0.3.5(7d7281e502065b3bff187a04aa38c003)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -1253,8 +1253,8 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@0.3.3':
-    resolution: {integrity: sha512-u6NiMqtpJn4jhzqt4IDQI0cLQQfP2dRUlCLraRkCw4JaSuOI6TJPabz03DCEdZMHBu6AwCpSsXfiHixy4eBSPw==}
+  '@lupinum/ginko-content@0.3.5':
+    resolution: {integrity: sha512-68Xwqy3drCbWHdtU09D6J5n+1aRLZDS05FhLvecWnFR/wGEjyEaziQ+nzWjeN94MiijkIVnwyxJsgHJzof5ZTA==}
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
@@ -7621,7 +7621,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@0.3.3(7d7281e502065b3bff187a04aa38c003)':
+  '@lupinum/ginko-content@0.3.5(7d7281e502065b3bff187a04aa38c003)':
     dependencies:
       '@comark/vue': 0.4.0(shiki@4.2.0)(vue@3.5.40(typescript@5.9.3))
       '@nuxt/kit': 4.5.1(magic-string@1.1.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.0)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.0)(rollup@4.61.1)(vite@8.1.5(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))

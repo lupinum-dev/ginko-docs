@@ -22,7 +22,7 @@ export async function serveBlogFeed(event: H3Event, locale: LocaleCode) {
     throw createError({ statusCode: 404, statusMessage: "Blog is not enabled" });
   }
 
-  const site = useAppConfig(event).ginkoDocs.site;
+  const site = useAppConfig().ginkoDocs.site;
   const posts = await many(event, "blog", {
     locale,
     fallback: true,
