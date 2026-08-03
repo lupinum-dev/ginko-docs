@@ -115,7 +115,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.3 <0.4.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.5 <0.4.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -257,6 +257,7 @@ describe("ginko docs release guardrails", () => {
     // is what prerenders every content page under a standard `nuxt build`.
     expect(config).toContain("crawlLinks: true");
     expect(config).toContain("failOnError: true");
+    expect(config).toContain('validation: "error"');
     expect(config).toContain("markdownNegotiation: true");
     expect(config).toContain('"/llms.txt"');
     expect(config).toContain('"/sitemap.xml"');
@@ -405,6 +406,17 @@ describe("ginko docs release guardrails", () => {
     expect(motion).toContain("useReducedMotion");
     expect(dialog).not.toContain("startViewTransition");
     expect(styles).not.toContain("view-transition-name: zoom-img");
+  });
+
+  it("routes plain markdown images through NuxtImg with the shared zoom dialog", () => {
+    const proseImg = read("layer/app/components/prose/ProseImg.vue");
+
+    expect(proseImg).toContain('resolveComponent("NuxtImg")');
+    expect(proseImg).toContain("ImageZoomDialog");
+    expect(proseImg).toContain("config.images?.zoom !== false");
+    expect(proseImg).toContain("content-prose-image");
+    // A bare ![...] lives inside <p>; the zoom trigger must stay phrasing content.
+    expect(proseImg).not.toContain("<figure");
   });
 
   it("ships safe defaults for navigation, banner, and integrations", () => {

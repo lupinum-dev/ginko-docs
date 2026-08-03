@@ -6,6 +6,7 @@ import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import { computed } from "vue";
 import { definePageMeta, useAppConfig, useAsyncData, useHead, useI18n, useSeoMeta } from "#imports";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
+import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 
 const MAX_BLOG_POSTS = 50;
 
@@ -14,6 +15,7 @@ definePageMeta({ layout: "blog" });
 const { locale, t } = useI18n();
 const postsKey = computed(() => `blog-posts:${locale.value}`);
 const canonicalUrl = useCanonicalUrl();
+const localizedPath = useLocalizedPath();
 const config = useAppConfig().ginkoDocs;
 const siteName = computed(() => getLocalizedSiteText(config.site.name, locale.value));
 const fullTitle = computed(() => `${t("blog.pageTitle")} - ${siteName.value}`);
@@ -28,7 +30,16 @@ useSeoMeta({
 });
 
 useHead(() => ({
-  link: [{ key: "canonical", rel: "canonical", href: canonicalUrl.value }],
+  link: [
+    { key: "canonical", rel: "canonical", href: canonicalUrl.value },
+    {
+      key: "rss",
+      rel: "alternate",
+      type: "application/rss+xml",
+      title: fullTitle.value,
+      href: `${localizedPath("blog")}/rss.xml`,
+    },
+  ],
 }));
 
 const { data: queriedPosts, error } = await useAsyncData(

@@ -122,7 +122,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.3",
+        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.5",
       },
       features: [
         {

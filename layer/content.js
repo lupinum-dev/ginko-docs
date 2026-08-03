@@ -25,31 +25,52 @@ const routeSlugs = {
 //#region layer/content.ts
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
 const nonEmptyString = z.string().trim().min(1);
-const docsSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  icon: z.string().optional(),
-  badge: z.string().optional(),
-  updated: isoDate.optional(),
-  sidebar: z.enum(["section", "group"]).optional(),
-  navigation: z
-    .object({
-      title: z.string().optional(),
-      icon: z.string().optional(),
-      badge: z.string().optional(),
-      sidebar: z.enum(["section", "group"]).optional(),
-    })
-    .optional(),
-});
-const blogSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  badge: z.string().optional(),
-  date: isoDate,
-  readingTime: nonEmptyString,
-  author: reference("authors"),
-  image: z.string().optional(),
-});
+/** Former public URLs of a page, as served: locale prefix and translated slugs included. */
+const redirectFrom = z
+  .array(nonEmptyString.regex(/^\//, "redirectFrom entries must be absolute site paths"))
+  .optional();
+/**
+ * Derives the sitemap lastmod from the authored date so it has one source of
+ * truth. Route records require normalized UTC ISO values.
+ */
+const withSitemapLastmod = (data, lastmod) =>
+  lastmod
+    ? {
+        ...data,
+        sitemap: { lastmod: `${lastmod}T00:00:00.000Z` },
+      }
+    : data;
+const docsSchemaWithLastmod = z
+  .object({
+    title: z.string(),
+    description: z.string(),
+    icon: z.string().optional(),
+    badge: z.string().optional(),
+    updated: isoDate.optional(),
+    redirectFrom,
+    sidebar: z.enum(["section", "group"]).optional(),
+    navigation: z
+      .object({
+        title: z.string().optional(),
+        icon: z.string().optional(),
+        badge: z.string().optional(),
+        sidebar: z.enum(["section", "group"]).optional(),
+      })
+      .optional(),
+  })
+  .transform((data) => withSitemapLastmod(data, data.updated));
+const blogSchemaWithLastmod = z
+  .object({
+    title: z.string(),
+    description: z.string(),
+    badge: z.string().optional(),
+    date: isoDate,
+    readingTime: nonEmptyString,
+    author: reference("authors"),
+    image: z.string().optional(),
+    redirectFrom,
+  })
+  .transform((data) => withSitemapLastmod(data, data.date));
 const authorsSchema = z.object({
   slug: z.string(),
   name: z.string(),
@@ -95,7 +116,7 @@ function defineGinkoDocsConfig(options) {
       markdown: true,
     },
     strict: true,
-    schema: docsSchema,
+    schema: docsSchemaWithLastmod,
   });
   const blog = defineCollection({
     type: "page",
@@ -107,7 +128,7 @@ function defineGinkoDocsConfig(options) {
       markdown: true,
     },
     strict: true,
-    schema: blogSchema,
+    schema: blogSchemaWithLastmod,
   });
   const authors = defineCollection({
     type: "data",

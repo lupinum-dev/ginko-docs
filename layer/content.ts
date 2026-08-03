@@ -11,6 +11,17 @@ import { routeSlugs } from "./shared/route-slugs";
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
 const nonEmptyString = z.string().trim().min(1);
+/** Former public URLs of a page, as served: locale prefix and translated slugs included. */
+const redirectFrom = z
+  .array(nonEmptyString.regex(/^\//, "redirectFrom entries must be absolute site paths"))
+  .optional();
+
+/**
+ * Derives the sitemap lastmod from the authored date so it has one source of
+ * truth. Route records require normalized UTC ISO values.
+ */
+const withSitemapLastmod = <T extends object>(data: T, lastmod: string | undefined) =>
+  lastmod ? { ...data, sitemap: { lastmod: `${lastmod}T00:00:00.000Z` } } : data;
 
 export interface GinkoDocsContentOptions {
   site: {
@@ -28,6 +39,7 @@ const docsSchema = z.object({
   icon: z.string().optional(),
   badge: z.string().optional(),
   updated: isoDate.optional(),
+  redirectFrom,
   sidebar: z.enum(["section", "group"]).optional(),
   navigation: z
     .object({
@@ -38,6 +50,9 @@ const docsSchema = z.object({
     })
     .optional(),
 });
+const docsSchemaWithLastmod = docsSchema.transform((data) =>
+  withSitemapLastmod(data, data.updated),
+);
 const blogSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -46,7 +61,9 @@ const blogSchema = z.object({
   readingTime: nonEmptyString,
   author: reference("authors"),
   image: z.string().optional(),
+  redirectFrom,
 });
+const blogSchemaWithLastmod = blogSchema.transform((data) => withSitemapLastmod(data, data.date));
 const authorsSchema = z.object({
   slug: z.string(),
   name: z.string(),
@@ -56,8 +73,8 @@ const authorsSchema = z.object({
   links: z.array(z.object({ label: z.string(), href: z.string() })).optional(),
 });
 
-type DocsCollection = ContentCollectionConfig<typeof docsSchema>;
-type BlogCollection = ContentCollectionConfig<typeof blogSchema>;
+type DocsCollection = ContentCollectionConfig<typeof docsSchemaWithLastmod>;
+type BlogCollection = ContentCollectionConfig<typeof blogSchemaWithLastmod>;
 type AuthorsCollection = ContentCollectionConfig<typeof authorsSchema>;
 type DocsContentConfig = ContentConfig<{ docs: DocsCollection }>;
 type DocsBlogContentConfig = ContentConfig<{
@@ -100,7 +117,7 @@ export function defineGinkoDocsConfig(
     route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
     agent: { section: "optional", markdown: true },
     strict: true,
-    schema: docsSchema,
+    schema: docsSchemaWithLastmod,
   });
   const blog = defineCollection({
     type: "page",
@@ -109,7 +126,7 @@ export function defineGinkoDocsConfig(
     route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
     agent: { section: "blog", markdown: true },
     strict: true,
-    schema: blogSchema,
+    schema: blogSchemaWithLastmod,
   });
   const authors = defineCollection({
     type: "data",
