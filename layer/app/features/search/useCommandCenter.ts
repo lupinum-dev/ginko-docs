@@ -181,7 +181,7 @@ export async function useCommandCenter() {
   });
 
   const actionItems = computed<CommandCenterItem[]>(() => {
-    const github = socialLinks.value.find((item) => item.icon === "lucide:github");
+    const github = socialLinks.value.find((item) => item.platform === "github");
     return github
       ? [
           {
@@ -191,7 +191,7 @@ export async function useCommandCenter() {
             href: github.href,
             external: true,
             group: "actions" as const,
-            icon: "lucide:github",
+            icon: github.icon ?? "lucide:github",
             keywords: ["repo", "source", "code"],
           },
         ]

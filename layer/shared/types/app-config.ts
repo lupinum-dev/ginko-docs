@@ -34,6 +34,15 @@ export interface GinkoDocsLink {
   description?: GinkoDocsLocalizedText;
 }
 
+export type GinkoDocsSocialPlatform = "github" | "discord" | "linkedin";
+
+/**
+ * A URL uses the platform's built-in label and icon. Pass an object to override
+ * either — `icon` accepts any Iconify name the consuming app has registered, so
+ * sites that ship brand marks are not limited to the layer's bundled icons.
+ */
+export type GinkoDocsSocialEntry = string | { href: string; label?: string; icon?: string };
+
 export interface GinkoDocsHeroCodeTab {
   label: GinkoDocsLocalizedText;
   /** Iconify icon shown in the tab. */
@@ -77,6 +86,8 @@ export interface GinkoDocsAppConfig {
   nav: {
     /** "auto" derives Docs (+ Blog when blog routes exist); an array overrides entirely. */
     links: "auto" | GinkoDocsLink[];
+    /** Render configured social links as icon buttons in the header instead of labelled rows. */
+    socialIcons: boolean;
   };
   banner: {
     enabled: boolean;
@@ -96,10 +107,7 @@ export interface GinkoDocsAppConfig {
       extensions?: GinkoDocsPlausibleExtension[];
     };
   };
-  social: {
-    github?: string;
-    linkedin?: string;
-  };
+  social: Partial<Record<GinkoDocsSocialPlatform, GinkoDocsSocialEntry>>;
   feedback: {
     enabled: boolean;
   };

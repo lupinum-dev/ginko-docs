@@ -1,4 +1,8 @@
-import type { GinkoDocsAppConfig, GinkoDocsLink } from "../../shared/types/app-config";
+import type {
+  GinkoDocsAppConfig,
+  GinkoDocsLink,
+  GinkoDocsSocialPlatform,
+} from "../../shared/types/app-config";
 import { getLocalizedSiteText } from "../config/site.utils";
 
 export interface NavItem {
@@ -7,6 +11,8 @@ export interface NavItem {
   external?: boolean;
   icon?: string;
   description?: string;
+  /** Set on social links so features can find a platform without matching its icon. */
+  platform?: GinkoDocsSocialPlatform;
 }
 
 export interface MainNavContext {
@@ -58,6 +64,39 @@ export function resolveMainNav(
     });
   }
   return items;
+}
+
+/**
+ * Brand names are not translated, so the labels are literals. The icons are
+ * bundled defaults — Lucide has no Discord mark, so chat is the closest generic
+ * stand-in and sites that ship the real one override `icon` per entry.
+ */
+const socialDefaults: Record<GinkoDocsSocialPlatform, { label: string; icon: string }> = {
+  github: { label: "GitHub", icon: "lucide:github" },
+  discord: { label: "Discord", icon: "lucide:message-circle" },
+  linkedin: { label: "LinkedIn", icon: "lucide:linkedin" },
+};
+
+export function resolveSocialLinks(social: GinkoDocsAppConfig["social"]): NavItem[] {
+  // Config order is render order, so a site can list Discord ahead of GitHub.
+  return Object.entries(social).flatMap<NavItem>(([key, entry]) => {
+    const platform = key as GinkoDocsSocialPlatform;
+    const defaults = socialDefaults[platform];
+    if (!defaults || !entry) return [];
+
+    const link = typeof entry === "string" ? { href: entry } : entry;
+    if (!link.href) return [];
+
+    return [
+      {
+        label: link.label ?? defaults.label,
+        href: link.href,
+        external: true,
+        icon: link.icon ?? defaults.icon,
+        platform,
+      },
+    ];
+  });
 }
 
 export interface BannerContext {

@@ -105,7 +105,7 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
     <ClientOnly>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="outline" class="h-9 gap-1.5 px-2.5" :aria-label="t('nav.language')">
+          <Button variant="ghost" class="h-9 gap-1.5 px-2.5" :aria-label="t('nav.language')">
             <Icon
               v-if="currentLocale?.flagIcon"
               :name="currentLocale.flagIcon"
@@ -151,10 +151,8 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
       </DropdownMenu>
 
       <template #fallback>
-        <span
-          class="inline-flex h-9 w-[4.25rem] rounded-md border border-border bg-background"
-          aria-hidden="true"
-        />
+        <!-- Reserves the trigger's box before hydration. -->
+        <span class="inline-flex h-9 w-[4.25rem] rounded-md" aria-hidden="true" />
       </template>
     </ClientOnly>
   </div>

@@ -6,7 +6,9 @@ import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
-import { includeIconNames, layerIconCollections, layerIconNames } from "./icon-bundle";
+import { localeCodes, localizedPath } from "./i18n/locales";
+import { routeSlugs } from "./shared/route-slugs";
+import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const app = join(root, "app");
@@ -41,7 +43,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.2.3",
+    version: "0.2.4",
   },
   components: {
     dirs: [
@@ -57,6 +59,7 @@ export default defineNuxtConfig({
           "SiteLocaleSwitcher.vue",
           "SiteLogoMark.vue",
           "SiteSkipLink.vue",
+          "SiteSocialLinks.vue",
         ],
       },
       {
@@ -141,6 +144,9 @@ export default defineNuxtConfig({
   },
   sitemap: {
     excludeAppSources: ["nuxt:prerender"],
+    // The docs roots prerender as redirects to the first docs page; a sitemap
+    // must not list redirecting URLs.
+    exclude: localeCodes.map((locale) => localizedPath(locale, routeSlugs.docs[locale])),
   },
   app: {
     head: {
@@ -151,9 +157,6 @@ export default defineNuxtConfig({
     },
   },
   hooks: {
-    "icon:clientBundleIcons"(icons) {
-      includeIconNames(icons);
-    },
     "components:dirs"(dirs) {
       const defaultComponentsDir = join(app, "components").replaceAll("\\", "/");
       const filtered = dirs.filter((entry) => {

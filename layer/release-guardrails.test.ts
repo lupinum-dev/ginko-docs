@@ -10,7 +10,7 @@ import { removeBlogPages } from "./modules/feature-routing";
 import { routeSlugs } from "./shared/route-slugs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { resolveIconifyIcon } from "./app/components/mdc/icons";
-import { layerIconNames } from "./icon-bundle";
+import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
@@ -115,7 +115,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.2 <0.4.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.3 <0.4.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -253,6 +253,9 @@ describe("ginko docs release guardrails", () => {
 
   it("keeps strict output and agent routes enabled at the layer boundary", () => {
     const config = read("layer/nuxt.config.ts");
+    // The content cache route emits a link page during prerender; crawling it
+    // is what prerenders every content page under a standard `nuxt build`.
+    expect(config).toContain("crawlLinks: true");
     expect(config).toContain("failOnError: true");
     expect(config).toContain("markdownNegotiation: true");
     expect(config).toContain('"/llms.txt"');
@@ -288,6 +291,25 @@ describe("ginko docs release guardrails", () => {
     );
 
     expect([...referenced].filter((icon) => !layerIconNames.includes(icon as never))).toEqual([]);
+
+    const bundledCollections = new Map(
+      layerIconCollections.map((collection) => [collection.prefix, collection]),
+    );
+    const consumerSource = sourceFiles(join(root, "playground/app")).map((path) =>
+      readFileSync(path, "utf8"),
+    );
+    const consumerIcons = new Set(
+      consumerSource.flatMap((contents) =>
+        [...contents.matchAll(iconPattern)].map((match) => `${match[1]}:${match[2]}`),
+      ),
+    );
+    expect(
+      [...consumerIcons].filter((icon) => {
+        const [prefix, name] = icon.split(":");
+        const collection = prefix ? bundledCollections.get(prefix) : undefined;
+        return !name || (!collection?.icons[name] && !collection?.aliases?.[name]);
+      }),
+    ).toEqual([]);
   });
 
   it("does not redistribute the commercial Pressura font", () => {
@@ -387,7 +409,8 @@ describe("ginko docs release guardrails", () => {
 
   it("ships safe defaults for navigation, banner, and integrations", () => {
     const defaults = read("layer/app/app.config.ts");
-    expect(defaults).toContain('nav: { links: "auto" }');
+    // Header social icons stay off so an upgrade never adds links to a site's bar.
+    expect(defaults).toContain('nav: { links: "auto", socialIcons: false }');
     expect(defaults).toContain("enabled: false");
     expect(defaults).toContain("showOnLanding: true");
     expect(defaults).toContain('ogImage: { enabled: true, component: "GinkoDocs" }');

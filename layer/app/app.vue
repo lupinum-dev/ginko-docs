@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
+import { computed } from "vue";
 import { useAppConfig, useHead, useI18n, useRoute, useSeoMeta } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
 import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
@@ -16,6 +17,7 @@ const docsConfig = useAppConfig().ginkoDocs;
 const siteUrl = docsConfig.site.url;
 
 useSeoMeta({
+  ogSiteName: computed(() => getLocalizedSiteText(docsConfig.site.name, locale.value)),
   ogUrl: canonicalUrl,
   twitterCard: "summary_large_image",
 });
