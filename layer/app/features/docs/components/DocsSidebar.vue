@@ -64,8 +64,14 @@ function setActiveSection(id: string) {
   if (path) void navigateTo(path);
 }
 
-const scrollViewportClass =
-  "size-full rounded-[inherit] p-4 pt-2 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]";
+// The reduced top padding only applies under the section switcher; without it
+// the scroll mask would fade into the first group label.
+const scrollViewportClass = computed(() =>
+  cn(
+    "size-full rounded-[inherit] p-4 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]",
+    switcherSections.value.length > 1 && "pt-2",
+  ),
+);
 
 // Deep links can land on an item far outside the visible band — center it
 // once on mount and on section switches.
