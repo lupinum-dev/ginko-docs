@@ -296,14 +296,18 @@ describe("ginko docs release guardrails", () => {
     const bundledCollections = new Map(
       layerIconCollections.map((collection) => [collection.prefix, collection]),
     );
-    const consumerSource = sourceFiles(join(root, "playground/app")).map((path) =>
-      readFileSync(path, "utf8"),
-    );
+    const consumerSource = ["app", "content"]
+      .flatMap((path) => sourceFiles(join(root, "playground", path)))
+      .map((path) => readFileSync(path, "utf8"));
     const consumerIcons = new Set(
       consumerSource.flatMap((contents) =>
         [...contents.matchAll(iconPattern)].map((match) => `${match[1]}:${match[2]}`),
       ),
     );
+    // This icon is authored only by the consumer and proves content scanning
+    // is not limited to the layer's own chrome bundle.
+    expect(layerIconNames).not.toContain("lucide:download");
+    expect(consumerIcons.has("lucide:download")).toBe(true);
     expect(
       [...consumerIcons].filter((icon) => {
         const [prefix, name] = icon.split(":");

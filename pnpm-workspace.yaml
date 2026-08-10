@@ -11,10 +11,18 @@ allowBuilds:
   vue-demi: true
 
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.24
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
+  vite: "catalog:"
+  vitest: "catalog:"
+  "@lupinum/ginko-content": 0.3.6
 
 peerDependencyRules:
   allowedVersions:
-    vite: 0.1.24
-    vitest: 0.1.24
+    vite: "*"
+    vitest: "*"
+  allowAny:
+    - vite
+    - vitest
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.8
+  vitest: 4.1.10
+  vite-plus: 0.2.8

@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { parse } from "comark";
+import { parseMarkdown } from "comark";
 import { describe, expect, it } from "vite-plus/test";
 
 // Comark hoists unmatched component fence closers (`::`, `:::`, …) into the
@@ -87,7 +87,7 @@ describe("content fence integrity", () => {
 
     const leaks: string[] = [];
     for (const file of files) {
-      const ast = await parse(readFileSync(file, "utf8"));
+      const ast = await parseMarkdown(readFileSync(file, "utf8"));
       for (const leak of fenceLeaks(ast.nodes as ComarkNode[])) {
         leaks.push(`${relative(contentRoot, file)}: ${JSON.stringify(leak)}`);
       }
@@ -99,7 +99,7 @@ describe("content fence integrity", () => {
   it("authors API data as typed component YAML instead of a code-fence slot", async () => {
     const issues: string[] = [];
     for (const file of markdownFiles(contentRoot)) {
-      const ast = await parse(readFileSync(file, "utf8"));
+      const ast = await parseMarkdown(readFileSync(file, "utf8"));
       for (const issue of apiDataIssues(ast.nodes as ComarkNode[])) {
         issues.push(`${relative(contentRoot, file)}: ${issue}`);
       }
@@ -126,7 +126,7 @@ describe("content fence integrity", () => {
       "en/1.docs/8.components/3.component-showcase.md",
       "de/1.dokumentation/8.komponenten/3.komponenten-showcase.md",
     ]) {
-      const ast = await parse(readFileSync(join(contentRoot, file), "utf8"));
+      const ast = await parseMarkdown(readFileSync(join(contentRoot, file), "utf8"));
       expect(
         (ast.nodes as ComarkNode[]).some((node) => componentContainsTag(node, "steps", "img")),
         `${file} must render a Markdown image inside a step`,
