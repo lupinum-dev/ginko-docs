@@ -26,6 +26,8 @@ vp run release:verify
 
 Review the lockfile. Keep the exact Ginko Content development dependency equal to the minimum supported peer version.
 
+The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` does so directly. Review this override after 2026-09-01. Remove it when the resolved dependency graph remains secure without it.
+
 ## Release preparation
 
 1. Choose the version.
