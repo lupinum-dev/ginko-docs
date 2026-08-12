@@ -110,8 +110,8 @@ function copyFixture(variant, directory) {
   if (variant.singleLocale) {
     appConfig = replaceRequired(
       appConfig,
-      "    feedback: { enabled: false },",
-      `    feedback: { enabled: true },\n    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
+      '    analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },',
+      `    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
       `${variant.name} analytics configuration`,
     );
   }
