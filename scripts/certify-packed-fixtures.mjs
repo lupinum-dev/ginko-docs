@@ -285,6 +285,15 @@ async function certifyBrowser(variant, directory) {
     });
 
     const startPath = variant.singleLocale ? "/docs" : "/docs/getting-started";
+    if (variant.singleLocale) {
+      const source = await fetch(`${server.baseURL}/docs/getting-started`).then((response) =>
+        response.text(),
+      );
+      const scriptURL = `https://plausible.io/js/pa-${plausibleScriptId}.js`;
+      if (!source.includes(scriptURL) || !source.includes("plausible.init()")) {
+        throw new Error(`${variant.name} did not render the Plausible snippet in server HTML.`);
+      }
+    }
     await page.goto(`${server.baseURL}${startPath}`, { waitUntil: "networkidle" });
     const sidebar = page.locator('aside[data-variant="desktop"]');
     await sidebar.waitFor({ state: "visible" });
@@ -307,9 +316,13 @@ async function certifyBrowser(variant, directory) {
       });
 
     if (variant.singleLocale) {
-      await page
-        .locator(`script[src="https://plausible.io/js/pa-${plausibleScriptId}.js"]`)
-        .waitFor({ state: "attached" });
+      const plausibleScripts = page.locator(
+        `script[src="https://plausible.io/js/pa-${plausibleScriptId}.js"]`,
+      );
+      await plausibleScripts.first().waitFor({ state: "attached" });
+      if ((await plausibleScripts.count()) !== 1) {
+        throw new Error(`${variant.name} rendered more than one Plausible tracker.`);
+      }
       await page.getByRole("button", { name: "Yes", exact: true }).click();
       await page.getByText("Thanks for your feedback.", { exact: true }).waitFor();
       await page.waitForFunction(() =>

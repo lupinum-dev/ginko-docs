@@ -1,6 +1,9 @@
 import { useScriptPlausibleAnalytics } from "#imports";
 import { useGinkoDocsConfig } from "./useGinkoDocsConfig";
 
+const PLAUSIBLE_INITIALIZER =
+  "window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()";
+
 export type AnalyticsProps = Record<string, string>;
 
 export interface GinkoAnalytics {
@@ -21,11 +24,19 @@ export function useGinkoAnalytics(): GinkoAnalytics {
     return { enabled: false, track: () => {} };
   }
 
+  const src = `https://plausible.io/js/pa-${scriptId}.js`;
+  useHead({
+    script: [
+      { key: "plausibleAnalytics", src, async: true },
+      { key: "plausibleAnalyticsInit", innerHTML: PLAUSIBLE_INITIALIZER },
+    ],
+  });
+
   const script = useScriptPlausibleAnalytics({
     scriptId,
-    // The site ID comes from app.config at runtime. Keep the vendor script
-    // external so Nuxt Scripts does not bundle its legacy fallback URL during
-    // the build-time transform.
+    // Plausible verifies its exact snippet in server-rendered HTML. The head
+    // entry above provides it; Nuxt Scripts reuses the same keyed script for
+    // its typed proxy and lifecycle instead of adding a second tracker.
     scriptOptions: { bundle: false },
   });
 
