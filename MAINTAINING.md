@@ -47,6 +47,10 @@ Replace `v0.2.5` with the previous release tag. Review the generated text before
 
 The `CI` workflow certifies the exact `main` commit and uploads one release artifact. Start the `Publish` workflow with that CI run ID and the exact version. The workflow verifies the artifact again, pauses at the protected `npm` environment, publishes through npm trusted publishing, and creates the GitHub release.
 
+The version and its `v<version>` tag must not exist before the workflow starts.
+The workflow creates the tag as part of the GitHub release. Do not prepare or
+push a release tag from a workstation.
+
 The npm trusted publisher must use these values:
 
 - Package: `@lupinum/ginko-docs`

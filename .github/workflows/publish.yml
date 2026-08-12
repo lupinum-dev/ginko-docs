@@ -46,6 +46,21 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" --jq .head_sha)" = "$GITHUB_SHA"
           test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" --jq .conclusion)" = "success"
 
+      - name: Require an unused release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          STATUS=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/git/ref/tags/v$RELEASE_VERSION")
+          case "$STATUS" in
+            404) ;;
+            200) echo "Tag v$RELEASE_VERSION already exists" >&2; exit 1 ;;
+            *) echo "Could not verify tag availability (HTTP $STATUS)" >&2; exit 1 ;;
+          esac
+
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
@@ -115,7 +130,7 @@ jobs:
           node -e "const {spawnSync}=require('node:child_process');const [major,minor]=spawnSync('npm',['--version'],{encoding:'utf8'}).stdout.trim().split('.').map(Number);if(major<11||(major===11&&minor<5))throw new Error('npm 11.5.1 or newer is required')"
           TARBALL=$(node -e "process.stdout.write(require('./.release/release-artifact.json').tarball)")
           case "$RELEASE_VERSION" in *-*) NPM_TAG=next ;; *) NPM_TAG=latest ;; esac
-          npm publish ".release/$TARBALL" --access public --tag "$NPM_TAG"
+          npm publish ".release/$TARBALL" --access public --tag "$NPM_TAG" --ignore-scripts --provenance
 
   github-release:
     name: Create GitHub release

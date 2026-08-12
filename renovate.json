@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "automerge": false,
+  "dependencyDashboard": true,
+  "minimumReleaseAge": "3 days",
+  "pinDigests": true,
+  "rangeStrategy": "replace",
+  "schedule": ["before 6am on Monday"],
+  "packageRules": [
+    {
+      "description": "Keep Ginko packages together",
+      "groupName": "Ginko ecosystem",
+      "matchPackageNames": ["@lupinum/ginko-content", "@lupinum/ginko-docs"]
+    },
+    {
+      "description": "Keep Nuxt and Vue updates together",
+      "groupName": "Nuxt ecosystem",
+      "matchPackageNames": ["nuxt", "@nuxt/**", "@nuxtjs/**", "vue", "vue-router"]
+    }
+  ]
+}

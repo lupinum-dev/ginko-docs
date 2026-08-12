@@ -23,6 +23,7 @@
     "app",
     "i18n",
     "modules",
+    "public",
     "runtime",
     "server",
     "shared",

@@ -12,7 +12,7 @@ This repository contains two workspaces:
 Use a Nuxt application on Node `^22.18.0 || ^24.11.0 || >=26.0.0`. The effective Nuxt range is `>=4.4.7 <5`. Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0-rc.1 @lupinum/ginko-content@0.4.0-rc.1
+pnpm add -D @lupinum/ginko-docs@0.3.0-rc.3 @lupinum/ginko-content@0.4.0-rc.1
 ```
 
 Keep the public identity in one shared value:
@@ -182,3 +182,13 @@ vp run build
 Publishing is human-only. Follow [`MAINTAINING.md`](./MAINTAINING.md); never run a live publish command from an agent session.
 
 Documentation contributions follow [`docs/WRITING.md`](./docs/WRITING.md).
+
+## Support and license
+
+Open a [GitHub issue](https://github.com/lupinum-dev/ginko-docs/issues) for a
+reproducible defect. Discuss usage with the community in the
+[Lupinum OSS Discord](https://discord.gg/RPH6SeA36N). Report vulnerabilities
+through [SECURITY.md](./SECURITY.md).
+
+Ginko Docs is developed by [Lupinum OG](https://lupinum.com) and released under
+the [MIT License](./LICENSE).
