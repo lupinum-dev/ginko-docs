@@ -61,7 +61,7 @@ export default defineAppConfig({
                 "    },",
                 '    nav: { links: "auto" },',
                 "    analytics: {",
-                '      plausible: { domain: "docs.example.com" },',
+                '      plausible: { scriptId: "ExampleSiteScriptId" },',
                 "    },",
                 "  },",
                 "});",
@@ -122,7 +122,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.5",
+        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.6",
       },
       features: [
         {

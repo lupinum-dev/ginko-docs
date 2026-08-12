@@ -43,7 +43,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.2.5",
+    version: "0.3.0-rc.1",
   },
   components: {
     dirs: [
@@ -127,7 +127,7 @@ export default defineNuxtConfig({
     markdown: {
       plugins: [
         [
-          "highlight",
+          "shiki",
           {
             preStyles: false,
             transformers: [transformerNotationDiff(), transformerNotationHighlight()],

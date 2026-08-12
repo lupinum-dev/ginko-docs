@@ -58,17 +58,6 @@ export type GinkoDocsHeroMedia =
   | { type: "code"; code: string; language?: string; filename?: string }
   | { type: "code-tabs"; tabs: GinkoDocsHeroCodeTab[] };
 
-export type GinkoDocsPlausibleExtension =
-  | "hash"
-  | "outbound-links"
-  | "file-downloads"
-  | "tagged-events"
-  | "revenue"
-  | "pageview-props"
-  | "compat"
-  | "local"
-  | "manual";
-
 export interface GinkoDocsAppConfig {
   theme: {
     neutral: GinkoDocsNeutralPalette;
@@ -99,12 +88,8 @@ export interface GinkoDocsAppConfig {
   };
   analytics?: {
     plausible?: {
-      /** Leave unset to keep analytics fully disabled. */
-      domain?: string;
-      /** Self-hosted Plausible script URL override. */
-      scriptSrc?: string;
-      /** Plausible script extensions, e.g. ["outbound-links", "file-downloads"]. */
-      extensions?: GinkoDocsPlausibleExtension[];
+      /** Public site-specific ID from the Plausible pa-<id>.js script URL. */
+      scriptId?: string;
     };
   };
   social: Partial<Record<GinkoDocsSocialPlatform, GinkoDocsSocialEntry>>;

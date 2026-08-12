@@ -5,45 +5,45 @@
   "scripts": {
     "build:content-entry": "vp pack && vp fmt layer/content.js",
     "build": "vp run ginko-docs-playground#build",
+    "changelog": "changelogen",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
     "dev": "vp run ginko-docs-playground#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",
     "pack:layer": "vp run build:content-entry && vp pm pack --filter @lupinum/ginko-docs --pack-destination layer/.pack",
     "release:certify": "node scripts/certify-packed-fixtures.mjs",
     "release:pack": "node scripts/release-pack.mjs",
-    "release:publish:check": "node scripts/release-publish.mjs --check",
     "release:verify": "vp run check && vp test && vp run build && vp run release:pack && vp run release:certify",
-    "release:publish": "node scripts/release-publish.mjs",
     "test": "vp test",
     "typecheck": "vp run ginko-docs-playground#typecheck",
     "postinstall": "vp run ginko-docs-playground#prepare"
   },
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
-    "@iconify-json/lucide": "^1.2.111",
-    "@lupinum/ginko-content": "0.3.5",
+    "@iconify-json/lucide": "^1.2.123",
+    "@lupinum/ginko-content": "0.4.0-rc.1",
     "@nuxt/a11y": "1.0.0-alpha.1",
-    "@nuxt/icon": "^2.2.3",
-    "@types/node": "^25.9.1",
-    "@vue/language-core": "^3.2.6",
-    "comark": "^0.4.0",
-    "eslint": "^10.4.1",
-    "eslint-plugin-vue": "^10.9.2",
+    "@nuxt/icon": "^2.5.0",
+    "@types/node": "^25.9.5",
+    "@vue/language-core": "^3.3.9",
+    "changelogen": "0.6.2",
+    "comark": "^0.6.2",
+    "eslint": "^10.8.1",
+    "eslint-plugin-vue": "^10.10.0",
     "jiti": "^2.7.0",
-    "playwright-core": "1.59.1",
+    "playwright-core": "1.62.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.60.1",
+    "typescript-eslint": "^8.67.0",
     "vite-plus": "0.1.24",
     "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.24",
-    "vue": "^3.5.35",
+    "vue": "^3.5.41",
     "vue-eslint-parser": "^10.4.1",
-    "vue-router": "^5.1.0",
-    "vue-tsc": "^3.2.9"
+    "vue-router": "^5.2.0",
+    "vue-tsc": "^3.3.9"
   },
   "packageManager": "pnpm@10.32.1",
   "pnpm": {
     "overrides": {
-      "@lupinum/ginko-content": "0.3.5"
+      "@lupinum/ginko-content": "0.4.0-rc.1"
     }
   }
 }

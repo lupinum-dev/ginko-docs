@@ -6,35 +6,65 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
+    name: Release verification
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
 
-      - name: Install Vite+
-        run: npm install --global vite-plus@0.1.24
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.11.0
+          cache: pnpm
 
-      - name: Install dependencies
-        run: vp install
-
-      - name: Install Chromium
-        run: vp exec playwright-core install --with-deps chromium
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright-core install --with-deps chromium
 
       - name: Verify release
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-        run: vp run release:verify
+        run: pnpm run release:verify
 
-      - name: Upload release candidate
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+      - name: Upload certified release artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ginko-docs-release
           if-no-files-found: error
           include-hidden-files: true
+          retention-days: 7
           path: |
             layer/.pack/*.tgz
             layer/.pack/release-artifact.json
             layer/.pack/release-certification.json
+
+  pr-verification:
+    name: PR verification
+    if: github.event_name == 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "Release verification passed."
+
+  release-authorization:
+    name: Release authorization
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "The exact main artifact is certified for protected publishing."

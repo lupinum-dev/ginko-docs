@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Button } from "#ginko-docs/components/ui/button";
-import { computed, ref } from "vue";
-import { useI18n, useRoute } from "#imports";
+import { computed, ref, watch } from "vue";
+import { useI18n, useRouter } from "#imports";
 import { useGinkoAnalytics } from "#ginko-docs/composables/useGinkoAnalytics";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 import { buildRepoIssueUrl } from "#ginko-docs/utils/repository";
@@ -15,7 +15,7 @@ withDefaults(
   },
 );
 const { t, locale } = useI18n();
-const route = useRoute();
+const router = useRouter();
 
 const config = useGinkoDocsConfig();
 const analytics = useGinkoAnalytics();
@@ -24,20 +24,24 @@ const enabled = config.feedback.enabled && analytics.enabled;
 type Sentiment = "positive" | "negative";
 
 const sentiment = ref<Sentiment | null>(null);
+const routePath = computed(() => router.currentRoute.value.path);
+watch(routePath, () => {
+  sentiment.value = null;
+});
 
 const issueUrl = computed(() => {
   const repository = config.repository;
   if (!repository) return null;
   return buildRepoIssueUrl(repository, {
-    title: t("feedback.issueTitle", { path: route.path }),
-    body: t("docs.issueBody", { path: route.path }),
+    title: t("feedback.issueTitle", { path: routePath.value }),
+    body: t("docs.issueBody", { path: routePath.value }),
   });
 });
 
 function selectSentiment(s: Sentiment) {
   if (sentiment.value !== null) return;
   analytics.track("docs-feedback", {
-    path: route.path,
+    path: routePath.value,
     helpful: s === "positive" ? "yes" : "no",
     locale: locale.value,
   });
