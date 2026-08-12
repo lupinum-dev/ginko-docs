@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.0-rc.3
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.2...v0.3.0-rc.3)
+
+### Fixes
+
+- **analytics:** Render Plausible snippet in document head ([#11](https://github.com/lupinum-dev/ginko-docs/pull/11))
+
+### ❤️ Contributors
+
+- Matthias Amon
+
 ## v0.3.0-rc.2
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.1...v0.3.0-rc.2)
