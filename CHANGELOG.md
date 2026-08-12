@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.0-rc.4
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.3...v0.3.0-rc.4)
+
+### 🩹 Fixes
+
+- Harden docs distribution and repository operations ([75bec9c](https://github.com/lupinum-dev/ginko-docs/commit/75bec9c))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.3.0-rc.3
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.2...v0.3.0-rc.3)

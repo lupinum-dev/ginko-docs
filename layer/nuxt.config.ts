@@ -56,7 +56,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.3.0-rc.3",
+    version: "0.3.0-rc.4",
   },
   components: {
     dirs: [
