@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
 import tailwindcss from "@tailwindcss/vite";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import darkPlus from "shiki/dist/themes/dark-plus.mjs";
@@ -12,6 +13,17 @@ import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const app = join(root, "app");
+const publicSansDirectory = join(root, "public/fonts/public-sans");
+const publicSansFamilies = [400, 500, 600, 700].map((weight) => ({
+  name: "Public Sans",
+  global: true,
+  display: "swap" as const,
+  weight,
+  style: "normal",
+  src: `data:font/woff;base64,${readFileSync(
+    join(publicSansDirectory, `public-sans-${weight}-normal-latin.woff`),
+  ).toString("base64")}`,
+}));
 
 export default defineNuxtConfig({
   build: {
@@ -29,6 +41,7 @@ export default defineNuxtConfig({
     "@lupinum/ginko-content",
     "@nuxt/image",
     "@nuxt/scripts",
+    join(root, "modules/analytics-boundary"),
     "nuxt-og-image",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
@@ -43,7 +56,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.3.0-rc.3",
+    version: "0.3.0-rc.4",
   },
   components: {
     dirs: [
@@ -101,12 +114,16 @@ export default defineNuxtConfig({
     },
   },
   fonts: {
-    defaults: {
-      weights: [400, 500, 600, 700],
-      styles: ["normal"],
-      subsets: ["latin", "latin-ext"],
+    families: publicSansFamilies,
+    providers: {
+      adobe: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      google: false,
+      googleicons: false,
+      npm: false,
     },
-    families: [{ name: "Public Sans", provider: "google", global: true }],
   },
   i18n: {
     customRoutes: "config",

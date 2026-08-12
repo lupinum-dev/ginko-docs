@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -7,6 +7,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { defaultLocale, localeFromPath, localizedPath } from "./i18n/locales";
 import { i18nPages, localizedRoutes } from "./i18n/routes";
 import { removeBlogPages } from "./modules/feature-routing";
+import { isNuxtScriptsComponentDirectory } from "./modules/analytics-boundary";
 import { routeSlugs } from "./shared/route-slugs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { resolveIconifyIcon } from "./app/components/mdc/icons";
@@ -134,6 +135,17 @@ describe("ginko docs release guardrails", () => {
 
     const contentEntry = await import(pathToFileURL(join(root, "layer/content.js")).href);
     expect(contentEntry.defineGinkoDocsConfig).toBeTypeOf("function");
+  });
+
+  it("publishes only an unused, certified release artifact", () => {
+    const workflow = read(".github/workflows/publish.yml");
+
+    expect(workflow).toContain("Require an unused release tag");
+    expect(workflow).toContain("git/ref/tags/v$RELEASE_VERSION");
+    expect(workflow).toContain("environment: npm");
+    expect(workflow).toContain("id-token: write");
+    expect(workflow).toContain("--ignore-scripts --provenance");
+    expect(workflow).not.toContain("NPM_TOKEN");
   });
 
   it("types nested app-config overrides and keeps consumer config on the typed boundary", () => {
@@ -459,11 +471,32 @@ describe("ginko docs release guardrails", () => {
     expect(readdirSync(join(root, "layer/app/components/OgImage"))).toContain(
       "GinkoDocs.satori.vue",
     );
-    expect(config).toContain('name: "Public Sans", provider: "google", global: true');
+    expect(config).toContain('"@nuxt/fonts"');
+    expect(config).toContain("families: publicSansFamilies");
+    expect(config).toContain("google: false");
+    expect(config).toContain("fontsource: false");
+    expect(config).toContain("data:font/woff;base64");
+    for (const weight of [400, 500, 600, 700]) {
+      expect(
+        existsSync(
+          join(root, `layer/public/fonts/public-sans/public-sans-${weight}-normal-latin.woff`),
+        ),
+      ).toBe(true);
+    }
+    expect(config).toContain('join(root, "modules/analytics-boundary")');
     expect(config).toContain("concurrency: 1");
     // The legacy SVG endpoint must stay deleted: SVG og:images never render on
     // social platforms.
     expect(() => read("layer/server/api/og.ts")).toThrow();
+  });
+
+  it("keeps unused Nuxt Scripts components outside consumer bundles", () => {
+    expect(
+      isNuxtScriptsComponentDirectory(
+        "/workspace/node_modules/.pnpm/@nuxt+scripts@1.3.3/node_modules/@nuxt/scripts/dist/runtime/components",
+      ),
+    ).toBe(true);
+    expect(isNuxtScriptsComponentDirectory("/workspace/layer/app/components")).toBe(false);
   });
 
   it("registers the bare docs root as a localized redirect page", () => {

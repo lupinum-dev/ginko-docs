@@ -1,6 +1,14 @@
 # Documentation writing contract
 
-Ginko Docs follows the strongest recurring conventions in the Nuxt documentation ecosystem: separate pages by reader intent, put working examples before secondary detail, and keep navigation shallow.
+Ginko Docs uses Lupinum Controlled English. This profile is based on ASD-STE100
+Issue 9. It does not claim formal ASD-STE100 compliance.
+
+Separate pages by reader intent. Put working examples before secondary detail.
+Keep navigation shallow.
+
+Use short, active sentences. Put one instruction in each sentence. Use one term
+for one concept. Define a technical term before you use it. Use American English
+spelling in English content.
 
 ## Organize by intent
 

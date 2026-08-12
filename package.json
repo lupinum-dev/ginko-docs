@@ -5,7 +5,7 @@
   "scripts": {
     "build:content-entry": "vp pack && vp fmt layer/content.js",
     "build": "vp run ginko-docs-playground#build",
-    "changelog": "changelogen",
+    "changelog": "changelogen --dir layer --output ../CHANGELOG.md --hideAuthorEmail",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
     "dev": "vp run ginko-docs-playground#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",

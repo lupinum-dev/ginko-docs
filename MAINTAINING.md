@@ -29,23 +29,30 @@ Review the lockfile. Keep the exact Ginko Content development dependency equal t
 ## Release preparation
 
 1. Choose the version.
-2. Update `layer/package.json` and `layer/nuxt.config.ts` to the same version.
-3. Set the exact Ginko Content development dependency and the supported peer range.
-4. Generate `CHANGELOG.md` with Changelogen.
-5. Run `vp run release:verify` from a clean commit.
-6. Open a pull request and merge it only after `PR verification` passes.
+2. Generate `CHANGELOG.md` and update `layer/package.json` with Changelogen.
+3. Update `layer/nuxt.config.ts` and the README install command to the same version.
+4. Set the exact Ginko Content development dependency and the supported peer range.
+5. Commit the release preparation.
+6. Run `vp run release:verify` from the clean commit.
+7. Open a pull request and merge it only after `PR verification` passes.
 
 Changelogen reads Conventional Commits and owns the changelog format:
 
 ```bash
-vp run changelog --from v0.2.5 --to HEAD
+vp run changelog --bump -r 0.3.0-rc.4 --from v0.3.0-rc.3 --to HEAD
 ```
 
-Replace `v0.2.5` with the previous release tag. Review the generated text before you commit it.
+Replace the target version and previous release tag. Review the generated text
+before you commit it. The command does not create a commit, tag, GitHub release,
+or npm publication.
 
 ## Protected publishing
 
 The `CI` workflow certifies the exact `main` commit and uploads one release artifact. Start the `Publish` workflow with that CI run ID and the exact version. The workflow verifies the artifact again, pauses at the protected `npm` environment, publishes through npm trusted publishing, and creates the GitHub release.
+
+The version and its `v<version>` tag must not exist before the workflow starts.
+The workflow creates the tag as part of the GitHub release. Do not prepare or
+push a release tag from a workstation.
 
 The npm trusted publisher must use these values:
 
