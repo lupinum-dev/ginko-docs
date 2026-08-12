@@ -38,7 +38,7 @@ Review the lockfile. Keep the exact Ginko Content development dependency equal t
 Changelogen reads Conventional Commits and owns the changelog format:
 
 ```bash
-vp run changelog -- --from v0.2.5 --to HEAD
+vp run changelog --from v0.2.5 --to HEAD
 ```
 
 Replace `v0.2.5` with the previous release tag. Review the generated text before you commit it.
