@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## v0.3.0-rc.1
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.2.5...v0.3.0-rc.1)
@@ -19,4 +18,3 @@
 
 - Mat4m0
 - Matthias Amon
-
