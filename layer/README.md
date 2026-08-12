@@ -8,7 +8,7 @@ Ginko Docs is a Nuxt layer for focused documentation sites. It combines Ginko Co
 - Nuxt `>=4.4.7 <5`
 - Vue `^3.5.35`
 - Vue Router `^5.1.0`
-- Ginko Content `>=0.3.5 <0.4.0`
+- Ginko Content `>=0.4.0-rc.1 <0.5.0`
 
 ## Install
 

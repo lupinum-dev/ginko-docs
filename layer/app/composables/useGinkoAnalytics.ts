@@ -26,14 +26,16 @@ export function useGinkoAnalytics(): GinkoAnalytics {
     // The site ID comes from app.config at runtime. Keep the vendor script
     // external so Nuxt Scripts does not bundle its legacy fallback URL during
     // the build-time transform.
-    scriptOptions: { bundle: false, proxy: false },
+    scriptOptions: { bundle: false },
   });
 
   return {
     enabled: true,
     track: (event, props) => {
       if (!import.meta.client) return;
-      script.proxy.plausible(event, props ? { props } : undefined);
+      const plausible = script.proxy.plausible;
+      if (typeof plausible !== "function") return;
+      plausible(event, props ? { props } : undefined);
     },
   };
 }

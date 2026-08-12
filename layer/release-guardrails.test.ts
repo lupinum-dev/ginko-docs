@@ -402,7 +402,8 @@ describe("ginko docs release guardrails", () => {
     expect(analytics).toContain("plausible?.scriptId?.trim()");
     expect(analytics).toContain("useScriptPlausibleAnalytics({");
     expect(analytics).toContain("scriptId,");
-    expect(analytics).toContain("scriptOptions: { bundle: false, proxy: false }");
+    expect(analytics).toContain("scriptOptions: { bundle: false }");
+    expect(analytics).toContain('typeof plausible !== "function"');
     expect(types).toContain("scriptId?: string");
     expect(types).not.toContain("GinkoDocsPlausibleExtension");
     expect(analytics).not.toContain("extension:");
