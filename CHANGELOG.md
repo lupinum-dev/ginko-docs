@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.0-rc.2
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.1...v0.3.0-rc.2)
+
+### Fixes
+
+- Support docs-only consumers ([b4484ec](https://github.com/lupinum-dev/ginko-docs/commit/b4484ec))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.3.0-rc.1
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.2.5...v0.3.0-rc.1)

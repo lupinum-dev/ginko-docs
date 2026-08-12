@@ -37,7 +37,13 @@ if (archive.length !== 1) throw new Error(`Expected one release archive, found $
 const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
 const variants = [
-  { name: "single-tabs", switcher: "tabs", singleLocale: true, nuxtVersion: "4.4.7" },
+  {
+    name: "single-tabs",
+    switcher: "tabs",
+    singleLocale: true,
+    blog: false,
+    nuxtVersion: "4.4.7",
+  },
   { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.0" },
   { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.0" },
 ];
@@ -90,12 +96,14 @@ function copyFixture(variant, directory) {
     cpSync(resolve(playground, "content/en/1.docs"), resolve(directory, "content/docs"), {
       recursive: true,
     });
-    cpSync(resolve(playground, "content/en/2.blog"), resolve(directory, "content/2.blog"), {
-      recursive: true,
-    });
-    cpSync(resolve(playground, "content/en/authors"), resolve(directory, "content/authors"), {
-      recursive: true,
-    });
+    if (variant.blog !== false) {
+      cpSync(resolve(playground, "content/en/2.blog"), resolve(directory, "content/2.blog"), {
+        recursive: true,
+      });
+      cpSync(resolve(playground, "content/en/authors"), resolve(directory, "content/authors"), {
+        recursive: true,
+      });
+    }
   } else {
     cpSync(resolve(playground, "content"), resolve(directory, "content"), { recursive: true });
   }
@@ -148,6 +156,14 @@ function copyFixture(variant, directory) {
       'locales: ["en", "de"]',
       'locales: ["en"]',
       `${variant.name} content locales`,
+    );
+  }
+  if (variant.blog === false) {
+    contentConfig = replaceRequired(
+      contentConfig,
+      "blog: true",
+      "blog: false",
+      `${variant.name} blog configuration`,
     );
   }
   writeFileSync(contentConfigPath, contentConfig);
