@@ -22,17 +22,12 @@ const routeSlugs = {
   },
 };
 //#endregion
-//#region layer/content.ts
+//#region layer/content-collections.ts
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
 const nonEmptyString = z.string().trim().min(1);
-/** Former public URLs of a page, as served: locale prefix and translated slugs included. */
 const redirectFrom = z
   .array(nonEmptyString.regex(/^\//, "redirectFrom entries must be absolute site paths"))
   .optional();
-/**
- * Derives the sitemap lastmod from the authored date so it has one source of
- * truth. Route records require normalized UTC ISO values.
- */
 const withSitemapLastmod = (data, lastmod) =>
   lastmod
     ? {
@@ -86,6 +81,46 @@ const authorsSchema = z.object({
     )
     .optional(),
 });
+function createGinkoDocsCollections(i18n) {
+  return defineContentConfig({
+    collections: {
+      docs: defineCollection({
+        type: "page",
+        source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
+        i18n: i18n ? true : void 0,
+        route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
+        agent: {
+          section: "optional",
+          markdown: true,
+        },
+        strict: true,
+        schema: docsSchemaWithLastmod,
+      }),
+      blog: defineCollection({
+        type: "page",
+        source: "2.blog/*.md",
+        i18n: i18n ? true : void 0,
+        route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
+        agent: {
+          section: "blog",
+          markdown: true,
+        },
+        strict: true,
+        schema: blogSchemaWithLastmod,
+      }),
+      authors: defineCollection({
+        type: "data",
+        source: "authors/**/*.json",
+        i18n: i18n ? true : void 0,
+        strict: true,
+        sitemap: false,
+        schema: authorsSchema,
+      }),
+    },
+  }).collections;
+}
+//#endregion
+//#region layer/content.ts
 function defineGinkoDocsConfig(options) {
   const locales = options.locales ?? ["en"];
   if (
@@ -106,38 +141,7 @@ function defineGinkoDocsConfig(options) {
     "source",
     "updated",
   ]);
-  const docs = defineCollection({
-    type: "page",
-    source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
-    i18n: i18n ? true : void 0,
-    route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
-    agent: {
-      section: "optional",
-      markdown: true,
-    },
-    strict: true,
-    schema: docsSchemaWithLastmod,
-  });
-  const blog = defineCollection({
-    type: "page",
-    source: "2.blog/*.md",
-    i18n: i18n ? true : void 0,
-    route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
-    agent: {
-      section: "blog",
-      markdown: true,
-    },
-    strict: true,
-    schema: blogSchemaWithLastmod,
-  });
-  const authors = defineCollection({
-    type: "data",
-    source: "authors/**/*.json",
-    i18n: i18n ? true : void 0,
-    strict: true,
-    sitemap: false,
-    schema: authorsSchema,
-  });
+  const { docs, blog, authors } = createGinkoDocsCollections(i18n);
   const config = {
     agent: {
       site: {

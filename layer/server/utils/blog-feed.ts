@@ -6,9 +6,11 @@ import { blog } from "../../i18n/messages/global/blog";
 import { locales, localizedPath, type LocaleCode } from "../../i18n/locales";
 import { routeSlugs } from "../../shared/route-slugs";
 import { getLocalizedSiteText } from "../../app/config/site.utils";
+import { createGinkoDocsCollections } from "../../content-collections";
 import { buildRssFeed } from "./feed";
 
 export const MAX_FEED_POSTS = 50;
+const { blog: blogCollection, authors: authorsCollection } = createGinkoDocsCollections(true);
 
 export function blogFeedPath(locale: LocaleCode): string {
   return `${localizedPath(locale, routeSlugs.blog[locale])}/rss.xml`;
@@ -23,10 +25,10 @@ export async function serveBlogFeed(event: H3Event, locale: LocaleCode) {
   }
 
   const site = useAppConfig().ginkoDocs.site;
-  const posts = await many(event, "blog", {
+  const posts = await many(event, blogCollection, {
     locale,
     fallback: true,
-    populate: { author: "authors" },
+    populate: { author: authorsCollection },
     sort: { date: "desc" },
     limit: MAX_FEED_POSTS,
   });
