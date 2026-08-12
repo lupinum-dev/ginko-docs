@@ -108,14 +108,14 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.license).toBe("MIT");
     expect(manifest.repository).toEqual({
       type: "git",
-      url: "git+https://github.com/Mat4m0/lupinum-docs-shadcn.git",
+      url: "git+https://github.com/lupinum-dev/ginko-docs.git",
       directory: "layer",
     });
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.3.5 <0.4.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.4.0-rc.1 <0.5.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -395,6 +395,21 @@ describe("ginko docs release guardrails", () => {
     expect(defaults).toContain("feedback: { enabled: false }");
   });
 
+  it("uses the current site-specific Plausible tracker", () => {
+    const analytics = read("layer/app/composables/useGinkoAnalytics.ts");
+    const types = read("layer/shared/types/app-config.ts");
+
+    expect(analytics).toContain("plausible?.scriptId?.trim()");
+    expect(analytics).toContain("useScriptPlausibleAnalytics({");
+    expect(analytics).toContain("scriptId,");
+    expect(analytics).toContain("scriptOptions: { bundle: false }");
+    expect(analytics).toContain('typeof plausible !== "function"');
+    expect(types).toContain("scriptId?: string");
+    expect(types).not.toContain("GinkoDocsPlausibleExtension");
+    expect(analytics).not.toContain("extension:");
+    expect(analytics).not.toContain("scriptInput:");
+  });
+
   it("keeps image zoom scoped to an interruptible shared-layout animation", () => {
     const manifest = JSON.parse(read("layer/package.json"));
     const dialog = read("layer/app/components/content/ImageZoomDialog.vue");
@@ -429,7 +444,7 @@ describe("ginko docs release guardrails", () => {
     expect(defaults).toContain("markdownActions: { chatGpt: true, claude: true, mcp: true }");
     expect(defaults).toContain("images: { zoom: true }");
     expect(defaults).toContain("toc: { depth: 3 }");
-    // Analytics stays off unless a consumer configures a Plausible domain.
+    // Analytics stays off unless a consumer configures a Plausible script ID.
     expect(defaults).not.toContain("analytics:");
   });
 

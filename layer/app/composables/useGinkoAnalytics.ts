@@ -10,28 +10,32 @@ export interface GinkoAnalytics {
 
 /**
  * Plausible analytics via the Nuxt Scripts registry script. Fully disabled
- * unless `ginkoDocs.analytics.plausible.domain` is configured — without a
- * domain nothing loads and `track()` is a no-op, so callers never guard.
+ * unless `ginkoDocs.analytics.plausible.scriptId` is configured. Without an
+ * ID, no script loads and `track()` is a no-op, so callers never guard.
  */
 export function useGinkoAnalytics(): GinkoAnalytics {
   const config = useGinkoDocsConfig();
-  const plausible = config.analytics?.plausible;
+  const scriptId = config.analytics?.plausible?.scriptId?.trim();
 
-  if (!plausible?.domain) {
+  if (!scriptId) {
     return { enabled: false, track: () => {} };
   }
 
   const script = useScriptPlausibleAnalytics({
-    domain: plausible.domain,
-    extension: plausible.extensions ?? ["outbound-links"],
-    ...(plausible.scriptSrc ? { scriptInput: { src: plausible.scriptSrc } } : {}),
+    scriptId,
+    // The site ID comes from app.config at runtime. Keep the vendor script
+    // external so Nuxt Scripts does not bundle its legacy fallback URL during
+    // the build-time transform.
+    scriptOptions: { bundle: false },
   });
 
   return {
     enabled: true,
     track: (event, props) => {
       if (!import.meta.client) return;
-      script.proxy.plausible(event, props ? { props } : undefined);
+      const plausible = script.proxy.plausible;
+      if (typeof plausible !== "function") return;
+      plausible(event, props ? { props } : undefined);
     },
   };
 }

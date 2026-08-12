@@ -12,7 +12,7 @@ This repository contains two workspaces:
 Use a Nuxt application on Node `^22.18.0 || ^24.11.0 || >=26.0.0`. The effective Nuxt range is `>=4.4.7 <5`. Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.5
+pnpm add -D @lupinum/ginko-docs@0.3.0-rc.1 @lupinum/ginko-content@0.4.0-rc.1
 ```
 
 Keep the public identity in one shared value:
@@ -118,7 +118,7 @@ export default defineAppConfig({
     nav: { links: "auto" },
     banner: { enabled: false, id: "release-2026-07", showOnLanding: true },
     feedback: { enabled: true },
-    analytics: { plausible: { domain: "docs.example.com" } },
+    analytics: { plausible: { scriptId: "ExampleSiteScriptId" } },
     repository: {
       url: "https://github.com/example/docs",
       branch: "main",

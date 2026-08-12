@@ -17,10 +17,11 @@ export default defineAppConfig({
       docsSidebarSwitcher: "tabs",
     },
     nav: { socialIcons: true },
-    social: { github: "https://github.com/Mat4m0/lupinum-docs-shadcn" },
-    feedback: { enabled: false },
+    social: { github: "https://github.com/lupinum-dev/ginko-docs" },
+    feedback: { enabled: true },
+    analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },
     repository: {
-      url: "https://github.com/Mat4m0/lupinum-docs-shadcn",
+      url: "https://github.com/lupinum-dev/ginko-docs",
       branch: "main",
       contentDirectory: "playground/content",
     },
@@ -40,8 +41,8 @@ export default defineAppConfig({
       secondary: {
         label: { en: "View on GitHub", de: "Auf GitHub ansehen" },
         to: {
-          en: "https://github.com/Mat4m0/lupinum-docs-shadcn",
-          de: "https://github.com/Mat4m0/lupinum-docs-shadcn",
+          en: "https://github.com/lupinum-dev/ginko-docs",
+          de: "https://github.com/lupinum-dev/ginko-docs",
         },
       },
       hero: {
@@ -61,7 +62,7 @@ export default defineAppConfig({
                 "    },",
                 '    nav: { links: "auto" },',
                 "    analytics: {",
-                '      plausible: { domain: "docs.example.com" },',
+                '      plausible: { scriptId: "ExampleSiteScriptId" },',
                 "    },",
                 "  },",
                 "});",
@@ -122,7 +123,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs @lupinum/ginko-content@0.3.5",
+        command: "pnpm add -D @lupinum/ginko-docs@0.3.0-rc.1 @lupinum/ginko-content@0.4.0-rc.1",
       },
       features: [
         {

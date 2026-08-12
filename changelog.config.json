@@ -1,0 +1,16 @@
+{
+  "output": "CHANGELOG.md",
+  "repo": "lupinum-dev/ginko-docs",
+  "hideAuthorEmail": true,
+  "types": {
+    "feat": { "title": "Features" },
+    "fix": { "title": "Fixes" },
+    "docs": { "title": "Documentation" },
+    "refactor": { "title": "Refactors" },
+    "perf": { "title": "Performance" },
+    "test": { "title": "Tests" },
+    "build": { "title": "Build" },
+    "ci": { "title": "Continuous integration" },
+    "chore": { "title": "Maintenance" }
+  }
+}

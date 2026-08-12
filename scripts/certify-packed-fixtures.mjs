@@ -41,6 +41,7 @@ const variants = [
   { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.0" },
   { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.0" },
 ];
+const plausibleScriptId = "CertificationScriptId";
 
 function run(command, args, cwd) {
   execFileSync(command, args, { cwd, stdio: "inherit" });
@@ -100,15 +101,21 @@ function copyFixture(variant, directory) {
   }
 
   const appConfigPath = resolve(directory, "app/app.config.ts");
-  writeFileSync(
-    appConfigPath,
-    replaceRequired(
-      readFileSync(appConfigPath, "utf8"),
-      'docsSidebarSwitcher: "tabs"',
-      `docsSidebarSwitcher: "${variant.switcher}"`,
-      `${variant.name} sidebar configuration`,
-    ),
+  let appConfig = replaceRequired(
+    readFileSync(appConfigPath, "utf8"),
+    'docsSidebarSwitcher: "tabs"',
+    `docsSidebarSwitcher: "${variant.switcher}"`,
+    `${variant.name} sidebar configuration`,
   );
+  if (variant.singleLocale) {
+    appConfig = replaceRequired(
+      appConfig,
+      '    analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },',
+      `    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
+      `${variant.name} analytics configuration`,
+    );
+  }
+  writeFileSync(appConfigPath, appConfig);
 
   const nuxtConfigPath = resolve(directory, "nuxt.config.ts");
   let nuxtConfig = replaceRequired(
@@ -233,6 +240,15 @@ async function certifyBrowser(variant, directory) {
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const failures = [];
+    if (variant.singleLocale) {
+      await page.route(`https://plausible.io/js/pa-${plausibleScriptId}.js`, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/javascript",
+          body: `window.plausible = (...args) => (window.__ginkoPlausibleEvents ??= []).push(args);`,
+        }),
+      );
+    }
     page.on("pageerror", (error) => failures.push(`pageerror: ${error.message}`));
     page.on("console", (message) => {
       if (message.type() === "error" || /hydration/i.test(message.text())) {
@@ -273,6 +289,27 @@ async function certifyBrowser(variant, directory) {
       .waitFor({
         state: "visible",
       });
+
+    if (variant.singleLocale) {
+      await page
+        .locator(`script[src="https://plausible.io/js/pa-${plausibleScriptId}.js"]`)
+        .waitFor({ state: "attached" });
+      await page.getByRole("button", { name: "Yes", exact: true }).click();
+      await page.getByText("Thanks for your feedback.", { exact: true }).waitFor();
+      await page.waitForFunction(() =>
+        window.__ginkoPlausibleEvents?.some(([event]) => event === "docs-feedback"),
+      );
+      const feedbackEvent = await page.evaluate(() =>
+        window.__ginkoPlausibleEvents.find(([event]) => event === "docs-feedback"),
+      );
+      const props = feedbackEvent?.[1]?.props;
+      const destinationPath = destination.replace(/\/$/, "") || "/";
+      if (props?.path !== destinationPath || props?.helpful !== "yes" || props?.locale !== "en") {
+        throw new Error(
+          `${variant.name} emitted invalid docs feedback: ${JSON.stringify(feedbackEvent)}`,
+        );
+      }
+    }
 
     if (variant.switcher === "list") {
       // The docs architecture is flat: sections switched via the list, with
