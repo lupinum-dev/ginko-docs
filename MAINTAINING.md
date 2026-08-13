@@ -71,3 +71,27 @@ Never publish from a workstation. Never run Changelogen with `--release` or `--p
 ## Recovery
 
 If publishing fails, do not build a replacement tarball. Fix the workflow in a pull request, let `main` CI certify a new exact artifact, and start `Publish` with the new CI run ID. npm versions are immutable; choose a new version if npm accepted the package before a later step failed.
+
+## Audit external settings
+
+Review these settings in January and July, and after an ownership or release
+workflow change.
+
+GitHub must have:
+
+- a protected `main` branch with pull requests, linear history, resolved review
+  threads, and the repository's required CI and Vercel checks;
+- squash merge as the only merge method, auto-merge enabled, and merged branches
+  deleted automatically;
+- protected release tags;
+- an `npm` environment that allows only `main`, requires a reviewer, and has no
+  package token;
+- private vulnerability reporting, secret scanning, push protection, automated
+  security fixes, and CodeQL Default Setup for JavaScript and TypeScript;
+- Renovate for routine dependency updates and CodeRabbit as an advisory reviewer.
+
+npm must bind `@lupinum/ginko-docs` to `publish.yml` and the `npm` environment
+through trusted publishing.
+
+Vercel must deploy the playground from `main` to `ginko-docs.lupinum.com` and
+create pull-request previews.
