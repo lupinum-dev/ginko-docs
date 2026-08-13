@@ -61,6 +61,12 @@ function inspectPackage(path, temporaryRoot) {
   if (manifest.engines?.node !== sourceManifest.engines.node) {
     throw new Error("Packed layer does not preserve the supported Node.js range.");
   }
+  if (manifest.author !== "Lupinum OG <info@lupinum.com> (https://lupinum.com)") {
+    throw new Error("Packed layer does not identify Lupinum OG as the package author.");
+  }
+  if (manifest.homepage !== "https://ginko-docs.lupinum.com") {
+    throw new Error("Packed layer does not link to the canonical documentation site.");
+  }
   for (const field of [
     "dependencies",
     "devDependencies",
