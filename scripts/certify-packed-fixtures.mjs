@@ -393,8 +393,12 @@ async function certifyBrowser(variant, directory) {
       await mobile.getByRole("navigation", { name: "Mobile navigation" }).waitFor({
         state: "visible",
       });
-      await mobile.getByRole("link", { name: "Legal notice" }).waitFor({ state: "attached" });
-      await mobile.getByRole("link", { name: "Privacy" }).waitFor({ state: "attached" });
+      await mobile.locator('a[href="https://lupinum.com/impressum"]').waitFor({
+        state: "attached",
+      });
+      await mobile.locator('a[href="https://lupinum.com/datenschutz"]').waitFor({
+        state: "attached",
+      });
       await mobile.close();
     }
     if (failures.length)
