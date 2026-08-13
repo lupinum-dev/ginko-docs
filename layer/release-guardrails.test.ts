@@ -152,7 +152,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.4.0-rc.1 <0.5.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.4.0-rc.2 <0.5.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -175,6 +175,7 @@ describe("ginko docs release guardrails", () => {
 
   it("publishes only an unused, certified release artifact", () => {
     const workflow = read(".github/workflows/publish.yml");
+    const certification = read("scripts/certify-packed-fixtures.mjs");
 
     expect(workflow).toContain("Require an unused release tag");
     expect(workflow).toContain("git/ref/tags/v$RELEASE_VERSION");
@@ -182,6 +183,8 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).toContain("id-token: write");
     expect(workflow).toContain("--ignore-scripts --provenance");
     expect(workflow).not.toContain("NPM_TOKEN");
+    expect(certification).toContain("minimumReleaseAge: 1440");
+    expect(certification).toContain('"@lupinum/ginko-content@${contentVersion}"');
   });
 
   it("publishes package previews only for trusted repository branches", () => {

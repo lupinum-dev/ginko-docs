@@ -13,7 +13,7 @@
 </p>
 
 > [!WARNING]
-> Ginko Docs is pre-1.0. Install `0.3.0-rc.4` from the npm `next` channel for evaluation.
+> Ginko Docs is pre-1.0. Install `0.3.0-rc.5` from the npm `next` channel for evaluation.
 
 ## Why use Ginko Docs?
 
@@ -30,7 +30,7 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 ## Requirements
 
 - Node.js 22.18, 24.11, or 26 and later maintenance releases
-- Nuxt 4.4.7 or later in the Nuxt 4 line
+- Nuxt 4.5.1 or later in the Nuxt 4 line
 - Vue 3.5.35 or later
 - Ginko Content 0.4 prerelease or later in the 0.4 line
 
@@ -39,7 +39,7 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 Install the layer and its content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0-rc.4 @lupinum/ginko-content@0.4.0-rc.1
+pnpm add -D @lupinum/ginko-docs@0.3.0-rc.5 @lupinum/ginko-content@0.4.0-rc.2
 ```
 
 Extend the layer:
