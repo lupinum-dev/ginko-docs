@@ -77,9 +77,7 @@ function unlabeledCodeFences(source: string) {
 describe("ginko docs release guardrails", () => {
   it("keeps the standard contributor intake files", () => {
     const trackedFiles = new Set(
-      execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" })
-        .trim()
-        .split("\n"),
+      execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" }).trim().split("\n"),
     );
     for (const path of [
       ".github/ISSUE_TEMPLATE/bug.md",
