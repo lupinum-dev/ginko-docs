@@ -135,6 +135,6 @@ Vercel must deploy the `docs/` app from `main` to `ginko-docs.lupinum.com` and
 create pull-request previews. Set the Vercel Root Directory to `docs`. Enable
 source files outside the Root Directory so the app can consume the local
 `layer/` package. Do not set an Output Directory override; Nuxt emits the
-Vercel Build Output API files. Set the non-secret build environment variable
-`ENABLE_EXPERIMENTAL_COREPACK=1` for Production, Preview, and Development. The
-committed install command uses Corepack to activate the pinned pnpm version.
+Vercel Build Output API files. Do not set an Install Command override. Vercel
+detects pnpm from the repository lockfile and installs the workspace before it
+runs the committed build command.
