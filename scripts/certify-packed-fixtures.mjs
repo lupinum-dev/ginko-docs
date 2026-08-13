@@ -41,6 +41,7 @@ const variants = [
     name: "single-tabs",
     switcher: "tabs",
     singleLocale: true,
+    usesLayerLocaleDefault: true,
     blog: false,
     nuxtVersion: "4.4.7",
   },
@@ -70,6 +71,15 @@ function runWithoutNuxtDiagnostics(command, args, cwd) {
   const diagnostics = [...new Set(output.match(/NUXT_E\d{4}/g) ?? [])];
   if (diagnostics.length > 0) {
     throw new Error(`Nuxt emitted runtime diagnostics during build: ${diagnostics.join(", ")}`);
+  }
+  const forbiddenWarnings = [
+    /defaultLocale: .* is not one of the configured locales/u,
+    /Some `vite\.optimizeDeps\.include` entries could not be resolved/u,
+  ].filter((pattern) => pattern.test(output));
+  if (forbiddenWarnings.length > 0) {
+    throw new Error(
+      `Packed consumer emitted a layer configuration warning: ${forbiddenWarnings.join(", ")}`,
+    );
   }
 }
 
@@ -132,13 +142,15 @@ function copyFixture(variant, directory) {
     'extends: ["@lupinum/ginko-docs"]',
     `${variant.name} layer dependency`,
   );
-  if (variant.singleLocale) {
+  if (variant.usesLayerLocaleDefault) {
     nuxtConfig = replaceRequired(
       nuxtConfig,
-      '      { code: "de", language: "de-AT", name: "Deutsch" },\n',
+      '  i18n: {\n    baseUrl: site.url,\n    locales: [\n      { code: "en", language: "en-US", name: "English" },\n      { code: "de", language: "de-AT", name: "Deutsch" },\n    ],\n  },\n',
       "",
-      `${variant.name} locale registry`,
+      `${variant.name} layer locale default`,
     );
+  }
+  if (variant.singleLocale) {
     nuxtConfig = replaceRequired(
       nuxtConfig,
       '    i18n: {\n      fallback: { de: ["en"] },\n    },\n',

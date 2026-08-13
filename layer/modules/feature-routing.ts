@@ -1,6 +1,6 @@
-import { defineNuxtModule } from "@nuxt/kit";
+import { defineNuxtModule, installModule } from "@nuxt/kit";
 import type {} from "@lupinum/ginko-content";
-import { localeCodes, localizedPath } from "../i18n/locales";
+import { defaultLocale, localeCodes, locales, localizedPath } from "../i18n/locales";
 import { routeSlugs } from "../shared/route-slugs";
 
 interface PageRoute {
@@ -24,7 +24,28 @@ export function removeBlogPages(pages: PageRoute[], blogEnabled: boolean) {
 
 export default defineNuxtModule({
   meta: { name: "ginko-docs-feature-routing" },
-  setup(_options, nuxt) {
+  async setup(_options, nuxt) {
+    const fallback = locales.find((locale) => locale.code === defaultLocale);
+    if (!fallback) throw new Error(`Missing locale definition for ${defaultLocale}.`);
+    const configuredLocales = nuxt.options.i18n?.locales;
+    if (!Array.isArray(configuredLocales) || configuredLocales.length === 0) {
+      nuxt.options.i18n = {
+        ...nuxt.options.i18n,
+        locales: [{ code: fallback.code, language: fallback.language, name: fallback.name }],
+      };
+    } else if (configuredLocales.length > 1) {
+      const fallbackIndex = configuredLocales.findIndex(
+        (locale) =>
+          typeof locale === "object" &&
+          locale !== null &&
+          locale.code === fallback.code &&
+          locale.language === fallback.language &&
+          locale.name === fallback.name,
+      );
+      if (fallbackIndex >= 0) configuredLocales.splice(fallbackIndex, 1);
+    }
+    await installModule("@nuxtjs/i18n");
+
     let blogEnabled = false;
 
     nuxt.hook("content:context", (context) => {

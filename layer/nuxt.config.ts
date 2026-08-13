@@ -7,7 +7,7 @@ import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
-import { localeCodes, localizedPath } from "./i18n/locales";
+import { defaultLocale, localeCodes, locales, localizedPath } from "./i18n/locales";
 import { routeSlugs } from "./shared/route-slugs";
 import { layerIconCollections, layerIconNames } from "./icon-bundle";
 
@@ -37,7 +37,6 @@ export default defineNuxtConfig({
     join(root, "modules/feature-routing"),
     "@nuxt/icon",
     "@nuxt/fonts",
-    "@nuxtjs/i18n",
     "@lupinum/ginko-content",
     "@nuxt/image",
     "@nuxt/scripts",
@@ -129,6 +128,9 @@ export default defineNuxtConfig({
     customRoutes: "config",
     defaultLocale: "en",
     detectBrowserLanguage: false,
+    locales: locales
+      .filter((locale) => locale.code === defaultLocale)
+      .map(({ code, language, name }) => ({ code, language, name })),
     pages: i18nPages,
     strategy: "prefix_except_default",
     vueI18n: join(root, "i18n/i18n.config.ts"),
@@ -206,17 +208,6 @@ export default defineNuxtConfig({
     },
   },
   vite: {
-    optimizeDeps: {
-      include: [
-        "@vueuse/core",
-        "class-variance-authority",
-        "clsx",
-        "motion-v",
-        "reka-ui",
-        "tailwind-merge",
-        "zod",
-      ],
-    },
     resolve: {
       dedupe: ["@lupinum/ginko-content", "vue", "vue-router"],
     },
