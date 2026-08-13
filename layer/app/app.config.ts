@@ -4,6 +4,7 @@ export default {
     theme: {
       neutral: "zinc",
       primary: "neutral",
+      codeBlocks: "dark",
     },
     prose: {
       appearance: "tint",

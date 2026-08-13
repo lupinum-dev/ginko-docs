@@ -4,6 +4,7 @@ import type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-
 export type GinkoDocsLocalizedText = string | { en: string; de?: string };
 
 export type GinkoDocsProseAppearance = "quiet" | "tint";
+export type GinkoDocsCodeBlockTheme = "dark" | "adaptive";
 export type GinkoDocsProseFamily =
   | "callout"
   | "aside"
@@ -62,6 +63,7 @@ export interface GinkoDocsAppConfig {
   theme: {
     neutral: GinkoDocsNeutralPalette;
     primary: GinkoDocsPrimaryPalette;
+    codeBlocks: GinkoDocsCodeBlockTheme;
   };
   prose: GinkoDocsProseConfig;
   site: {
