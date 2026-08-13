@@ -4,6 +4,12 @@ packages:
 
 autoInstallPeers: false
 
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  # Reviewed first-party release required by this sprint. Remove after 2026-08-15.
+  - "@lupinum/ginko-content@0.4.0-rc.1"
+
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true

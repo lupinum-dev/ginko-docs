@@ -130,7 +130,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
     expect(manifest.exports["./components"]).toBe("./components.ts");
     expect(manifest.files).toContain("icon-bundle.ts");
-    expect(read("layer/README.md")).toContain("# Ginko Docs");
+    expect(read("layer/README.md")).toContain('<h1 align="center">@lupinum/ginko-docs</h1>');
     expect(read("layer/LICENSE")).toContain("MIT License");
 
     const contentEntry = await import(pathToFileURL(join(root, "layer/content.js")).href);
@@ -146,6 +146,20 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).toContain("id-token: write");
     expect(workflow).toContain("--ignore-scripts --provenance");
     expect(workflow).not.toContain("NPM_TOKEN");
+  });
+
+  it("publishes package previews only for trusted repository branches", () => {
+    const workflow = read(".github/workflows/package-preview.yml");
+    const rootManifest = JSON.parse(read("package.json"));
+
+    expect(workflow).toContain(
+      "github.event.pull_request.head.repo.full_name == github.repository",
+    );
+    expect(workflow).toContain("ref: ${{ github.event.pull_request.head.sha || github.sha }}");
+    expect(workflow).toContain("persist-credentials: false");
+    expect(workflow).toContain("pnpm exec pkg-pr-new publish");
+    expect(workflow).toContain("node scripts/build-package-preview.mjs");
+    expect(rootManifest.devDependencies["pkg-pr-new"]).toBe("0.0.87");
   });
 
   it("types nested app-config overrides and keeps consumer config on the typed boundary", () => {
@@ -173,7 +187,6 @@ describe("ginko docs release guardrails", () => {
     expect(publicDocs).not.toContain("site.ts");
     expect(publicDocs).not.toContain('from "./site"');
     expect(publicDocs).not.toContain('from "../site"');
-    expect(publicDocs).not.toContain("0.3.0-rc.5");
     expect(publicDocs).toContain("site.json");
     expect(publicDocs).toContain('with { type: "json" }');
   });
@@ -409,6 +422,9 @@ describe("ginko docs release guardrails", () => {
 
   it("keeps release-facing installation examples on the package version", () => {
     const version = JSON.parse(read("layer/package.json")).version;
+    const contentVersion = JSON.parse(read("package.json")).devDependencies[
+      "@lupinum/ginko-content"
+    ];
     const publicDocs = [
       read("README.md"),
       read("layer/README.md"),
@@ -423,6 +439,59 @@ describe("ginko docs release guardrails", () => {
 
     expect(documentedVersions.length).toBeGreaterThan(0);
     expect(new Set(documentedVersions)).toEqual(new Set([version]));
+    const documentedContentVersions = [
+      ...publicDocs.matchAll(/@lupinum\/ginko-content@(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/g),
+    ].map((match) => match[1]);
+    expect(documentedContentVersions.length).toBeGreaterThan(0);
+    expect(new Set(documentedContentVersions)).toEqual(new Set([contentVersion]));
+  });
+
+  it("keeps public READMEs on the shared Lupinum structure", () => {
+    const contracts = new Map([
+      [
+        "README.md",
+        [
+          "Why use Ginko Docs?",
+          "When to use it",
+          "Requirements",
+          "Installation",
+          "Quick start",
+          "Core concepts",
+          "Documentation",
+          "Contributing and development",
+          "Support and security",
+          "License",
+        ],
+      ],
+      [
+        "layer/README.md",
+        [
+          "Purpose",
+          "Requirements",
+          "Installation",
+          "Quick start",
+          "Exports",
+          "Documentation",
+          "Support and security",
+          "License",
+        ],
+      ],
+    ]);
+
+    for (const [path, expectedHeadings] of contracts) {
+      const source = read(path);
+      const headings = [...source.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
+      expect(headings).toEqual(expectedHeadings);
+      expect(source.match(/<h1 align="center">/g)).toHaveLength(1);
+      expect(source).not.toMatch(/^# /m);
+      expect(source).toMatch(/<img [^>]*width="128"/);
+      expect(source).toContain("img.shields.io/npm/v/");
+      expect(source).toContain("actions/workflows/ci.yml");
+      expect(source).toContain("license-MIT");
+      expect(source).toContain("https://ginko-docs.lupinum.com");
+      expect(source).toContain("https://discord.gg/RPH6SeA36N");
+      expect(source).not.toMatch(/\b(?:TODO|TBD|lorem ipsum|placeholder)\b/i);
+    }
   });
 
   it("keeps legal links explicit and renders them in the shared footer", () => {

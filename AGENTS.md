@@ -88,12 +88,19 @@ The playground content is the public package documentation and a bilingual relea
 - Do not append generic “What's next,” “Related,” “Conclusion,” or equivalent German sections; the site already renders previous and next links.
 - Check configuration claims against `layer/content.ts`, `layer/shared/types/app-config.ts`, `layer/app/app.config.ts`, and `layer/tags.ts`.
 
-The complete editorial contract is in `docs/WRITING.md`. Documentation changes must pass `vp test` and `vp run build`; inspect both locales in the rendered site when navigation or authored components change.
+The complete editorial contract is in `docs/WRITING.md`. Use these root commands:
+
+- `pnpm verify` is the normal handoff gate.
+- `pnpm docs:build` builds the documentation application.
+- `pnpm audit:all` audits the complete workspace.
+- `pnpm release:verify` certifies a release from a clean commit.
+
+Inspect both locales in the rendered site when navigation or authored components change.
 
 ## Releases
 
 - Use Conventional Commits and Changelogen. Do not create parallel release-note formats.
-- Run `vp run release:verify` before a release pull request.
+- Run `pnpm release:verify` before a release pull request.
 - Publish only through `.github/workflows/publish.yml` from an exact successful `main` CI artifact.
 - Never run `npm publish`, `changelogen --release`, or `changelogen --publish` from an agent or maintainer workstation.
 - Never require branch-name prefixes such as `codex/` or `claude/`. Use a short descriptive branch name when a branch is needed.

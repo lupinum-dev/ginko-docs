@@ -5,6 +5,8 @@
   "scripts": {
     "build:content-entry": "vp pack && vp fmt layer/content.js",
     "build": "vp run ginko-docs-playground#build",
+    "docs:build": "vp run build",
+    "audit:all": "pnpm audit",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
     "dev": "vp run ginko-docs-playground#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",
@@ -12,9 +14,10 @@
     "release:certify": "node scripts/certify-packed-fixtures.mjs",
     "release:pack": "node scripts/release-pack.mjs",
     "release:prepare": "changelogen --dir layer --output ../CHANGELOG.md --bump --clean --hideAuthorEmail",
-    "release:verify": "vp run check && vp test && vp run build && vp run release:pack && vp run release:certify",
+    "release:verify": "pnpm verify && vp run release:pack && vp run release:certify",
     "test": "vp test",
     "typecheck": "vp run ginko-docs-playground#typecheck",
+    "verify": "pnpm audit:all && vp run check && vp test && vp run build",
     "postinstall": "vp run ginko-docs-playground#prepare"
   },
   "devDependencies": {
@@ -30,6 +33,7 @@
     "eslint": "^10.8.1",
     "eslint-plugin-vue": "^10.10.0",
     "jiti": "^2.7.0",
+    "pkg-pr-new": "0.0.87",
     "playwright-core": "1.62.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",

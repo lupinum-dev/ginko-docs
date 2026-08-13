@@ -53,6 +53,18 @@ Use nested YAML for `navigation`; dotted keys are not portable through the curre
 
 Use sentence case for page titles and headings. A task title starts with a verb when that makes the outcome clearer. A reference title uses the exact public symbol or configuration name.
 
+## Structure public READMEs
+
+Center the 128 px product icon, product name, one-sentence value proposition,
+and npm, CI, and MIT badges. State the release status for an unstable package.
+
+The root README then explains why and when to use the product, requirements,
+installation, the smallest useful example, concepts, documentation,
+contribution, support, security, and license. The published package README uses
+a compact version of the same order. Explain user outcomes before internal
+architecture. Keep fixture, license, migration, and proof READMEs technical and
+unbranded.
+
 ## Examples and callouts
 
 Examples must compile against the current public package contract. Do not expose layer-internal composables, aliases, or route components as consumer APIs.
