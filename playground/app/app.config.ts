@@ -32,7 +32,7 @@ export default defineAppConfig({
       github: "https://github.com/lupinum-dev/ginko-docs",
     },
     feedback: { enabled: true },
-    analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },
+    analytics: { plausible: { scriptId: "7B8poD6ZSLVeKsR3G6JHF" } },
     repository: {
       url: "https://github.com/lupinum-dev/ginko-docs",
       branch: "main",

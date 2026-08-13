@@ -84,7 +84,8 @@ function runWithoutNuxtDiagnostics(command, args, cwd) {
 }
 
 function replaceRequired(source, search, replacement, label) {
-  if (!source.includes(search)) {
+  const found = typeof search === "string" ? source.includes(search) : search.test(source);
+  if (!found) {
     throw new Error(`Could not prepare ${label}: expected source text was not found.`);
   }
   return source.replace(search, replacement);
@@ -128,7 +129,7 @@ function copyFixture(variant, directory) {
   if (variant.singleLocale) {
     appConfig = replaceRequired(
       appConfig,
-      '    analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },',
+      /    analytics: \{ plausible: \{ scriptId: "[A-Za-z0-9_-]+" \} \},/u,
       `    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
       `${variant.name} analytics configuration`,
     );
