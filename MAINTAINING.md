@@ -31,22 +31,23 @@ The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` 
 ## Release preparation
 
 1. Choose the version.
-2. Generate `CHANGELOG.md` and update `layer/package.json` with Changelogen.
+2. Generate `CHANGELOG.md` and update `layer/package.json`:
+
+   ```bash
+   vp run release:prepare -- -r 0.3.0-rc.5 --from v0.3.0-rc.4 --to HEAD
+   ```
+
+   Replace the example version and previous tag. The command does not commit,
+   tag, push, or publish.
+
 3. Update `layer/nuxt.config.ts` and the README install command to the same version.
 4. Set the exact Ginko Content development dependency and the supported peer range.
 5. Commit the release preparation.
 6. Run `vp run release:verify` from the clean commit.
 7. Open a pull request and merge it only after `PR verification` passes.
 
-Changelogen reads Conventional Commits and owns the changelog format:
-
-```bash
-vp run changelog --bump -r 0.3.0-rc.4 --from v0.3.0-rc.3 --to HEAD
-```
-
-Replace the target version and previous release tag. Review the generated text
-before you commit it. The command does not create a commit, tag, GitHub release,
-or npm publication.
+Changelogen reads Conventional Commits and owns the changelog format. Review
+the generated text before you commit it.
 
 ## Protected publishing
 

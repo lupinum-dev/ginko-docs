@@ -12,6 +12,7 @@
     "pack:layer": "vp run build:content-entry && vp pm pack --filter @lupinum/ginko-docs --pack-destination layer/.pack",
     "release:certify": "node scripts/certify-packed-fixtures.mjs",
     "release:pack": "node scripts/release-pack.mjs",
+    "release:prepare": "changelogen --dir layer --output ../CHANGELOG.md --bump --clean --hideAuthorEmail",
     "release:verify": "vp run check && vp test && vp run build && vp run release:pack && vp run release:certify",
     "test": "vp test",
     "typecheck": "vp run ginko-docs-playground#typecheck",
