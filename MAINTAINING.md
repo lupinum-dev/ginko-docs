@@ -50,7 +50,11 @@ or npm publication.
 
 ## Protected publishing
 
-The `CI` workflow certifies the exact `main` commit and uploads one release artifact. Start the `Publish` workflow with that CI run ID and the exact version. The workflow verifies the artifact again, pauses at the protected `npm` environment, publishes through npm trusted publishing, and creates the GitHub release.
+The `CI` workflow certifies the exact `main` commit and uploads one release
+artifact. Start the `Publish` workflow with the exact version. The workflow
+finds the successful CI run for the current `main` commit, verifies its
+artifact again, pauses at the protected `npm` environment, publishes through
+npm trusted publishing, and creates the GitHub release.
 
 The version and its `v<version>` tag must not exist before the workflow starts.
 The workflow creates the tag as part of the GitHub release. Do not prepare or
@@ -70,7 +74,10 @@ Never publish from a workstation. Never run Changelogen with `--release` or `--p
 
 ## Recovery
 
-If publishing fails, do not build a replacement tarball. Fix the workflow in a pull request, let `main` CI certify a new exact artifact, and start `Publish` with the new CI run ID. npm versions are immutable; choose a new version if npm accepted the package before a later step failed.
+If publishing fails, do not build a replacement tarball. Fix the workflow in a
+pull request, let `main` CI certify a new exact artifact, and start `Publish`
+again. npm versions are immutable; choose a new version if npm accepted the
+package before a later step failed.
 
 ## Audit external settings
 
