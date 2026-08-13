@@ -20,7 +20,7 @@ Every page has one primary job:
 - **Reference** lists a public type, option, schema, component, or export exhaustively.
 - **Operations** diagnose or deploy a consumer site.
 
-Do not mix maintainer workflow, playground acceptance criteria, and consumer guidance. Repository commands belong in `AGENTS.md` or `MAINTAINING.md`; public pages use commands a consuming Nuxt project can run.
+Do not mix maintainer workflow, documentation-app acceptance criteria, and consumer guidance. Repository commands belong in `AGENTS.md` or `MAINTAINING.md`; public pages use commands a consuming Nuxt project can run.
 
 ## Write for the reader's next action
 

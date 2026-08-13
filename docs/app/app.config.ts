@@ -36,7 +36,7 @@ export default defineAppConfig({
     repository: {
       url: "https://github.com/lupinum-dev/ginko-docs",
       branch: "main",
-      contentDirectory: "playground/content",
+      contentDirectory: "docs/content",
     },
     landing: {
       title: {

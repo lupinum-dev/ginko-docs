@@ -78,9 +78,9 @@ These commands map to their corresponding tools. In this repo, use `vp run dev` 
 
 ## Ginko Docs documentation
 
-The playground content is the public package documentation and a bilingual release fixture.
+The documentation app is the public package documentation and a bilingual release fixture.
 
-- Keep `playground/content/en/1.docs` and `playground/content/de/1.dokumentation` structurally equivalent.
+- Keep `docs/content/en/1.docs` and `docs/content/de/1.dokumentation` structurally equivalent.
 - Use the same numeric identities for translated folders and files. German pages use canonical English `$docs/...` and `$blog/...` references.
 - Use `sidebar: section` only for the Documentation and Reference areas. Use flat `sidebar: group` folders inside those areas.
 - Write consumer examples against public exports. Do not expose layer aliases, route components, repository commands, or obsolete Ginko Content composables.

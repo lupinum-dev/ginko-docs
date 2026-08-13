@@ -131,5 +131,8 @@ GitHub must have:
 npm must bind `@lupinum/ginko-docs` to `publish.yml` and the `npm` environment
 through trusted publishing.
 
-Vercel must deploy the playground from `main` to `ginko-docs.lupinum.com` and
-create pull-request previews.
+Vercel must deploy the `docs/` app from `main` to `ginko-docs.lupinum.com` and
+create pull-request previews. Set the Vercel Root Directory to `docs`. Enable
+source files outside the Root Directory so the app can consume the local
+`layer/` package. Do not set an Output Directory override; Nuxt emits the
+Vercel Build Output API files.

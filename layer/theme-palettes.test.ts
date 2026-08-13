@@ -122,9 +122,9 @@ describe("theme palettes", () => {
     expect(copyButtonFocus).not.toContain("var(--ring)");
   });
 
-  it("applies the playground custom palettes with accessible primary pairs", () => {
-    const config = readFileSync(join(root, "playground/app/app.config.ts"), "utf8");
-    const custom = readFileSync(join(root, "playground/app/assets/css/theme.css"), "utf8");
+  it("applies the documentation app palettes with accessible primary pairs", () => {
+    const config = readFileSync(join(root, "docs/app/app.config.ts"), "utf8");
+    const custom = readFileSync(join(root, "docs/app/assets/css/theme.css"), "utf8");
 
     expect(config).toContain('neutral: "custom"');
     expect(config).toContain('primary: "custom"');

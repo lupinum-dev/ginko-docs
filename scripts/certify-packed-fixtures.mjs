@@ -18,7 +18,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const playground = resolve(root, "playground");
+const docsApp = resolve(root, "docs");
 const layerManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"), "utf8"));
 const contentVersion =
   layerManifest.peerDependencies["@lupinum/ginko-content"].match(/>=([^ ]+)/)?.[1];
@@ -101,22 +101,22 @@ function copyFixture(variant, directory) {
     "site.json",
     "tsconfig.json",
   ]) {
-    cpSync(resolve(playground, entry), resolve(directory, entry), { recursive: true });
+    cpSync(resolve(docsApp, entry), resolve(directory, entry), { recursive: true });
   }
   if (variant.singleLocale) {
-    cpSync(resolve(playground, "content/en/1.docs"), resolve(directory, "content/docs"), {
+    cpSync(resolve(docsApp, "content/en/1.docs"), resolve(directory, "content/docs"), {
       recursive: true,
     });
     if (variant.blog !== false) {
-      cpSync(resolve(playground, "content/en/2.blog"), resolve(directory, "content/2.blog"), {
+      cpSync(resolve(docsApp, "content/en/2.blog"), resolve(directory, "content/2.blog"), {
         recursive: true,
       });
-      cpSync(resolve(playground, "content/en/authors"), resolve(directory, "content/authors"), {
+      cpSync(resolve(docsApp, "content/en/authors"), resolve(directory, "content/authors"), {
         recursive: true,
       });
     }
   } else {
-    cpSync(resolve(playground, "content"), resolve(directory, "content"), { recursive: true });
+    cpSync(resolve(docsApp, "content"), resolve(directory, "content"), { recursive: true });
   }
 
   const appConfigPath = resolve(directory, "app/app.config.ts");

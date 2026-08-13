@@ -169,7 +169,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
-  playground:
+  docs:
     dependencies:
       '@lupinum/ginko-content':
         specifier: 0.4.0-rc.1

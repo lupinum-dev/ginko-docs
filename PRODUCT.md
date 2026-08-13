@@ -41,6 +41,6 @@ Each concern must keep one authoring source:
 
 ## Documentation standard
 
-The playground is the reference consumer and the public documentation site. Its content must teach the package, not describe tests or internal migrations. Examples use public consumer APIs and commands. Reference pages follow source types and exports. English and German pages remain structurally equivalent.
+The documentation app is the reference consumer and the public documentation site. Its content must teach the package, not describe tests or internal migrations. Examples use public consumer APIs and commands. Reference pages follow source types and exports. English and German pages remain structurally equivalent.
 
 The detailed writing contract lives in [`docs/WRITING.md`](./docs/WRITING.md).

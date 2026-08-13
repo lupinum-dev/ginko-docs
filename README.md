@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="playground/public/web-app-manifest-512x512.png" width="128" alt="Ginko Docs icon">
+  <img src="docs/public/web-app-manifest-512x512.png" width="128" alt="Ginko Docs icon">
 </p>
 
 <h1 align="center">Ginko Docs</h1>

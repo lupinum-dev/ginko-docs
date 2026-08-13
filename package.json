@@ -4,11 +4,11 @@
   "type": "module",
   "scripts": {
     "build:content-entry": "vp pack && vp fmt layer/content.js",
-    "build": "vp run ginko-docs-playground#build",
+    "build": "vp run ginko-docs-site#build",
     "docs:build": "vp run build",
     "audit:all": "pnpm audit",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
-    "dev": "vp run ginko-docs-playground#dev",
+    "dev": "vp run ginko-docs-site#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",
     "pack:layer": "vp run build:content-entry && vp pm pack --filter @lupinum/ginko-docs --pack-destination layer/.pack",
     "release:certify": "node scripts/certify-packed-fixtures.mjs",
@@ -16,9 +16,10 @@
     "release:prepare": "changelogen --dir layer --output ../CHANGELOG.md --bump --clean --hideAuthorEmail",
     "release:verify": "pnpm verify && vp run release:pack && vp run release:certify",
     "test": "vp test",
-    "typecheck": "vp run ginko-docs-playground#typecheck",
-    "verify": "pnpm audit:all && vp run check && vp test && vp run build",
-    "postinstall": "vp run ginko-docs-playground#prepare"
+    "typecheck": "vp run ginko-docs-site#typecheck",
+    "check:vercel": "node scripts/check-vercel-config.mjs",
+    "verify": "pnpm audit:all && pnpm check:vercel && vp run check && vp test && vp run build",
+    "postinstall": "vp run ginko-docs-site#prepare"
   },
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.10",

@@ -1,6 +1,6 @@
 packages:
   - layer
-  - playground
+  - docs
 
 autoInstallPeers: false
 

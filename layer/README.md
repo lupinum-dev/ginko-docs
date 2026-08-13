@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lupinum-dev/ginko-docs/main/playground/public/web-app-manifest-512x512.png" width="128" alt="Ginko Docs icon">
+  <img src="https://raw.githubusercontent.com/lupinum-dev/ginko-docs/main/docs/public/web-app-manifest-512x512.png" width="128" alt="Ginko Docs icon">
 </p>
 
 <h1 align="center">@lupinum/ginko-docs</h1>
