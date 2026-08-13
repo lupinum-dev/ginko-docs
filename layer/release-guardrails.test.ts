@@ -76,6 +76,11 @@ function unlabeledCodeFences(source: string) {
 
 describe("ginko docs release guardrails", () => {
   it("keeps the standard contributor intake files", () => {
+    const trackedFiles = new Set(
+      execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" })
+        .trim()
+        .split("\n"),
+    );
     for (const path of [
       ".github/ISSUE_TEMPLATE/bug.md",
       ".github/ISSUE_TEMPLATE/config.yml",
@@ -83,7 +88,28 @@ describe("ginko docs release guardrails", () => {
       ".github/ISSUE_TEMPLATE/proposal.md",
       ".github/pull_request_template.md",
     ]) {
-      expect(existsSync(join(root, path)), path).toBe(true);
+      expect(trackedFiles.has(path), `${path} must be tracked`).toBe(true);
+    }
+
+    const pullRequestTemplate = read(".github/pull_request_template.md");
+    expect(pullRequestTemplate).toContain(
+      "- [ ] I ran `pnpm verify`, or I explained why it does not apply.",
+    );
+    expect(pullRequestTemplate).toContain(
+      "- [ ] I updated versions, migration guidance, and compatibility notes when the public contract changed.",
+    );
+  });
+
+  it("keeps the production documentation services configured", () => {
+    const config = read("docs/app/app.config.ts");
+    for (const marker of [
+      'plausible: { scriptId: "7B8poD6ZSLVeKsR3G6JHF" }',
+      "feedback: { enabled: true }",
+      "https://discord.gg/RPH6SeA36N",
+      "https://lupinum.com/impressum",
+      "https://lupinum.com/datenschutz",
+    ]) {
+      expect(config).toContain(marker);
     }
   });
 
