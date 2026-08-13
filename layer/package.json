@@ -1,6 +1,6 @@
 {
   "name": "@lupinum/ginko-docs",
-  "version": "0.3.0-rc.4",
+  "version": "0.3.0-rc.5",
   "description": "A Nuxt documentation layer powered by Ginko Content.",
   "keywords": [
     "content",
@@ -88,8 +88,8 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@lupinum/ginko-content": ">=0.4.0-rc.1 <0.5.0",
-    "nuxt": ">=4.4.7 <5",
+    "@lupinum/ginko-content": ">=0.4.0-rc.2 <0.5.0",
+    "nuxt": ">=4.5.1 <5",
     "vue": "^3.5.35",
     "vue-router": "^5.1.0"
   },

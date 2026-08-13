@@ -43,10 +43,10 @@ const variants = [
     singleLocale: true,
     usesLayerLocaleDefault: true,
     blog: false,
-    nuxtVersion: "4.4.7",
+    nuxtVersion: "4.5.1",
   },
-  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.0" },
-  { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.0" },
+  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.1" },
+  { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.1" },
 ];
 const plausibleScriptId = "CertificationScriptId";
 
@@ -201,6 +201,10 @@ function copyFixture(variant, directory) {
       null,
       2,
     )}\n`,
+  );
+  writeFileSync(
+    resolve(directory, "pnpm-workspace.yaml"),
+    `minimumReleaseAge: 1440\nminimumReleaseAgeExclude:\n  # Reviewed first-party release required by this certification. Remove after 2026-08-14 16:00 Europe/Vienna.\n  - "@lupinum/ginko-content@${contentVersion}"\n`,
   );
 }
 

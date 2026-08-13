@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.0-rc.5
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.4...v0.3.0-rc.5)
+
+### 🚀 Enhancements
+
+- Complete the Lupinum repository, documentation, preview, and release standard
+- Add mobile packed-consumer coverage and keep public package versions synchronized
+
+### 🩹 Fixes
+
+- Use the site-specific Plausible script in the documentation fixture
+- Upgrade the Ginko Content peer and playground dependency to 0.4.0-rc.2
+
+### ❤️ Contributors
+
+- Matthias Amon
+
 ## v0.3.0-rc.4
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.3...v0.3.0-rc.4)
