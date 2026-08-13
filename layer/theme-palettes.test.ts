@@ -96,11 +96,27 @@ describe("theme palettes", () => {
 
     expect(defaults).toContain('neutral: "zinc"');
     expect(defaults).toContain('primary: "neutral"');
+    expect(defaults).toContain('codeBlocks: "dark"');
     expect(plugin).toContain('"data-neutral": theme.neutral');
     expect(plugin).toContain('"data-primary": theme.primary');
+    expect(plugin).toContain('"data-code-blocks": theme.codeBlocks');
     expect(landing).not.toMatch(/(?:bg|text)-zinc-/);
     expect(landing).toContain("bg-agent-background");
     expect(landing).toContain("text-emerald-300/90");
+  });
+
+  it("keeps dark code blocks configurable without changing inline code", () => {
+    const types = readFileSync(join(root, "layer/shared/types/app-config.ts"), "utf8");
+    const prose = readFileSync(join(root, "layer/app/assets/css/prose.css"), "utf8");
+
+    expect(types).toContain('GinkoDocsCodeBlockTheme = "dark" | "adaptive"');
+    expect(types).toContain("codeBlocks: GinkoDocsCodeBlockTheme");
+    expect(prose).toContain('html[data-code-blocks="dark"]');
+    expect(prose).toContain(".content-codeblock, .content-codegroup, .content-code-tree");
+    expect(prose).toContain('html[data-code-blocks="dark"] .content-codeblock.shiki span');
+    expect(prose).toContain("color: var(--shiki-dark) !important");
+    expect(prose).not.toContain('html[data-code-blocks="dark"] .content-code.shiki');
+    expect(prose).not.toContain('html[data-code-blocks="adaptive"]');
   });
 
   it("keeps inline code and copy controls neutral", () => {

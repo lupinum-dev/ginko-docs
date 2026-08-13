@@ -7,6 +7,7 @@ export default defineNuxtPlugin(() => {
     htmlAttrs: {
       "data-neutral": theme.neutral,
       "data-primary": theme.primary,
+      "data-code-blocks": theme.codeBlocks,
     },
   });
 });
