@@ -19,13 +19,8 @@ commands.
 
 ```bash
 vp install
-vp run check
-vp test
-vp run build
+pnpm verify
 ```
-
-Run `vp run release:verify` when you change package metadata, exports, release
-scripts, or release workflows.
 
 ## Keep the change focused
 

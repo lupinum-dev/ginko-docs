@@ -20,7 +20,7 @@ Every page has one primary job:
 - **Reference** lists a public type, option, schema, component, or export exhaustively.
 - **Operations** diagnose or deploy a consumer site.
 
-Do not mix maintainer workflow, playground acceptance criteria, and consumer guidance. Repository commands belong in `AGENTS.md` or `MAINTAINING.md`; public pages use commands a consuming Nuxt project can run.
+Do not mix maintainer workflow, documentation-app acceptance criteria, and consumer guidance. Repository commands belong in `AGENTS.md` or `MAINTAINING.md`; public pages use commands a consuming Nuxt project can run.
 
 ## Write for the reader's next action
 
@@ -52,6 +52,18 @@ navigation:
 Use nested YAML for `navigation`; dotted keys are not portable through the current Markdown pipeline.
 
 Use sentence case for page titles and headings. A task title starts with a verb when that makes the outcome clearer. A reference title uses the exact public symbol or configuration name.
+
+## Structure public READMEs
+
+Center the 128 px product icon, product name, one-sentence value proposition,
+and npm, CI, and MIT badges. State the release status for an unstable package.
+
+The root README then explains why and when to use the product, requirements,
+installation, the smallest useful example, concepts, documentation,
+contribution, support, security, and license. The published package README uses
+a compact version of the same order. Explain user outcomes before internal
+architecture. Keep fixture, license, migration, and proof READMEs technical and
+unbranded.
 
 ## Examples and callouts
 

@@ -75,6 +75,42 @@ function unlabeledCodeFences(source: string) {
 }
 
 describe("ginko docs release guardrails", () => {
+  it("keeps the standard contributor intake files", () => {
+    const trackedFiles = new Set(
+      execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" }).trim().split("\n"),
+    );
+    for (const path of [
+      ".github/ISSUE_TEMPLATE/bug.md",
+      ".github/ISSUE_TEMPLATE/config.yml",
+      ".github/ISSUE_TEMPLATE/documentation.md",
+      ".github/ISSUE_TEMPLATE/proposal.md",
+      ".github/pull_request_template.md",
+    ]) {
+      expect(trackedFiles.has(path), `${path} must be tracked`).toBe(true);
+    }
+
+    const pullRequestTemplate = read(".github/pull_request_template.md");
+    expect(pullRequestTemplate).toContain(
+      "- [ ] I ran `pnpm verify`, or I explained why it does not apply.",
+    );
+    expect(pullRequestTemplate).toContain(
+      "- [ ] I updated versions, migration guidance, and compatibility notes when the public contract changed.",
+    );
+  });
+
+  it("keeps the production documentation services configured", () => {
+    const config = read("docs/app/app.config.ts");
+    for (const marker of [
+      'plausible: { scriptId: "7B8poD6ZSLVeKsR3G6JHF" }',
+      "feedback: { enabled: true }",
+      "https://discord.gg/RPH6SeA36N",
+      "https://lupinum.com/impressum",
+      "https://lupinum.com/datenschutz",
+    ]) {
+      expect(config).toContain(marker);
+    }
+  });
+
   it("uses English as the canonical unprefixed locale", () => {
     expect(defaultLocale).toBe("en");
     expect(localizedPath("en", "/docs")).toBe("/docs");
@@ -130,7 +166,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
     expect(manifest.exports["./components"]).toBe("./components.ts");
     expect(manifest.files).toContain("icon-bundle.ts");
-    expect(read("layer/README.md")).toContain("# Ginko Docs");
+    expect(read("layer/README.md")).toContain('<h1 align="center">@lupinum/ginko-docs</h1>');
     expect(read("layer/LICENSE")).toContain("MIT License");
 
     const contentEntry = await import(pathToFileURL(join(root, "layer/content.js")).href);
@@ -148,24 +184,38 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).not.toContain("NPM_TOKEN");
   });
 
+  it("publishes package previews only for trusted repository branches", () => {
+    const workflow = read(".github/workflows/package-preview.yml");
+    const rootManifest = JSON.parse(read("package.json"));
+
+    expect(workflow).toContain(
+      "github.event.pull_request.head.repo.full_name == github.repository",
+    );
+    expect(workflow).toContain("ref: ${{ github.event.pull_request.head.sha || github.sha }}");
+    expect(workflow).toContain("persist-credentials: false");
+    expect(workflow).toContain("pnpm exec pkg-pr-new publish");
+    expect(workflow).toContain("node scripts/build-package-preview.mjs");
+    expect(rootManifest.devDependencies["pkg-pr-new"]).toBe("0.0.87");
+  });
+
   it("types nested app-config overrides and keeps consumer config on the typed boundary", () => {
     const declarations = read("layer/index.d.ts");
     const layerConfig = read("layer/nuxt.config.ts");
-    const playgroundConfig = read("playground/app/app.config.ts");
+    const docsConfig = read("docs/app/app.config.ts");
 
     expect(declarations).toContain("type GinkoDocsAppConfigInput<T>");
     expect(declarations).toContain("ginkoDocs?: GinkoDocsAppConfigInput<GinkoDocsAppConfig>");
     expect(layerConfig).not.toContain("autoImport: false");
-    expect(playgroundConfig).toContain("export default defineAppConfig({");
-    expect(playgroundConfig).not.toContain("eyebrow");
-    expect(playgroundConfig).not.toContain("localeSwitcher");
+    expect(docsConfig).toContain("export default defineAppConfig({");
+    expect(docsConfig).not.toContain("eyebrow");
+    expect(docsConfig).not.toContain("localeSwitcher");
   });
 
   it("documents portable shared site data instead of loader-specific TypeScript imports", () => {
     const publicDocs = [
       read("README.md"),
       read("layer/README.md"),
-      ...sourceFiles(join(root, "playground/content"))
+      ...sourceFiles(join(root, "docs/content"))
         .filter((path) => path.endsWith(".md"))
         .map((path) => readFileSync(path, "utf8")),
     ].join("\n");
@@ -173,7 +223,6 @@ describe("ginko docs release guardrails", () => {
     expect(publicDocs).not.toContain("site.ts");
     expect(publicDocs).not.toContain('from "./site"');
     expect(publicDocs).not.toContain('from "../site"');
-    expect(publicDocs).not.toContain("0.3.0-rc.5");
     expect(publicDocs).toContain("site.json");
     expect(publicDocs).toContain('with { type: "json" }');
   });
@@ -308,7 +357,7 @@ describe("ginko docs release guardrails", () => {
     const bundledCollections = new Map(
       layerIconCollections.map((collection) => [collection.prefix, collection]),
     );
-    const consumerSource = sourceFiles(join(root, "playground/app")).map((path) =>
+    const consumerSource = sourceFiles(join(root, "docs/app")).map((path) =>
       readFileSync(path, "utf8"),
     );
     const consumerIcons = new Set(
@@ -330,21 +379,21 @@ describe("ginko docs release guardrails", () => {
     expect(read("layer/nuxt.config.ts")).toContain('name: "Public Sans"');
   });
 
-  it("runs the playground as a minimal consumer instead of a second theme", () => {
-    expect(read("playground/nuxt.config.ts")).toContain('extends: ["../layer"]');
-    expect(read("playground/content.config.ts")).toContain("defineGinkoDocsConfig");
-    expect(read("playground/app/app.config.ts")).toContain("ginkoDocs");
+  it("runs the documentation app as a minimal consumer instead of a second theme", () => {
+    expect(read("docs/nuxt.config.ts")).toContain('extends: ["../layer"]');
+    expect(read("docs/content.config.ts")).toContain("defineGinkoDocsConfig");
+    expect(read("docs/app/app.config.ts")).toContain("ginkoDocs");
   });
 
-  it("keeps the playground documentation bilingual, task-first, and free of fixture prose", () => {
+  it("keeps the documentation app documentation bilingual, task-first, and free of fixture prose", () => {
     const roots = [
-      join(root, "playground/content/en/1.docs"),
-      join(root, "playground/content/de/1.dokumentation"),
+      join(root, "docs/content/en/1.docs"),
+      join(root, "docs/content/de/1.dokumentation"),
     ];
     const pagesByLocale = roots.map((contentRoot) =>
       sourceFiles(contentRoot).filter((path) => path.endsWith(".md")),
     );
-    const localeRoots = [join(root, "playground/content/en"), join(root, "playground/content/de")];
+    const localeRoots = [join(root, "docs/content/en"), join(root, "docs/content/de")];
     const authoredPagesByLocale = localeRoots.map((contentRoot) =>
       sourceFiles(contentRoot).filter((path) => path.endsWith(".md")),
     );
@@ -409,11 +458,14 @@ describe("ginko docs release guardrails", () => {
 
   it("keeps release-facing installation examples on the package version", () => {
     const version = JSON.parse(read("layer/package.json")).version;
+    const contentVersion = JSON.parse(read("package.json")).devDependencies[
+      "@lupinum/ginko-content"
+    ];
     const publicDocs = [
       read("README.md"),
       read("layer/README.md"),
-      read("playground/app/app.config.ts"),
-      ...sourceFiles(join(root, "playground/content"))
+      read("docs/app/app.config.ts"),
+      ...sourceFiles(join(root, "docs/content"))
         .filter((path) => path.endsWith(".md"))
         .map((path) => readFileSync(path, "utf8")),
     ].join("\n");
@@ -423,17 +475,70 @@ describe("ginko docs release guardrails", () => {
 
     expect(documentedVersions.length).toBeGreaterThan(0);
     expect(new Set(documentedVersions)).toEqual(new Set([version]));
+    const documentedContentVersions = [
+      ...publicDocs.matchAll(/@lupinum\/ginko-content@(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/g),
+    ].map((match) => match[1]);
+    expect(documentedContentVersions.length).toBeGreaterThan(0);
+    expect(new Set(documentedContentVersions)).toEqual(new Set([contentVersion]));
+  });
+
+  it("keeps public READMEs on the shared Lupinum structure", () => {
+    const contracts = new Map([
+      [
+        "README.md",
+        [
+          "Why use Ginko Docs?",
+          "When to use it",
+          "Requirements",
+          "Installation",
+          "Quick start",
+          "Core concepts",
+          "Documentation",
+          "Contributing and development",
+          "Support and security",
+          "License",
+        ],
+      ],
+      [
+        "layer/README.md",
+        [
+          "Purpose",
+          "Requirements",
+          "Installation",
+          "Quick start",
+          "Exports",
+          "Documentation",
+          "Support and security",
+          "License",
+        ],
+      ],
+    ]);
+
+    for (const [path, expectedHeadings] of contracts) {
+      const source = read(path);
+      const headings = [...source.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
+      expect(headings).toEqual(expectedHeadings);
+      expect(source.match(/<h1 align="center">/g)).toHaveLength(1);
+      expect(source).not.toMatch(/^# /m);
+      expect(source).toMatch(/<img [^>]*width="128"/);
+      expect(source).toContain("img.shields.io/npm/v/");
+      expect(source).toContain("actions/workflows/ci.yml");
+      expect(source).toContain("license-MIT");
+      expect(source).toContain("https://ginko-docs.lupinum.com");
+      expect(source).toContain("https://discord.gg/RPH6SeA36N");
+      expect(source).not.toMatch(/\b(?:TODO|TBD|lorem ipsum|placeholder)\b/i);
+    }
   });
 
   it("keeps legal links explicit and renders them in the shared footer", () => {
     const defaults = read("layer/app/app.config.ts");
     const footer = read("layer/app/components/site/SiteFooter.vue");
-    const playgroundConfig = read("playground/app/app.config.ts");
+    const docsConfig = read("docs/app/app.config.ts");
 
     expect(defaults).toContain("legalLinks: []");
     expect(footer).toContain('v-for="link in site.legalLinks"');
-    expect(playgroundConfig).toContain("https://lupinum.com/impressum");
-    expect(playgroundConfig).toContain("https://lupinum.com/datenschutz");
+    expect(docsConfig).toContain("https://lupinum.com/impressum");
+    expect(docsConfig).toContain("https://lupinum.com/datenschutz");
   });
 
   it("uses the current site-specific Plausible tracker", () => {

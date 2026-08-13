@@ -13,7 +13,7 @@ export default [
       "coverage/**",
       "dist/**",
       "node_modules/**",
-      "playground/.nuxt/**",
+      "docs/.nuxt/**",
     ],
   },
   ...pluginVue.configs["flat/essential"],

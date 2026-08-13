@@ -8,7 +8,7 @@ import { describe, expect, it } from "vite-plus/test";
 // any text node that is nothing but colons, so fence mismatches break CI
 // instead of shipping as visible "::" artifacts on the page.
 
-const contentRoot = join(process.cwd(), "playground/content");
+const contentRoot = join(process.cwd(), "docs/content");
 
 function markdownFiles(path: string): string[] {
   return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
