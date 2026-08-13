@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
+const maintaining = readFileSync(resolve(root, "MAINTAINING.md"), "utf8");
 const failures = [];
 const check = (condition, message) => {
   if (!condition) failures.push(message);
@@ -13,8 +14,12 @@ check(config.framework === "nuxtjs", "Select the Nuxt framework explicitly.");
 check(config.outputDirectory === null, "Let Nuxt and Vercel detect .vercel/output.");
 check(config.buildCommand === "pnpm --dir .. docs:build", "Build from the locked root workspace.");
 check(
-  config.installCommand?.includes("pnpm --dir .. install --frozen-lockfile"),
-  "Install the locked root workspace.",
+  config.installCommand === "corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm --dir .. install --frozen-lockfile",
+  "Install the locked root workspace with the pinned package manager.",
+);
+check(
+  maintaining.includes("`ENABLE_EXPERIMENTAL_COREPACK=1`"),
+  "Document the required non-secret Vercel Corepack setting.",
 );
 
 if (failures.length) {
