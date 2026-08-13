@@ -386,6 +386,17 @@ async function certifyBrowser(variant, directory) {
       await page.waitForURL((url) => url.pathname.startsWith("/de/"));
       await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
     }
+    if (variant.singleLocale) {
+      const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      await mobile.goto(`${server.baseURL}/docs/getting-started`, { waitUntil: "networkidle" });
+      await mobile.getByRole("button", { name: "Open menu" }).click();
+      await mobile.getByRole("navigation", { name: "Mobile navigation" }).waitFor({
+        state: "visible",
+      });
+      await mobile.getByRole("link", { name: "Legal notice" }).waitFor({ state: "attached" });
+      await mobile.getByRole("link", { name: "Privacy" }).waitFor({ state: "attached" });
+      await mobile.close();
+    }
     if (failures.length)
       throw new Error(`${variant.name} browser failures:\n${failures.join("\n")}`);
   } finally {

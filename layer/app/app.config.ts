@@ -18,6 +18,7 @@ export default {
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
       docsSidebarSwitcher: "tabs",
       lupinumAttribution: true,
+      legalLinks: [],
     },
     nav: { links: "auto", socialIcons: false },
     banner: {

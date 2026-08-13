@@ -61,17 +61,29 @@ const resources = computed(() => [
           © <NuxtTime :datetime="currentYearDate" year="numeric" /> {{ site.name }}.
           {{ t("site.footer") }}
         </p>
-        <p v-if="site.lupinumAttribution">
-          {{ t("site.openSourceBy") }}
-          <a
-            href="https://lupinum.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+        <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-end">
+          <NuxtLink
+            v-for="link in site.legalLinks"
+            :key="link.href"
+            :to="link.href"
+            :target="link.external ? '_blank' : undefined"
+            :rel="link.external ? 'noopener noreferrer' : undefined"
+            class="underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
           >
-            Lupinum<span class="sr-only"> ({{ t("nav.externalLink") }})</span> </a
-          >.
-        </p>
+            {{ link.label }}
+          </NuxtLink>
+          <p v-if="site.lupinumAttribution">
+            {{ t("site.openSourceBy") }}
+            <a
+              href="https://lupinum.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+            >
+              Lupinum<span class="sr-only"> ({{ t("nav.externalLink") }})</span> </a
+            >.
+          </p>
+        </div>
       </div>
     </div>
   </footer>

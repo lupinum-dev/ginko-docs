@@ -407,6 +407,35 @@ describe("ginko docs release guardrails", () => {
     expect(defaults).toContain("feedback: { enabled: false }");
   });
 
+  it("keeps release-facing installation examples on the package version", () => {
+    const version = JSON.parse(read("layer/package.json")).version;
+    const publicDocs = [
+      read("README.md"),
+      read("layer/README.md"),
+      read("playground/app/app.config.ts"),
+      ...sourceFiles(join(root, "playground/content"))
+        .filter((path) => path.endsWith(".md"))
+        .map((path) => readFileSync(path, "utf8")),
+    ].join("\n");
+    const documentedVersions = [
+      ...publicDocs.matchAll(/@lupinum\/ginko-docs@(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/g),
+    ].map((match) => match[1]);
+
+    expect(documentedVersions.length).toBeGreaterThan(0);
+    expect(new Set(documentedVersions)).toEqual(new Set([version]));
+  });
+
+  it("keeps legal links explicit and renders them in the shared footer", () => {
+    const defaults = read("layer/app/app.config.ts");
+    const footer = read("layer/app/components/site/SiteFooter.vue");
+    const playgroundConfig = read("playground/app/app.config.ts");
+
+    expect(defaults).toContain("legalLinks: []");
+    expect(footer).toContain('v-for="link in site.legalLinks"');
+    expect(playgroundConfig).toContain("https://lupinum.com/impressum");
+    expect(playgroundConfig).toContain("https://lupinum.com/datenschutz");
+  });
+
   it("uses the current site-specific Plausible tracker", () => {
     const analytics = read("layer/app/composables/useGinkoAnalytics.ts");
     const types = read("layer/shared/types/app-config.ts");
