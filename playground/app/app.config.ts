@@ -15,9 +15,22 @@ export default defineAppConfig({
       },
       logo: { light: "/lupinum_light.svg", dark: "/lupinum_dark.svg" },
       docsSidebarSwitcher: "tabs",
+      legalLinks: [
+        {
+          label: { en: "Legal notice", de: "Impressum" },
+          to: "https://lupinum.com/impressum",
+        },
+        {
+          label: { en: "Privacy", de: "Datenschutz" },
+          to: "https://lupinum.com/datenschutz",
+        },
+      ],
     },
     nav: { socialIcons: true },
-    social: { github: "https://github.com/lupinum-dev/ginko-docs" },
+    social: {
+      discord: "https://discord.gg/RPH6SeA36N",
+      github: "https://github.com/lupinum-dev/ginko-docs",
+    },
     feedback: { enabled: true },
     analytics: { plausible: { scriptId: "XxT9ZOr0ZLg10B4KV40xH" } },
     repository: {
@@ -123,7 +136,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs@0.3.0-rc.1 @lupinum/ginko-content@0.4.0-rc.1",
+        command: "pnpm add -D @lupinum/ginko-docs@0.3.0-rc.4 @lupinum/ginko-content@0.4.0-rc.1",
       },
       features: [
         {

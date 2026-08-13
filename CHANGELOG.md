@@ -6,11 +6,14 @@
 
 ### 🩹 Fixes
 
-- Harden docs distribution and repository operations ([75bec9c](https://github.com/lupinum-dev/ginko-docs/commit/75bec9c))
+- Harden Ginko Docs distribution and repository operations ([#13](https://github.com/lupinum-dev/ginko-docs/pull/13))
+- **deps:** Clear production security advisory ([#14](https://github.com/lupinum-dev/ginko-docs/pull/14))
+- **config:** Provide clean consumer defaults ([#15](https://github.com/lupinum-dev/ginko-docs/pull/15))
+- Add shared legal links and release-documentation guardrails
 
 ### ❤️ Contributors
 
-- Mat4m0
+- Matthias Amon
 
 ## v0.3.0-rc.3
 

@@ -71,6 +71,8 @@ export interface GinkoDocsAppConfig {
     logo: { light: string; dark: string };
     docsSidebarSwitcher: "dropdown" | "list" | "tabs";
     lupinumAttribution: boolean;
+    /** Legal and company links rendered in the footer. */
+    legalLinks: GinkoDocsLink[];
   };
   nav: {
     /** "auto" derives Docs (+ Blog when blog routes exist); an array overrides entirely. */

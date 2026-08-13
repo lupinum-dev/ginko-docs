@@ -15,7 +15,7 @@ Ginko Docs is a Nuxt layer for focused documentation sites. It combines Ginko Co
 Install the layer and its Ginko Content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0-rc.3 @lupinum/ginko-content@0.4.0-rc.1
+pnpm add -D @lupinum/ginko-docs@0.3.0-rc.4 @lupinum/ginko-content@0.4.0-rc.1
 ```
 
 Keep the public identity in one shared value:

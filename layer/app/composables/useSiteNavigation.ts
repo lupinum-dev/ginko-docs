@@ -22,6 +22,14 @@ export const useSiteNavigation = () => {
     logo: config.site.logo,
     url: config.site.url,
     lupinumAttribution: config.site.lupinumAttribution,
+    legalLinks: config.site.legalLinks.map((link) => {
+      const href = getLocalizedSiteText(link.to, locale.value);
+      return {
+        label: getLocalizedSiteText(link.label, locale.value),
+        href,
+        external: /^https?:\/\//.test(href),
+      };
+    }),
   }));
 
   const blogPath = computed(() => path("blog"));
