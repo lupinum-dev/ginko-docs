@@ -202,10 +202,7 @@ function copyFixture(variant, directory) {
       2,
     )}\n`,
   );
-  writeFileSync(
-    resolve(directory, "pnpm-workspace.yaml"),
-    `minimumReleaseAge: 1440\nminimumReleaseAgeExclude:\n  # Reviewed first-party release required by this certification. Remove after 2026-08-14 16:00 Europe/Vienna.\n  - "@lupinum/ginko-content@${contentVersion}"\n`,
-  );
+  writeFileSync(resolve(directory, "pnpm-workspace.yaml"), "minimumReleaseAge: 1440\n");
 }
 
 async function allocatePort() {
