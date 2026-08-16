@@ -76,6 +76,22 @@ These commands map to their corresponding tools. In this repo, use `vp run dev` 
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
 
+## Scope and architecture
+
+- The repository root owns workspace policy, CI, release certification, and
+  maintainer commands. It is not the published package.
+- `layer/` is the published `@lupinum/ginko-docs` Nuxt layer. Keep public
+  exports and consumer behavior there.
+- `docs/` is the public documentation app and release fixture. It must consume
+  the layer through the same public boundary as an external project.
+- `layer/shared/types/app-config.ts` owns the public configuration contract.
+  `layer/app/app.config.ts` owns defaults. Do not create a second configuration
+  shape in a component, server route, or documentation example.
+- Keep server-only code in `layer/server/` or `layer/runtime/server/`. Do not
+  import it into client components or expose it through client configuration.
+- Packed-consumer tests are the release boundary. A source-workspace build does
+  not replace them.
+
 ## Ginko Docs documentation
 
 The documentation app is the public package documentation and a bilingual release fixture.
