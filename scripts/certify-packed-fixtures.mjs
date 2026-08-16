@@ -204,7 +204,16 @@ function copyFixture(variant, directory) {
   );
   writeFileSync(
     resolve(directory, "pnpm-workspace.yaml"),
-    "minimumReleaseAge: 1440\nminimumReleaseAgeStrict: true\nminimumReleaseAgeIgnoreMissingTime: false\n",
+    [
+      "minimumReleaseAge: 1440",
+      "minimumReleaseAgeStrict: true",
+      "minimumReleaseAgeIgnoreMissingTime: false",
+      "",
+      "allowBuilds:",
+      "  esbuild: true",
+      "  vue-demi: true",
+      "",
+    ].join("\n"),
   );
 }
 
