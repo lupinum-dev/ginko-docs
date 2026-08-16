@@ -75,9 +75,9 @@ finds the successful CI run for the current `main` commit, verifies its
 artifact again, pauses at the protected `npm` environment, publishes through
 npm trusted publishing, and creates the GitHub release.
 
-The version and its `v<version>` tag must not exist before the workflow starts.
-The workflow creates the tag as part of the GitHub release. Do not prepare or
-push a release tag from a workstation.
+For a new release, the version and its `v<version>` tag do not exist before the
+workflow starts. During recovery, an existing tag must target the same certified
+main commit. Do not prepare or push a release tag from a workstation.
 
 The npm trusted publisher must use these values:
 
@@ -94,9 +94,13 @@ Never publish from a workstation. Never run Changelogen with `--release` or `--p
 ## Recovery
 
 If publishing fails, do not build a replacement tarball. Fix the workflow in a
-pull request, let `main` CI certify a new exact artifact, and start `Publish`
-again. npm versions are immutable; choose a new version if npm accepted the
-package before a later step failed.
+pull request and start a new `Publish` dispatch from updated `main`. A rerun of
+the old run still uses the old workflow definition.
+
+If npm already accepted the exact certified bytes, the workflow verifies the
+registry SHA-1, provenance, and dist-tag, skips publication, and completes the
+same GitHub release. Different bytes stop the workflow. A GitHub-only failure
+does not require a new package version.
 
 ## Credential incidents
 
