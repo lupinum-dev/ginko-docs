@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
+const packageManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const workspacePolicy = readFileSync(resolve(root, "pnpm-workspace.yaml"), "utf8");
 const ciWorkflow = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
 const renovate = JSON.parse(readFileSync(resolve(root, "renovate.json"), "utf8"));
@@ -12,6 +13,10 @@ const check = (condition, message) => {
 };
 
 check(!existsSync(resolve(root, "vercel.json")), "Keep vercel.json in the deployable docs app.");
+check(
+  /^pnpm@(?:1[1-9]|[2-9]\d)\./u.test(packageManifest.packageManager ?? ""),
+  "Use pnpm 11 or newer for strict dependency quarantine.",
+);
 check(config.framework === "nuxtjs", "Select the Nuxt framework explicitly.");
 check(config.outputDirectory === null, "Let Nuxt and Vercel detect .vercel/output.");
 check(config.buildCommand === "pnpm --dir .. docs:build", "Build from the locked root workspace.");
