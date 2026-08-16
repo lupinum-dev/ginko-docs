@@ -25,6 +25,7 @@ check(
   ciWorkflow.includes("node scripts/verify-action-shas.mjs"),
   "CI must verify pinned Action commits upstream.",
 );
+check(!ciWorkflow.includes("GITHUB_TOKEN"), "Action verification must not receive GITHUB_TOKEN.");
 check(renovate.minimumReleaseAge === "1 day", "Renovate must match the 24-hour pnpm quarantine.");
 for (const requiredPolicy of [
   "minimumReleaseAge: 1440",
