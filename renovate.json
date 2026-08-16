@@ -3,7 +3,7 @@
   "extends": ["config:recommended"],
   "automerge": false,
   "dependencyDashboard": true,
-  "minimumReleaseAge": "3 days",
+  "minimumReleaseAge": "1 day",
   "pinDigests": true,
   "rangeStrategy": "replace",
   "schedule": ["before 6am on Monday"],

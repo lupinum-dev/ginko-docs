@@ -202,7 +202,10 @@ function copyFixture(variant, directory) {
       2,
     )}\n`,
   );
-  writeFileSync(resolve(directory, "pnpm-workspace.yaml"), "minimumReleaseAge: 1440\n");
+  writeFileSync(
+    resolve(directory, "pnpm-workspace.yaml"),
+    "minimumReleaseAge: 1440\nminimumReleaseAgeStrict: true\nminimumReleaseAgeIgnoreMissingTime: false\n",
+  );
 }
 
 async function allocatePort() {
