@@ -196,13 +196,25 @@ function copyFixture(variant, directory) {
           "vue-router": "^5.1.0",
         },
         devDependencies: { typescript: "^5.9.3", "vue-tsc": "^3.2.9" },
-        packageManager: "pnpm@10.32.1",
+        packageManager: "pnpm@11.21.0",
       },
       null,
       2,
     )}\n`,
   );
-  writeFileSync(resolve(directory, "pnpm-workspace.yaml"), "minimumReleaseAge: 1440\n");
+  writeFileSync(
+    resolve(directory, "pnpm-workspace.yaml"),
+    [
+      "minimumReleaseAge: 1440",
+      "minimumReleaseAgeStrict: true",
+      "minimumReleaseAgeIgnoreMissingTime: false",
+      "",
+      "allowBuilds:",
+      "  esbuild: true",
+      "  vue-demi: true",
+      "",
+    ].join("\n"),
+  );
 }
 
 async function allocatePort() {

@@ -173,15 +173,16 @@ describe("ginko docs release guardrails", () => {
     expect(contentEntry.defineGinkoDocsConfig).toBeTypeOf("function");
   });
 
-  it("publishes only an unused, certified release artifact", () => {
+  it("publishes only a certified release artifact for the exact tag", () => {
     const workflow = read(".github/workflows/publish.yml");
     const certification = read("scripts/certify-packed-fixtures.mjs");
 
-    expect(workflow).toContain("Require an unused release tag");
-    expect(workflow).toContain("git/ref/tags/v$RELEASE_VERSION");
+    expect(workflow).toContain('test -z "$tag_sha" || test "$tag_sha" = "$GITHUB_SHA"');
+    expect(workflow).toContain('test "$tag_sha" = "$GITHUB_SHA"');
+    expect(workflow).toContain('gh release edit "v$RELEASE_VERSION"');
     expect(workflow).toContain("environment: npm");
     expect(workflow).toContain("id-token: write");
-    expect(workflow).toContain("--ignore-scripts --provenance");
+    expect(workflow).toContain("'--ignore-scripts', '--provenance'");
     expect(workflow).not.toContain("NPM_TOKEN");
     expect(certification).toContain("minimumReleaseAge: 1440");
     expect(certification).not.toContain("minimumReleaseAgeExclude");
