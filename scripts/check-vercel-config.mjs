@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
+const expectedIgnoreCommand = 'if [ -z "$VERCEL_GIT_PREVIOUS_SHA" ]; then exit 1; fi; git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- . ../layer ../package.json ../pnpm-lock.yaml ../pnpm-workspace.yaml ../tsconfig.json ../vite.config.ts';
 const packageManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const workspacePolicy = readFileSync(resolve(root, "pnpm-workspace.yaml"), "utf8");
 const ciWorkflow = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
@@ -18,6 +19,8 @@ check(
   "Use pnpm 11 or newer for strict dependency quarantine.",
 );
 check(config.framework === "nuxtjs", "Select the Nuxt framework explicitly.");
+check(config.git?.deploymentEnabled === true, "Create a Vercel status for every pull-request commit.");
+check(config.ignoreCommand === expectedIgnoreCommand, "Skip deployments that cannot affect the documentation app.");
 check(config.outputDirectory === null, "Let Nuxt and Vercel detect .vercel/output.");
 check(config.buildCommand === "pnpm --dir .. docs:build", "Build from the locked root workspace.");
 check(!("installCommand" in config), "Let Vercel detect pnpm from the repository lockfile.");
