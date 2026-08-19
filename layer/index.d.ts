@@ -1,5 +1,8 @@
 import type { GinkoDocsAppConfig } from "./shared/types/app-config";
-import type { GinkoDocsNuxtConfig } from "./shared/types/nuxt-config";
+import type {
+  GinkoDocsNuxtConfig,
+  GinkoDocsSyntaxHighlightingConfig,
+} from "./shared/types/nuxt-config";
 
 type GinkoDocsAppConfigInput<T> = T extends readonly unknown[]
   ? T
@@ -22,6 +25,12 @@ declare module "nuxt/schema" {
 
   interface NuxtOptions {
     ginkoDocs?: GinkoDocsNuxtConfig;
+  }
+
+  interface PublicRuntimeConfig {
+    ginkoDocs: {
+      syntaxHighlighting: GinkoDocsSyntaxHighlightingConfig;
+    };
   }
 }
 

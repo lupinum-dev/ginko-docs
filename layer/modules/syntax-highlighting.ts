@@ -6,6 +6,11 @@ import type {
   GinkoDocsNuxtConfig,
 } from "../shared/types/nuxt-config";
 
+export const DEFAULT_SYNTAX_THEMES = {
+  light: "light-plus",
+  dark: "dark-plus",
+} as const satisfies GinkoDocsSyntaxHighlightingConfig["themes"];
+
 type ShikiPluginOptions = {
   preStyles?: boolean;
   transformers?: unknown[];
@@ -75,6 +80,16 @@ export default defineNuxtModule<GinkoDocsNuxtConfig>({
     configKey: "ginkoDocs",
   },
   async setup(options, nuxt) {
+    const themes = options.syntaxHighlighting?.themes ?? DEFAULT_SYNTAX_THEMES;
+
+    nuxt.options.runtimeConfig.public.ginkoDocs ??= {};
+    nuxt.options.runtimeConfig.public.ginkoDocs.syntaxHighlighting = {
+      themes: {
+        light: themes.light,
+        dark: themes.dark,
+      },
+    };
+
     if (!options.syntaxHighlighting) return;
 
     nuxt.options.content ??= {};

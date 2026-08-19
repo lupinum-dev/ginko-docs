@@ -7,6 +7,7 @@ import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { describe, expect, it } from "vite-plus/test";
 import {
   countShikiPlugins,
+  DEFAULT_SYNTAX_THEMES,
   findShikiPlugin,
   patchShikiThemes,
   resolveBundledTheme,
@@ -97,6 +98,23 @@ describe("syntax highlighting configuration", () => {
     expect(materialHtml).not.toBe(defaultHtml);
     expect(materialHtml).toContain("--shiki-light");
     expect(materialHtml).toContain("--shiki-dark");
+  });
+
+  it("exposes default syntax theme names for runtime hero highlighting", () => {
+    expect(DEFAULT_SYNTAX_THEMES).toEqual({
+      light: "light-plus",
+      dark: "dark-plus",
+    });
+  });
+
+  it("shows build-time syntax config on the docs landing hero", () => {
+    const config = read("docs/app/app.config.ts");
+    expect(config).toContain('filename: "nuxt.config.ts"');
+    expect(config).toContain("syntaxHighlighting:");
+    expect(config).toContain('light: "material-theme-lighter"');
+    expect(config).toContain('dark: "material-theme-palenight"');
+    expect(config).toContain('filename: "app.config.ts"');
+    expect(config).toContain('codeBlocks: "adaptive"');
   });
 
   it("keeps highlight and diff transformers active after patching", async () => {
