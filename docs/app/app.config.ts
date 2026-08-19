@@ -28,8 +28,11 @@ export default defineAppConfig({
     },
     nav: { socialIcons: true },
     social: {
-      discord: "https://discord.gg/RPH6SeA36N",
       github: "https://github.com/lupinum-dev/ginko-docs",
+      discord: {
+        href: "https://discord.gg/RPH6SeA36N",
+        icon: "logos:discord-icon",
+      },
     },
     feedback: { enabled: true },
     analytics: { plausible: { scriptId: "7B8poD6ZSLVeKsR3G6JHF" } },
