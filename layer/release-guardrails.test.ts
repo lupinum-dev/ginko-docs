@@ -164,6 +164,7 @@ describe("ginko docs release guardrails", () => {
     });
     expect(read("layer/content.js")).toContain("function defineGinkoDocsConfig(options)");
     expect(manifest.exports["./app-config"]).toBe("./shared/types/app-config.ts");
+    expect(manifest.exports["./nuxt-config"]).toBe("./shared/types/nuxt-config.ts");
     expect(manifest.exports["./components"]).toBe("./components.ts");
     expect(manifest.files).toContain("icon-bundle.ts");
     expect(read("layer/README.md")).toContain('<h1 align="center">@lupinum/ginko-docs</h1>');
@@ -209,6 +210,8 @@ describe("ginko docs release guardrails", () => {
 
     expect(declarations).toContain("type GinkoDocsAppConfigInput<T>");
     expect(declarations).toContain("ginkoDocs?: GinkoDocsAppConfigInput<GinkoDocsAppConfig>");
+    expect(declarations).toContain("interface NuxtConfig");
+    expect(declarations).toContain("ginkoDocs?: GinkoDocsNuxtConfig");
     expect(layerConfig).not.toContain("autoImport: false");
     expect(docsConfig).toContain("export default defineAppConfig({");
     expect(docsConfig).not.toContain("eyebrow");
