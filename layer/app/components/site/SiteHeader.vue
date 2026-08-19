@@ -27,7 +27,7 @@ import {
 import ModeToggle from "#ginko-docs/components/site/ModeToggle.vue";
 import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 
-const { mainNav } = useSiteNavigation();
+const { mainNav, socialLinks } = useSiteNavigation();
 const { openCommandCenter } = useCommandCenterState();
 const config = useGinkoDocsConfig();
 const { t } = useI18n();
@@ -127,7 +127,7 @@ watch(
     class="sticky top-0 z-50 flex h-14 w-full shrink-0 items-center border-b border-border bg-background/90 backdrop-blur-md"
   >
     <div
-      class="mx-auto flex w-full max-w-screen-2xl min-w-0 flex-1 items-center gap-3 px-4 min-[691px]:gap-4 md:px-6"
+      class="mx-auto flex w-full max-w-screen-2xl min-w-0 flex-1 items-center gap-3 px-4 min-[691px]:gap-4 min-[691px]:px-6"
     >
       <NuxtLink
         :to="homePath"
@@ -160,12 +160,14 @@ watch(
         <Button
           variant="outline"
           class="hidden h-9 min-w-40 max-w-[22.5rem] flex-1 justify-start gap-2 rounded-lg border-border/70 bg-muted/35 px-3 text-muted-foreground min-[691px]:flex"
-          :aria-label="t('nav.search')"
+          :aria-label="t('nav.searchDocumentation')"
           type="button"
           @click="openSearch"
         >
           <Icon name="lucide:search" class="size-4 shrink-0" aria-hidden="true" />
-          <span class="min-w-0 flex-1 truncate text-left">{{ t("nav.searchDocumentation") }}</span>
+          <span class="min-w-0 flex-1 truncate text-left" aria-hidden="true">{{
+            t("nav.searchDocumentation")
+          }}</span>
           <Kbd class="h-5 shrink-0 bg-background text-[10px]">{{ searchShortcut }}</Kbd>
         </Button>
 
@@ -174,7 +176,7 @@ watch(
             variant="ghost"
             size="icon"
             class="size-9 rounded-lg min-[691px]:hidden"
-            :aria-label="t('nav.search')"
+            :aria-label="t('nav.searchDocumentation')"
             type="button"
             @click="openSearch"
           >
@@ -330,7 +332,7 @@ watch(
                   </nav>
                 </div>
 
-                <div class="shrink-0 border-t border-border">
+                <div class="shrink-0 space-y-3 border-t border-border px-6 pt-4 pb-8">
                   <ClientOnly>
                     <ModeToggle variant="menu-row" />
                     <SiteLocaleSwitcher variant="menu-row" @navigate="closeMenu" />
@@ -339,6 +341,23 @@ watch(
                       <span class="block h-28" aria-hidden="true" />
                     </template>
                   </ClientOnly>
+                  <div
+                    v-if="!config.nav.socialIcons && socialLinks.length"
+                    class="flex flex-wrap items-center gap-2"
+                  >
+                    <NuxtLink
+                      v-for="link in socialLinks"
+                      :key="link.href"
+                      :to="link.href"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex h-9 items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                      @click="closeMenu"
+                    >
+                      <Icon v-if="link.icon" :name="link.icon" class="size-4" aria-hidden="true" />
+                      {{ link.label }}
+                    </NuxtLink>
+                  </div>
                 </div>
               </div>
             </SheetContent>

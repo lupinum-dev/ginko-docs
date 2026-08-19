@@ -61,7 +61,7 @@ function toggleColorMode() {
       aria-hidden="true"
     >
       <span
-        class="absolute top-0.5 size-5 rounded-full bg-background shadow-xs transition-transform"
+        class="absolute top-0.5 size-5 rounded-full bg-background shadow-xs transition-transform motion-reduce:transition-none"
         :class="isDark ? 'translate-x-[1.375rem]' : 'translate-x-0.5'"
       />
     </span>

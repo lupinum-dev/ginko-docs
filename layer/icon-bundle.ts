@@ -4,6 +4,7 @@ export const layerIconNames = [
   "circle-flags:de",
   "circle-flags:us",
   "logos:bun",
+  "logos:discord-icon",
   "logos:npm-icon",
   "logos:nuxt-icon",
   "logos:pnpm",
