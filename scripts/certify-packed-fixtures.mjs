@@ -43,6 +43,7 @@ const variants = [
     singleLocale: true,
     usesLayerLocaleDefault: true,
     blog: false,
+    syntaxHighlighting: true,
     nuxtVersion: "4.5.1",
   },
   { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.1" },
@@ -159,6 +160,24 @@ function copyFixture(variant, directory) {
       `${variant.name} locale fallback`,
     );
   }
+
+  if (variant.syntaxHighlighting) {
+    nuxtConfig = replaceRequired(
+      nuxtConfig,
+      'extends: ["@lupinum/ginko-docs"],',
+      `extends: ["@lupinum/ginko-docs"],
+  ginkoDocs: {
+    syntaxHighlighting: {
+      themes: {
+        light: "material-theme-lighter",
+        dark: "material-theme-palenight",
+      },
+    },
+  },`,
+      `${variant.name} syntax highlighting`,
+    );
+  }
+
   writeFileSync(nuxtConfigPath, nuxtConfig);
 
   const contentConfigPath = resolve(directory, "content.config.ts");
