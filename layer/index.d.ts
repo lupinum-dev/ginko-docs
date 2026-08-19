@@ -28,8 +28,8 @@ declare module "nuxt/schema" {
   }
 
   interface PublicRuntimeConfig {
-    ginkoDocs: {
-      syntaxHighlighting: GinkoDocsSyntaxHighlightingConfig;
+    ginkoDocs?: {
+      syntaxHighlighting?: GinkoDocsSyntaxHighlightingConfig;
     };
   }
 }

@@ -82,22 +82,27 @@ export default defineNuxtModule<GinkoDocsNuxtConfig>({
   async setup(options, nuxt) {
     const themes = options.syntaxHighlighting?.themes ?? DEFAULT_SYNTAX_THEMES;
 
-    nuxt.options.runtimeConfig.public.ginkoDocs ??= {};
-    nuxt.options.runtimeConfig.public.ginkoDocs.syntaxHighlighting = {
-      themes: {
-        light: themes.light,
-        dark: themes.dark,
+    nuxt.options.runtimeConfig.public.ginkoDocs = {
+      syntaxHighlighting: {
+        themes: {
+          light: themes.light,
+          dark: themes.dark,
+        },
       },
     };
 
     if (!options.syntaxHighlighting) return;
 
-    nuxt.options.content ??= {};
-    nuxt.options.content.markdown ??= {};
-    nuxt.options.content.markdown.plugins ??= [];
+    const content = nuxt.options.content;
+    if (!content) {
+      throw new Error("Ginko Docs could not locate the content module configuration.");
+    }
+
+    content.markdown ??= {};
+    content.markdown.plugins ??= [];
 
     await patchShikiThemes(
-      nuxt.options.content.markdown.plugins as MarkdownPlugin[],
+      content.markdown.plugins as MarkdownPlugin[],
       options.syntaxHighlighting.themes,
     );
   },
