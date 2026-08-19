@@ -277,6 +277,54 @@ function chromiumExecutable() {
   return executable;
 }
 
+async function assertHeaderLayout(page, variant) {
+  const overflow = await page.evaluate(() => {
+    const header = document.querySelector("header");
+    return header ? header.scrollWidth > header.clientWidth + 1 : false;
+  });
+  if (overflow) {
+    throw new Error(
+      `${variant.name} header overflowed horizontally at ${page.viewportSize()?.width}px.`,
+    );
+  }
+}
+
+async function certifyHeaderControls(page, variant) {
+  await assertHeaderLayout(page, variant);
+
+  const searchTrigger = page.getByRole("button", { name: /search/i }).first();
+  await searchTrigger.click();
+  const commandCenter = page.getByRole("dialog");
+  await commandCenter.waitFor({ state: "visible" });
+  await page.keyboard.press("Escape");
+  await commandCenter.waitFor({ state: "hidden" });
+
+  const viewportWidth = page.viewportSize()?.width ?? 1440;
+  if (viewportWidth >= 691) {
+    const themeToggle = page.locator('header [role="switch"]').first();
+    const initialTheme = await themeToggle.getAttribute("aria-checked");
+    await themeToggle.click();
+    await page.waitForFunction((previous) => {
+      const toggle = document.querySelector('header [role="switch"]');
+      return toggle?.getAttribute("aria-checked") !== previous;
+    }, initialTheme);
+  }
+
+  await page.getByRole("link", { name: "GitHub" }).first().waitFor({ state: "visible" });
+  await page.getByRole("link", { name: "Discord" }).first().waitFor({ state: "visible" });
+
+  if (variant.singleLocale || viewportWidth < 691) return;
+
+  const language = page.getByRole("button", { name: /language/i }).first();
+  await language.click();
+  await page.locator('a[lang="de"]').first().click();
+  await page.waitForURL((url) => url.pathname.startsWith("/de/"));
+  await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
+  await assertHeaderLayout(page, variant);
+  await page.getByRole("link", { name: "GitHub" }).first().focus();
+  await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "GitHub");
+}
+
 async function certifyBrowser(variant, directory) {
   const server = await startServer(directory);
   const browser = await chromium.launch({ executablePath: chromiumExecutable(), headless: true });
@@ -394,20 +442,17 @@ async function certifyBrowser(variant, directory) {
           throw new Error("The list fixture did not switch structural sections.");
         });
     }
-    if (!variant.singleLocale) {
-      const language = page.getByRole("button", { name: /language/i }).first();
-      await language.click();
-      await page.locator('a[lang="de"]').first().click();
-      await page.waitForURL((url) => url.pathname.startsWith("/de/"));
-      await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
-    }
+    await certifyHeaderControls(page, variant);
+
     if (variant.singleLocale) {
       const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
       await mobile.goto(`${server.baseURL}/docs/getting-started`, { waitUntil: "networkidle" });
+      await certifyHeaderControls(mobile, variant);
       await mobile.getByRole("button", { name: "Open menu" }).click();
       await mobile.getByRole("navigation", { name: "Mobile navigation" }).waitFor({
         state: "visible",
       });
+      await mobile.getByRole("switch").first().click();
       await mobile.locator('a[href="https://lupinum.com/impressum"]').waitFor({
         state: "attached",
       });
