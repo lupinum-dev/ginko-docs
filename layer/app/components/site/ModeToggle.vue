@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { Button } from "#ginko-docs/components/ui/button";
 import { computed } from "vue";
 import { useColorMode, useI18n } from "#imports";
 import { cn } from "#ginko-docs/utils";
+import { headerUtilityButtonClass } from "#ginko-docs/components/site/header-utils";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "#ginko-docs/components/ui/dropdown-menu";
+  nextExplicitColorMode,
+  themeToggleIcon,
+  themeToggleLabelKey,
+} from "#ginko-docs/components/site/mode-toggle.utils";
 
 const props = withDefaults(
   defineProps<{
-    variant?: "icon" | "menu-row" | "menu-tile" | "pill";
+    variant?: "icon" | "menu-row";
     class?: HTMLAttributes["class"];
   }>(),
   {
@@ -25,108 +23,58 @@ const props = withDefaults(
 const colorMode = useColorMode();
 const { t } = useI18n();
 
-const colorModeOptions = [
-  { value: "light", labelKey: "theme.light", icon: "lucide:sun" },
-  { value: "dark", labelKey: "theme.dark", icon: "lucide:moon" },
-  { value: "system", labelKey: "theme.system", icon: "lucide:monitor" },
-] as const;
+const isDark = computed(() => colorMode.value === "dark");
+const toggleIcon = computed(() => themeToggleIcon(isDark.value));
+const toggleLabel = computed(() => t(themeToggleLabelKey(isDark.value)));
 
-type ColorModePreference = (typeof colorModeOptions)[number]["value"];
-
-const selectedColorModeOption = computed(
-  () =>
-    colorModeOptions.find((option) => option.value === colorMode.preference) ??
-    colorModeOptions.find((option) => option.value === "system")!,
-);
-const triggerIcon = computed(() => selectedColorModeOption.value.icon);
-const nextExplicitColorModeIcon = computed(() =>
-  colorMode.value === "dark" ? "lucide:sun" : "lucide:moon",
-);
-const triggerLabel = computed(() => t(selectedColorModeOption.value.labelKey));
-
-function isColorModePreference(value: string): value is ColorModePreference {
-  return colorModeOptions.some((option) => option.value === value);
-}
-
-function setColorModePreference(value: unknown) {
-  if (typeof value === "string" && isColorModePreference(value)) {
-    colorMode.preference = value;
-  }
+function toggleColorMode() {
+  colorMode.preference = nextExplicitColorMode(isDark.value ? "dark" : "light");
 }
 </script>
 
 <template>
-  <DropdownMenu>
-    <DropdownMenuTrigger as-child>
-      <Button
-        v-if="variant === 'menu-row' || variant === 'menu-tile'"
-        variant="ghost"
-        :class="
-          cn(
-            variant === 'menu-tile'
-              ? 'h-14 w-full justify-between rounded-none px-3.5 text-sm font-semibold hover:bg-muted/40'
-              : 'h-[4.25rem] w-full justify-between rounded-none px-5 text-base font-semibold hover:bg-transparent',
-            props.class,
-          )
-        "
+  <button
+    v-if="variant === 'menu-row'"
+    type="button"
+    role="switch"
+    :aria-checked="isDark"
+    :aria-label="toggleLabel"
+    :class="
+      cn(
+        'flex h-14 w-full items-center justify-between rounded-none px-5 text-base font-semibold hover:bg-transparent',
+        props.class,
+      )
+    "
+    @click="toggleColorMode"
+  >
+    <span class="flex min-w-0 items-center gap-4">
+      <span
+        class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
       >
-        <span
-          class="flex min-w-0 items-center"
-          :class="variant === 'menu-tile' ? 'gap-3' : 'gap-4'"
-        >
-          <span
-            class="flex shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
-            :class="variant === 'menu-tile' ? 'size-8' : 'size-11'"
-          >
-            <Icon
-              :name="triggerIcon"
-              :class="variant === 'menu-tile' ? 'size-4' : 'size-5'"
-              aria-hidden="true"
-            />
-          </span>
-          <span class="truncate">{{
-            variant === "menu-tile" ? triggerLabel : t("theme.label")
-          }}</span>
-        </span>
-        <Icon
-          :name="variant === 'menu-tile' ? 'lucide:chevron-down' : 'lucide:chevron-right'"
-          :class="variant === 'menu-tile' ? 'size-4' : 'size-5'"
-          class="text-muted-foreground"
-          aria-hidden="true"
-        />
-      </Button>
-      <Button
-        v-else-if="variant === 'pill'"
-        variant="outline"
-        :class="cn('h-9 gap-2 rounded-full px-4 text-sm font-semibold', props.class)"
-      >
-        <Icon :name="triggerIcon" class="size-4" aria-hidden="true" />
-        <span>{{ triggerLabel }}</span>
-        <span class="sr-only">{{ t("theme.toggle") }}</span>
-      </Button>
-      <Button v-else variant="outline" size="icon" :class="cn('relative shrink-0', props.class)">
-        <Icon :name="nextExplicitColorModeIcon" class="size-[1.2rem]" aria-hidden="true" />
-        <span class="sr-only">{{ t("theme.toggle") }}</span>
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-44" :portal-disabled="variant !== 'icon'">
-      <DropdownMenuRadioGroup
-        :model-value="colorMode.preference"
-        @update:model-value="setColorModePreference"
-      >
-        <DropdownMenuRadioItem
-          v-for="option in colorModeOptions"
-          :key="option.value"
-          :value="option.value"
-          class="gap-3"
-        >
-          <template #indicator-icon>
-            <Icon name="lucide:check" class="size-4" aria-hidden="true" />
-          </template>
-          <Icon :name="option.icon" class="size-4" aria-hidden="true" />
-          <span>{{ t(option.labelKey) }}</span>
-        </DropdownMenuRadioItem>
-      </DropdownMenuRadioGroup>
-    </DropdownMenuContent>
-  </DropdownMenu>
+        <Icon :name="toggleIcon" class="size-5" aria-hidden="true" />
+      </span>
+      <span class="truncate">{{ t("theme.label") }}</span>
+    </span>
+    <span
+      class="relative inline-flex h-6 w-11 shrink-0 rounded-full border border-border bg-muted/60 transition-colors"
+      :class="isDark ? 'bg-foreground/80' : ''"
+      aria-hidden="true"
+    >
+      <span
+        class="absolute top-0.5 size-5 rounded-full bg-background shadow-xs transition-transform"
+        :class="isDark ? 'translate-x-[1.375rem]' : 'translate-x-0.5'"
+      />
+    </span>
+  </button>
+  <button
+    v-else
+    type="button"
+    role="switch"
+    :aria-checked="isDark"
+    :aria-label="toggleLabel"
+    :class="cn(headerUtilityButtonClass, props.class)"
+    @click="toggleColorMode"
+  >
+    <Icon :name="toggleIcon" class="size-[18px]" aria-hidden="true" />
+  </button>
 </template>

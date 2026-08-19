@@ -13,6 +13,11 @@ export const nav = {
   openMenu: { de: "Menü öffnen", en: "Open menu" },
   closeMenu: { de: "Menü schließen", en: "Close menu" },
   search: { de: "Suchen", en: "Search" },
+  searchDocumentation: {
+    de: "Dokumentation durchsuchen…",
+    en: "Search documentation…",
+  },
+  languageLabel: { de: "Sprache", en: "Language" },
   resources: { de: "Ressourcen", en: "Resources" },
   company: { de: "Unternehmen", en: "Company" },
   documentation: { de: "Dokumentation", en: "Documentation" },

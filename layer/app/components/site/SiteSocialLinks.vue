@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Button } from "#ginko-docs/components/ui/button";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
+import { headerUtilityButtonClass } from "#ginko-docs/components/site/header-utils";
 
 const { socialLinks } = useSiteNavigation();
 
@@ -9,23 +9,17 @@ defineEmits<{ navigate: [] }>();
 
 <template>
   <div v-if="socialLinks.length" class="flex items-center">
-    <Button
+    <NuxtLink
       v-for="link in socialLinks"
       :key="link.href"
-      as-child
-      variant="ghost"
-      size="icon"
-      class="text-muted-foreground hover:text-foreground"
+      :to="link.href"
+      target="_blank"
+      rel="noopener noreferrer"
+      :aria-label="link.label"
+      :class="headerUtilityButtonClass"
+      @click="$emit('navigate')"
     >
-      <NuxtLink
-        :to="link.href"
-        target="_blank"
-        rel="noopener noreferrer"
-        :aria-label="link.label"
-        @click="$emit('navigate')"
-      >
-        <Icon :name="link.icon ?? 'lucide:link'" class="size-[18px]" aria-hidden="true" />
-      </NuxtLink>
-    </Button>
+      <Icon :name="link.icon ?? 'lucide:link'" class="size-[18px]" aria-hidden="true" />
+    </NuxtLink>
   </div>
 </template>
