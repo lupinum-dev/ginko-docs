@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { parse } from "yaml";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
@@ -8,6 +9,7 @@ const expectedIgnoreCommand = "node scripts/vercel-ignore.mjs";
 const packageManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const workspacePolicy = readFileSync(resolve(root, "pnpm-workspace.yaml"), "utf8");
 const ciWorkflow = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
+const ciConfig = parse(ciWorkflow);
 const renovate = JSON.parse(readFileSync(resolve(root, "renovate.json"), "utf8"));
 const failures = [];
 const check = (condition, message) => {
@@ -49,6 +51,44 @@ check(
   "CI must verify pinned Action commits upstream.",
 );
 check(!ciWorkflow.includes("GITHUB_TOKEN"), "Action verification must not receive GITHUB_TOKEN.");
+const classifyScript = ciConfig.jobs.classify.steps.find(
+  (step) => step.name === "Select required lanes",
+)?.with?.script;
+check(typeof classifyScript === "string", "CI must classify expensive pull-request verification.");
+check(
+  ciConfig.jobs["pr-verification"].if === "always() && github.event_name == 'pull_request'",
+  "PR verification must always report for pull requests.",
+);
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+for (const scenario of [
+  { name: "top-level prose", event: "pull_request", paths: ["README.md"], full: "false" },
+  { name: "layer source", event: "pull_request", paths: ["layer/app.config.ts"], full: "true" },
+  {
+    name: "workflow policy",
+    event: "pull_request",
+    paths: [".github/workflows/ci.yml"],
+    full: "true",
+  },
+  { name: "main certification", event: "push", paths: [], full: "true" },
+]) {
+  const outputs = new Map();
+  await new AsyncFunction("context", "github", "core", classifyScript)(
+    {
+      eventName: scenario.event,
+      issue: { number: 1 },
+      repo: { owner: "lupinum-dev", repo: "ginko-docs" },
+    },
+    {
+      paginate: async () => scenario.paths.map((filename) => ({ filename })),
+      rest: { pulls: { listFiles() {} } },
+    },
+    { setOutput: (name, value) => outputs.set(name, value) },
+  );
+  check(
+    outputs.get("full") === scenario.full,
+    `CI classification failed the ${scenario.name} fixture.`,
+  );
+}
 check(renovate.minimumReleaseAge === "1 day", "Renovate must match the 24-hour pnpm quarantine.");
 for (const requiredPolicy of [
   "minimumReleaseAge: 1440",
