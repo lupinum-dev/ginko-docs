@@ -14,8 +14,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  classify:
+    name: Classify changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      pull-requests: read
+    outputs:
+      full: ${{ steps.paths.outputs.full }}
+    steps:
+      - name: Select required lanes
+        id: paths
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const runAll = context.eventName !== 'pull_request'
+            const files = runAll
+              ? []
+              : await github.paginate(github.rest.pulls.listFiles, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.issue.number,
+                  per_page: 100,
+                })
+            const paths = files.map((file) => file.filename)
+            const topLevelProseOnly =
+              paths.length > 0 &&
+              paths.every((path) =>
+                /^(?:README\.md$|CONTRIBUTING\.md$|SECURITY\.md$|MAINTAINING\.md$|AGENTS\.md$|CLAUDE\.md$|LICENSE$)/u.test(path),
+              )
+            core.setOutput('full', String(runAll || !topLevelProseOnly))
+
   validate:
     name: Release verification
+    needs: classify
+    if: needs.classify.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -53,17 +86,28 @@ jobs:
 
   pr-verification:
     name: PR verification
-    if: github.event_name == 'pull_request'
-    needs: validate
+    if: always() && github.event_name == 'pull_request'
+    needs:
+      - classify
+      - validate
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - run: echo "Release verification passed."
+      - name: Require selected verification
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          FULL: ${{ needs.classify.outputs.full }}
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+        run: |
+          test "$CLASSIFY_RESULT" = success
+          if [ "$FULL" = true ]; then test "$VALIDATE_RESULT" = success; else test "$VALIDATE_RESULT" = skipped; fi
 
   release-authorization:
     name: Release authorization
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: validate
+    needs:
+      - classify
+      - validate
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
