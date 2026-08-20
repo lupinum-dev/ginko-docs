@@ -43,13 +43,20 @@ const variants = [
     singleLocale: true,
     usesLayerLocaleDefault: true,
     blog: false,
+    socialMode: "none",
     nuxtVersion: "4.5.1",
   },
   { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.1" },
-  { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.1" },
+  {
+    name: "i18n-list",
+    switcher: "list",
+    singleLocale: false,
+    socialMode: "three",
+    nuxtVersion: "4.5.1",
+  },
 ];
 const plausibleScriptId = "CertificationScriptId";
-const headerOverflowWidths = [820, 700];
+const headerOverflowWidths = [1024, 820, 700, 690, 360];
 const defaultSocialLabels = {
   github: "GitHub",
   discord: "Discord",
@@ -148,6 +155,22 @@ function copyFixture(variant, directory) {
       /    analytics: \{ plausible: \{ scriptId: "[A-Za-z0-9_-]+" \} \},/u,
       `    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
       `${variant.name} analytics configuration`,
+    );
+  }
+  if (variant.socialMode === "none") {
+    appConfig = replaceRequired(
+      appConfig,
+      /    social: \{\n      github:[\s\S]*?\n    \},\n/u,
+      "    social: {},\n",
+      `${variant.name} empty social configuration`,
+    );
+  }
+  if (variant.socialMode === "three") {
+    appConfig = replaceRequired(
+      appConfig,
+      '        icon: "logos:discord-icon",\n      },\n',
+      '        icon: "logos:discord-icon",\n      },\n      linkedin: "https://www.linkedin.com/company/lupinum/",\n',
+      `${variant.name} three-social configuration`,
     );
   }
   writeFileSync(appConfigPath, appConfig);
@@ -335,6 +358,12 @@ async function certifyHeaderControls(page, variant, { socialLabels = [] } = {}) 
   await commandCenter.waitFor({ state: "visible" });
   await page.keyboard.press("Escape");
   await commandCenter.waitFor({ state: "hidden" });
+  const searchFocusReturned = await searchTrigger.evaluate(
+    (element) => document.activeElement === element,
+  );
+  if (!searchFocusReturned) {
+    throw new Error(`${variant.name} search did not restore focus to its trigger.`);
+  }
 
   const viewportWidth = page.viewportSize()?.width ?? 1440;
   if (viewportWidth >= 691) {
@@ -379,11 +408,21 @@ async function certifyHeaderOverflowWidths(page, variant) {
 }
 
 async function certifyMobileHeaderDrawer(page, _variant) {
-  await page.getByRole("button", { name: /(open menu|menü öffnen)/i }).click();
-  await page.getByRole("navigation", { name: /mobile navigation/i }).waitFor({
+  const menuTrigger = page.getByRole("button", { name: /(open menu|menü öffnen)/i });
+  await menuTrigger.click();
+  const navigation = page.getByRole("navigation", { name: /mobile navigation/i });
+  await navigation.waitFor({
     state: "visible",
   });
   await page.getByRole("switch").first().click();
+  await page.keyboard.press("Escape");
+  await navigation.waitFor({ state: "hidden" });
+  const menuFocusReturned = await menuTrigger.evaluate(
+    (element) => document.activeElement === element,
+  );
+  if (!menuFocusReturned) {
+    throw new Error("The mobile menu did not restore focus to its trigger.");
+  }
 }
 
 async function certifyBrowser(variant, directory) {

@@ -2,14 +2,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { nextColorModePreference, themeToggleIcon, themeToggleLabelKey } from "./mode-toggle.utils";
 
 describe("mode-toggle.utils", () => {
-  it("stores an override when the target differs from the OS preference", () => {
-    expect(nextColorModePreference("light", "light")).toBe("dark");
-    expect(nextColorModePreference("dark", "dark")).toBe("light");
-  });
-
-  it("clears the override when the target matches the OS preference", () => {
-    expect(nextColorModePreference("dark", "light")).toBe("system");
-    expect(nextColorModePreference("light", "dark")).toBe("system");
+  it("stores the reader's explicit opposite mode", () => {
+    expect(nextColorModePreference("light")).toBe("dark");
+    expect(nextColorModePreference("dark")).toBe("light");
   });
 
   it("represents the rendered mode in the icon and action label", () => {

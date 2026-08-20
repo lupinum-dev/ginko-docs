@@ -6,7 +6,6 @@ import { cn } from "#ginko-docs/utils";
 import { headerUtilityButtonClass } from "#ginko-docs/components/site/header-utils";
 import {
   nextColorModePreference,
-  readSystemColorMode,
   themeToggleIcon,
   themeToggleLabelKey,
 } from "#ginko-docs/components/site/mode-toggle.utils";
@@ -30,7 +29,7 @@ const toggleLabel = computed(() => t(themeToggleLabelKey(isDark.value)));
 
 function toggleColorMode() {
   const currentRendered = isDark.value ? "dark" : "light";
-  colorMode.preference = nextColorModePreference(currentRendered, readSystemColorMode());
+  colorMode.preference = nextColorModePreference(currentRendered);
 }
 </script>
 

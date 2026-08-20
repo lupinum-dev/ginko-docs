@@ -14,9 +14,9 @@ describe("Style 08 header social behavior", () => {
   it("preserves configured social order for the header rail", () => {
     expect(
       resolveSocialLinks({
-        github: "https://github.com/acme",
         discord: "https://discord.gg/acme",
+        github: "https://github.com/acme",
       }).map((item) => item.platform),
-    ).toEqual(["github", "discord"]);
+    ).toEqual(["discord", "github"]);
   });
 });
