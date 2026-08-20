@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.3.0
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.5...v0.3.0)
+
+### 🚀 Enhancements
+
+- **theme:** Keep code blocks dark by default ([#24](https://github.com/lupinum-dev/ginko-docs/pull/24))
+- **theme:** Add consumer-configurable syntax highlighting ([#29](https://github.com/lupinum-dev/ginko-docs/pull/29))
+- **header:** Adopt Style 08 command + quiet utilities site header ([#30](https://github.com/lupinum-dev/ginko-docs/pull/30))
+
+### 🩹 Fixes
+
+- **standard:** Recover releases without version churn ([#27](https://github.com/lupinum-dev/ginko-docs/pull/27))
+
+### 🤖 CI
+
+- **docs:** Cut unrelated Vercel build usage ([#28](https://github.com/lupinum-dev/ginko-docs/pull/28))
+
+### ❤️ Contributors
+
+- Matthias Amon
+
 ## v0.3.0-rc.5
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.4...v0.3.0-rc.5)
