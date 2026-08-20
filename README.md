@@ -13,7 +13,7 @@
 </p>
 
 > [!WARNING]
-> Ginko Docs is pre-1.0. Install `0.3.0-rc.5` from the npm `next` channel for evaluation.
+> Ginko Docs is stable in the 0.3 release line. Because it is pre-1.0, a later minor release can contain breaking changes.
 
 ## Why use Ginko Docs?
 
@@ -39,7 +39,7 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 Install the layer and its content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0-rc.5 @lupinum/ginko-content@0.4.0-rc.2
+pnpm add -D @lupinum/ginko-docs@0.3.0 @lupinum/ginko-content@0.4.0-rc.2
 ```
 
 Extend the layer:

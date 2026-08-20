@@ -52,7 +52,7 @@ The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` 
 2. Generate `CHANGELOG.md` and update `layer/package.json`:
 
    ```bash
-   vp run release:prepare -- -r 0.3.0-rc.5 --from v0.3.0-rc.4 --to HEAD
+   vp run release:prepare -r 0.3.0 --from v0.3.0-rc.5 --to HEAD
    ```
 
    Replace the example version and previous tag. The command does not commit,

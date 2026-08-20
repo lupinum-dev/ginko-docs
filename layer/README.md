@@ -13,7 +13,7 @@
 </p>
 
 > [!WARNING]
-> This package is pre-1.0. Install `0.3.0-rc.5` from the npm `next` channel for evaluation.
+> This package is stable in the 0.3 release line. Because it is pre-1.0, a later minor release can contain breaking changes.
 
 ## Purpose
 
@@ -29,7 +29,7 @@ Use this package when a Nuxt application needs documentation routes, navigation,
 ## Installation
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0-rc.5 @lupinum/ginko-content@0.4.0-rc.2
+pnpm add -D @lupinum/ginko-docs@0.3.0 @lupinum/ginko-content@0.4.0-rc.2
 ```
 
 ```ts
