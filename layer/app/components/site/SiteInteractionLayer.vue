@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeUnmount, onMounted } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, onMounted, watch } from "vue";
+import { useRoute } from "#imports";
 import SiteSearchPageHighlight from "#ginko-docs/features/search/components/SiteSearchPageHighlight.vue";
 import { useCommandCenterState } from "#ginko-docs/features/search/useCommandCenter";
 
 const SiteCommandCenter = defineAsyncComponent(
   () => import("#ginko-docs/features/search/components/SiteCommandCenter.vue"),
 );
-const { open, openCommandCenter } = useCommandCenterState();
+const route = useRoute();
+const { open, openCommandCenter, closeCommandCenter } = useCommandCenterState();
+
+watch(
+  () => route.fullPath,
+  () => closeCommandCenter(),
+);
 
 function handleGlobalShortcut(event: KeyboardEvent) {
   const element = event.target as HTMLElement | null;

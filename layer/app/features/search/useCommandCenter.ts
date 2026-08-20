@@ -1,7 +1,7 @@
 import { useLocalStorage } from "@vueuse/core";
 import { useContentSearch } from "@lupinum/ginko-content/client";
 import { computed, watch } from "vue";
-import { navigateTo, useI18n, useRoute, useState } from "#imports";
+import { navigateTo, useI18n, useState } from "#imports";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
 import { useSiteNavigation } from "#ginko-docs/composables/useSiteNavigation";
 import {
@@ -56,7 +56,6 @@ function flattenNavItems(items: DocsNavigationItem[]): DocsNavigationItem[] {
 }
 
 export async function useCommandCenter() {
-  const route = useRoute();
   const { locale, t } = useI18n();
   const localizedPath = useLocalizedPath();
   const {
@@ -278,13 +277,6 @@ export async function useCommandCenter() {
   watch(query, (value) => {
     searchQuery.value = value;
   });
-
-  watch(
-    () => route.fullPath,
-    () => {
-      closeCommandCenter();
-    },
-  );
 
   return {
     open,
