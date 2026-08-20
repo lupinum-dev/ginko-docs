@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
-const expectedIgnoreCommand =
-  'if [ -z "$VERCEL_GIT_PREVIOUS_SHA" ]; then exit 1; fi; git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- . ../layer ../package.json ../pnpm-lock.yaml ../pnpm-workspace.yaml ../tsconfig.json ../vite.config.ts';
+const expectedIgnoreCommand = "node scripts/vercel-ignore.mjs";
 const packageManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const workspacePolicy = readFileSync(resolve(root, "pnpm-workspace.yaml"), "utf8");
 const ciWorkflow = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
@@ -27,6 +27,19 @@ check(
 check(
   config.ignoreCommand === expectedIgnoreCommand,
   "Skip deployments that cannot affect the documentation app.",
+);
+const runIgnoreCommand = (previousSha) =>
+  spawnSync("sh", ["-c", config.ignoreCommand], {
+    cwd: resolve(root, "docs"),
+    env: { ...process.env, VERCEL_GIT_PREVIOUS_SHA: previousSha },
+  });
+check(
+  runIgnoreCommand("0000000000000000000000000000000000000000").status === 1,
+  "Build when a rebased or force-pushed previous commit is unavailable.",
+);
+check(
+  runIgnoreCommand("HEAD").status === 0,
+  "Skip the build when the documentation inputs are unchanged.",
 );
 check(config.outputDirectory === null, "Let Nuxt and Vercel detect .vercel/output.");
 check(config.buildCommand === "pnpm --dir .. docs:build", "Build from the locked root workspace.");

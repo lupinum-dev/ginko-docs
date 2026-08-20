@@ -2,6 +2,14 @@ import site from "./site.json" with { type: "json" };
 
 export default defineNuxtConfig({
   extends: ["../layer"],
+  ginkoDocs: {
+    syntaxHighlighting: {
+      themes: {
+        light: "material-theme-lighter",
+        dark: "material-theme-palenight",
+      },
+    },
+  },
   site: { url: site.url },
   i18n: {
     baseUrl: site.url,

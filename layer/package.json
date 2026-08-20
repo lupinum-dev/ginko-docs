@@ -48,7 +48,8 @@
       "default": "./content.js"
     },
     "./app-config": "./shared/types/app-config.ts",
-    "./components": "./components.ts"
+    "./components": "./components.ts",
+    "./nuxt-config": "./shared/types/nuxt-config.ts"
   },
   "publishConfig": {
     "access": "public"

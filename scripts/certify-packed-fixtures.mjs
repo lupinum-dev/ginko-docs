@@ -159,6 +159,7 @@ function copyFixture(variant, directory) {
       `${variant.name} locale fallback`,
     );
   }
+
   writeFileSync(nuxtConfigPath, nuxtConfig);
 
   const contentConfigPath = resolve(directory, "content.config.ts");

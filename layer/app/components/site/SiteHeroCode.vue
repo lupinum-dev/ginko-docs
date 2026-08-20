@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useId } from "vue";
-import { useAsyncData, useI18n } from "#imports";
+import { useAsyncData, useI18n, useRuntimeConfig } from "#imports";
 import { cn } from "../../utils";
 import { filenameExtension, resolveFileIcon } from "../../utils/file-icons";
 
@@ -15,6 +15,14 @@ export type SiteHeroCodeTab = {
 const props = defineProps<{ tabs: SiteHeroCodeTab[] }>();
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
+const syntaxThemes = computed(() => {
+  const themes = runtimeConfig.public.ginkoDocs?.syntaxHighlighting?.themes;
+  return {
+    light: themes?.light ?? "light-plus",
+    dark: themes?.dark ?? "dark-plus",
+  };
+});
 const regionId = useId();
 const activeIndex = ref(0);
 
@@ -38,9 +46,10 @@ function plainLines(code: string): string {
 }
 
 // Config code arrives as raw strings, so it skips the build-time content
-// pipeline; highlight here with the same Shiki themes the docs use.
+// pipeline; highlight here with the configured Shiki theme pair.
 const { data: highlighted } = await useAsyncData(`site-hero-code-${regionId}`, async () => {
   const { codeToHast, hastToHtml } = await import("shiki");
+  const themes = syntaxThemes.value;
 
   return Promise.all(
     props.tabs.map(async (tab) => {
@@ -49,7 +58,7 @@ const { data: highlighted } = await useAsyncData(`site-hero-code-${regionId}`, a
       try {
         const root = await codeToHast(tab.code, {
           lang,
-          themes: { light: "light-plus", dark: "dark-plus" },
+          themes,
         });
         const pre = root.children.find((node) => node.type === "element");
         const code = pre?.children.find((node) => node.type === "element");

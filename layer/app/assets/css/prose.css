@@ -5,7 +5,7 @@
   --content-prose-heading-foreground: color-mix(in oklab, var(--foreground) 90%, transparent);
   /* Inline code belongs to its surrounding surface; monospace type carries
      the distinction without adding a nested chip background. */
-  --content-prose-inline-code-background: transparent;
+  --content-prose-inline-code-background: var(--background);
   --content-prose-inline-code-foreground: var(--foreground);
   --content-prose-code-highlight-border: var(--code-border);
   /* Kept light enough that Shiki's light-plus tokens stay WCAG AA on top. */
@@ -303,6 +303,7 @@
   border-radius: max(0.3125rem, calc(var(--radius) - 5px));
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+  border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent);
   background-color: var(--content-prose-inline-code-background, var(--muted));
   color: var(--content-prose-inline-code-foreground, var(--foreground));
   /* em-based so chips scale with tables, callouts, and body text alike */

@@ -129,7 +129,7 @@ describe("theme palettes", () => {
       /\.content-codeblock-copy-button:focus-visible \{([\s\S]*?)\n\}/,
     )?.[1];
 
-    expect(prose).toContain("--content-prose-inline-code-background: transparent");
+    expect(prose).toContain("--content-prose-inline-code-background: var(--background)");
     expect(copyButton).toContain("color: var(--muted-foreground)");
     expect(copyButton).not.toContain("var(--primary)");
     expect(copyButtonInteraction).toContain("color: var(--foreground)");

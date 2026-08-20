@@ -34,6 +34,7 @@ export default defineNuxtConfig({
   alias: { "#ginko-docs": app },
   css: [join(app, "assets/css/tailwind.css"), join(app, "assets/css/prose.css")],
   modules: [
+    join(root, "modules/syntax-highlighting"),
     join(root, "modules/feature-routing"),
     "@nuxt/icon",
     "@nuxt/fonts",
