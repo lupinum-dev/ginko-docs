@@ -527,10 +527,13 @@ async function certifyBrowser(variant, directory) {
       const linksBefore = await links.evaluateAll((elements) =>
         elements.map((element) => element.getAttribute("href")),
       );
+      const pathBefore = new URL(page.url()).pathname;
       await sidebar
         .locator('[data-slot="docs-sidebar-list"] button[aria-pressed="false"]')
         .first()
         .click();
+      await page.waitForURL((url) => url.pathname !== pathBefore);
+      await sidebar.waitFor({ state: "visible" });
       await page
         .waitForFunction((before) => {
           const sidebarElement = document.querySelector('aside[data-variant="desktop"]');
