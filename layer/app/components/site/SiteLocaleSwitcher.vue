@@ -11,9 +11,10 @@ import { cn } from "#ginko-docs/utils";
 import { computed } from "vue";
 import { useI18n } from "#imports";
 import { useLocalizedRouteSwitch } from "#ginko-docs/composables/useLocalizedRouteSwitch";
+import { headerUtilityButtonClass } from "#ginko-docs/components/site/header-utils";
 import { locales as configuredLocales } from "../../../i18n/locales";
 
-type LocaleSwitcherVariant = "dropdown" | "menu-row" | "menu-tile" | "segmented" | "pill";
+type LocaleSwitcherVariant = "dropdown" | "menu-row";
 
 type LocaleEntry = {
   code: string;
@@ -21,7 +22,6 @@ type LocaleEntry = {
   name?: string;
   nativeName?: string;
   shortLabel?: string;
-  flagIcon?: string;
 };
 
 const props = withDefaults(
@@ -56,7 +56,6 @@ function normalizeLocale(entry: string | LocaleEntry) {
       name: configured?.name ?? entry.toUpperCase(),
       nativeName: configured?.nativeName ?? configured?.name ?? entry.toUpperCase(),
       shortLabel: configured?.shortLabel ?? entry.toUpperCase(),
-      flagIcon: configured?.flagIcon,
     };
   }
 
@@ -68,7 +67,6 @@ function normalizeLocale(entry: string | LocaleEntry) {
     nativeName:
       entry.nativeName ?? entry.name ?? configured?.nativeName ?? entry.code.toUpperCase(),
     shortLabel: entry.shortLabel ?? configured?.shortLabel ?? entry.code.toUpperCase(),
-    flagIcon: entry.flagIcon ?? configured?.flagIcon,
   };
 }
 
@@ -86,11 +84,6 @@ const localeLinks = computed(() =>
 const currentLocale = computed(
   () => localeLinks.value.find((entry) => entry.current) ?? localeLinks.value[0],
 );
-const currentMobileLocaleLabel = computed(() => {
-  const code = currentLocale.value?.code;
-  if (!code) return "";
-  return currentLocale.value?.name ?? code.toUpperCase();
-});
 
 function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unknown }) {
   emit("navigate");
@@ -105,22 +98,11 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
     <ClientOnly>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" class="h-9 gap-1.5 px-2.5" :aria-label="t('nav.language')">
-            <Icon
-              v-if="currentLocale?.flagIcon"
-              :name="currentLocale.flagIcon"
-              class="size-4 rounded-full"
-              aria-hidden="true"
-            />
-            <span class="text-xs font-semibold">{{ currentLocale?.shortLabel }}</span>
-            <Icon
-              name="lucide:chevron-down"
-              class="size-3.5 text-muted-foreground"
-              aria-hidden="true"
-            />
-          </Button>
+          <button type="button" :class="headerUtilityButtonClass" :aria-label="t('nav.language')">
+            <Icon name="lucide:languages" class="size-[18px]" aria-hidden="true" />
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-44">
+        <DropdownMenuContent align="end" class="w-52">
           <DropdownMenuItem v-for="entry in localeLinks" :key="entry.code" as-child>
             <NuxtLink
               :to="entry.to"
@@ -128,17 +110,13 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
               :lang="entry.code"
               :aria-label="entry.name"
               :aria-current="entry.current ? 'page' : undefined"
-              class="flex w-full items-center gap-2"
+              class="flex w-full items-center gap-3"
               @click="trackLocaleNavigation(entry)"
             >
-              <Icon
-                v-if="entry.flagIcon"
-                :name="entry.flagIcon"
-                class="size-4 rounded-full"
-                aria-hidden="true"
-              />
+              <span class="w-7 text-xs font-semibold tracking-wide text-muted-foreground">{{
+                entry.shortLabel
+              }}</span>
               <span class="flex-1">{{ entry.nativeName }}</span>
-              <span class="text-xs text-muted-foreground">{{ entry.shortLabel }}</span>
               <Icon
                 v-if="entry.current"
                 name="lucide:check"
@@ -151,76 +129,39 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
       </DropdownMenu>
 
       <template #fallback>
-        <!-- Reserves the trigger's box before hydration. -->
-        <span class="inline-flex h-9 w-[4.25rem] rounded-md" aria-hidden="true" />
+        <span class="inline-flex size-9 shrink-0 rounded-lg" aria-hidden="true" />
       </template>
     </ClientOnly>
   </div>
 
   <div
-    v-else-if="
-      localeLinks.length > 1 &&
-      (variant === 'menu-row' || variant === 'menu-tile' || variant === 'pill')
-    "
+    v-else-if="localeLinks.length > 1 && variant === 'menu-row'"
     :class="cn('items-center', props.class)"
   >
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <Button
-          v-if="variant === 'pill'"
-          variant="outline"
-          class="h-9 gap-2 rounded-full px-4 text-sm font-semibold"
-          :aria-label="t('nav.language')"
-        >
-          <Icon
-            v-if="currentLocale?.flagIcon"
-            :name="currentLocale.flagIcon"
-            class="size-4 rounded-full"
-            aria-hidden="true"
-          />
-          <span>{{ currentLocale?.shortLabel }}</span>
-        </Button>
-        <Button
-          v-else
           variant="ghost"
-          :class="
-            cn(
-              variant === 'menu-tile'
-                ? 'h-14 w-full justify-between rounded-none px-3.5 text-sm font-semibold hover:bg-muted/40'
-                : 'h-[4.25rem] w-full justify-between rounded-none px-5 text-base font-semibold hover:bg-transparent',
-            )
-          "
+          class="h-14 w-full justify-between rounded-none px-5 text-base font-semibold hover:bg-transparent"
           :aria-label="t('nav.language')"
         >
-          <span
-            class="flex min-w-0 items-center"
-            :class="variant === 'menu-tile' ? 'gap-3' : 'gap-4'"
-          >
+          <span class="flex min-w-0 items-center gap-4">
             <span
-              v-if="variant === 'menu-tile' && currentLocale?.flagIcon"
-              class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/60"
+              class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-foreground"
             >
-              <Icon :name="currentLocale.flagIcon" class="size-5 rounded-full" aria-hidden="true" />
+              <Icon name="lucide:languages" class="size-5" aria-hidden="true" />
             </span>
-            <Icon
-              v-else-if="currentLocale?.flagIcon"
-              :name="currentLocale.flagIcon"
-              class="size-7 shrink-0 rounded-full"
-              aria-hidden="true"
-            />
-            <span class="truncate">
-              {{ variant === "menu-tile" ? currentMobileLocaleLabel : currentLocale?.shortLabel }}
-            </span>
+            <span class="truncate">{{ t("nav.languageLabel") }}</span>
           </span>
-          <Icon
-            name="lucide:chevron-down"
-            class="text-muted-foreground"
-            :class="variant === 'menu-tile' ? 'size-4' : 'size-5'"
-            aria-hidden="true"
-          />
+          <span class="flex items-center gap-2 text-muted-foreground">
+            <span class="text-sm font-semibold text-foreground">{{
+              currentLocale?.nativeName
+            }}</span>
+            <Icon name="lucide:chevron-down" class="size-5" aria-hidden="true" />
+          </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" class="w-44" portal-disabled>
+      <DropdownMenuContent align="end" class="w-52" portal-disabled>
         <DropdownMenuItem v-for="entry in localeLinks" :key="entry.code" as-child>
           <NuxtLink
             :to="entry.to"
@@ -228,17 +169,13 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
             :lang="entry.code"
             :aria-label="entry.name"
             :aria-current="entry.current ? 'page' : undefined"
-            class="flex w-full items-center gap-2"
+            class="flex w-full items-center gap-3"
             @click="trackLocaleNavigation(entry)"
           >
-            <Icon
-              v-if="entry.flagIcon"
-              :name="entry.flagIcon"
-              class="size-4 rounded-full"
-              aria-hidden="true"
-            />
+            <span class="w-7 text-xs font-semibold tracking-wide text-muted-foreground">{{
+              entry.shortLabel
+            }}</span>
             <span class="flex-1">{{ entry.nativeName }}</span>
-            <span class="text-xs text-muted-foreground">{{ entry.shortLabel }}</span>
             <Icon
               v-if="entry.current"
               name="lucide:check"
@@ -249,36 +186,5 @@ function trackLocaleNavigation(_entry: { code: string; current: boolean; to: unk
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  </div>
-
-  <div
-    v-else-if="localeLinks.length > 1"
-    :class="cn('items-center gap-1 rounded-md border border-border p-0.5', props.class)"
-    :aria-label="t('nav.language')"
-  >
-    <NuxtLink
-      v-for="entry in localeLinks"
-      :key="entry.code"
-      :to="entry.to"
-      :hreflang="entry.language"
-      :lang="entry.code"
-      :aria-label="entry.name"
-      :aria-current="entry.current ? 'page' : undefined"
-      class="inline-flex h-8 items-center gap-1.5 rounded px-2 text-xs font-medium transition-colors"
-      :class="
-        entry.current
-          ? 'bg-muted text-foreground'
-          : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-      "
-      @click="trackLocaleNavigation(entry)"
-    >
-      <Icon
-        v-if="entry.flagIcon"
-        :name="entry.flagIcon"
-        class="size-4 rounded-full"
-        aria-hidden="true"
-      />
-      <span>{{ entry.shortLabel }}</span>
-    </NuxtLink>
   </div>
 </template>

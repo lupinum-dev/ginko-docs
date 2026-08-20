@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Button } from "#ginko-docs/components/ui/button";
 import { Kbd } from "#ginko-docs/components/ui/kbd";
-import { Separator } from "#ginko-docs/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -43,9 +42,6 @@ const searchShortcut = computed(() => (metaKey.value === "⌘" ? "⌘K" : "Ctrl 
 const homePath = computed(() => localizedPath("home"));
 const docsPath = computed(() => localizedPath("docs"));
 
-// The mobile menu has two levels: the root nav in hero-scale type, and a docs
-// level with the section entry links. The docs nav link drills in; every other
-// link navigates directly.
 const { data: docsNavData } = useDocsNavigationData();
 const docsSections = computed(() =>
   getDocsNavigationSections(
@@ -107,8 +103,6 @@ function closeMenu() {
   isMobileMenuOpen.value = false;
 }
 
-// Scroll lock, Escape handling, and focus trapping come from the Sheet
-// (reka-ui Dialog); only route-driven closing is ours.
 function openSearch() {
   isMobileMenuOpen.value = false;
   openCommandCenter();
@@ -116,7 +110,6 @@ function openSearch() {
 
 watch(isMobileMenuOpen, (open) => {
   if (open) {
-    // Context-aware entry: docs readers land on their section links first.
     menuLevel.value = hasDocsLevel.value && isActive(docsPath.value) ? "docs" : "root";
   }
 });
@@ -133,20 +126,26 @@ watch(
   <header
     class="sticky top-0 z-50 flex h-14 w-full shrink-0 items-center border-b border-border bg-background/90 backdrop-blur-md"
   >
-    <div class="mx-auto flex w-full max-w-screen-2xl flex-1 items-center gap-4 px-4 md:px-6">
+    <div
+      class="mx-auto flex w-full max-w-screen-2xl min-w-0 flex-1 items-center gap-3 px-4 min-[691px]:gap-4 min-[691px]:px-6"
+    >
       <NuxtLink
         :to="homePath"
-        class="flex items-center gap-2 font-semibold text-foreground"
+        class="flex shrink-0 items-center gap-2 font-semibold text-foreground"
         :aria-label="t('nav.home')"
       >
         <SiteLogoMark />
       </NuxtLink>
-      <nav class="ml-4 hidden items-center gap-1 md:flex" :aria-label="t('nav.main')">
+
+      <nav
+        class="ml-1 hidden shrink-0 items-center gap-1 min-[691px]:ml-2 min-[691px]:flex"
+        :aria-label="t('nav.main')"
+      >
         <NuxtLink
           v-for="item in mainNav"
           :key="item.href"
           :to="item.href"
-          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
           :class="
             isActive(item.href)
               ? 'bg-muted text-foreground'
@@ -156,210 +155,198 @@ watch(
           {{ item.label }}
         </NuxtLink>
       </nav>
-      <div class="ml-auto flex items-center gap-1.5">
+
+      <div class="ml-auto flex min-w-0 items-center gap-1 min-[691px]:gap-1.5">
         <Button
           variant="outline"
-          class="hidden h-9 w-52 justify-start gap-2 px-3 text-muted-foreground md:flex"
-          :aria-label="t('nav.search')"
+          class="hidden h-9 w-[22.5rem] min-w-0 max-w-[22.5rem] flex-1 justify-start gap-2 overflow-hidden rounded-lg border-border/70 bg-muted/35 px-3 whitespace-nowrap text-muted-foreground min-[691px]:flex"
+          :aria-label="t('nav.searchDocumentation')"
           type="button"
           @click="openSearch"
         >
           <Icon name="lucide:search" class="size-4 shrink-0" aria-hidden="true" />
-          <span class="flex-1 text-left">{{ t("nav.search") }}...</span>
-          <Kbd class="h-5 bg-background text-[10px]">{{ searchShortcut }}</Kbd>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          class="md:hidden"
-          :aria-label="t('nav.search')"
-          type="button"
-          @click="openSearch"
-        >
-          <Icon name="lucide:search" class="size-5" aria-hidden="true" />
+          <span class="min-w-0 flex-1 truncate text-left" aria-hidden="true">{{
+            t("nav.searchDocumentation")
+          }}</span>
+          <Kbd class="hidden h-5 shrink-0 bg-background text-[10px] min-[900px]:inline-flex">{{
+            searchShortcut
+          }}</Kbd>
         </Button>
 
-        <Separator orientation="vertical" class="mx-0.5 hidden h-5 md:block" />
-
-        <ClientOnly>
-          <div class="hidden md:block">
-            <ModeToggle />
-          </div>
-
-          <template #fallback>
-            <span
-              class="hidden size-9 shrink-0 rounded-md border border-border bg-background md:block"
-              aria-hidden="true"
-            />
-          </template>
-        </ClientOnly>
-
-        <div v-if="config.nav.socialIcons" class="hidden md:block">
-          <SiteSocialLinks />
-        </div>
-
-        <SiteLocaleSwitcher class="hidden md:flex" />
-        <Sheet v-model:open="isMobileMenuOpen">
-          <SheetTrigger as-child>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="md:hidden"
-              :aria-label="t('nav.openMenu')"
-              type="button"
-            >
-              <Icon name="lucide:menu" class="size-5" aria-hidden="true" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="top"
-            class="inset-0 h-dvh gap-0 overflow-hidden border-b-0 bg-background/95 p-0 backdrop-blur-md md:hidden"
+        <div class="flex shrink-0 items-center gap-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-9 rounded-lg min-[691px]:hidden"
+            :aria-label="t('nav.searchDocumentation')"
+            type="button"
+            @click="openSearch"
           >
-            <SheetTitle class="sr-only">{{ t("nav.mobile") }}</SheetTitle>
-            <SheetDescription class="sr-only">{{ t("nav.main") }}</SheetDescription>
-            <div class="flex h-full min-h-0 flex-col pt-16">
-              <div
-                class="flex min-h-0 w-[200%] flex-1 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
-                :class="menuLevel === 'docs' ? '-translate-x-1/2' : ''"
+            <Icon name="lucide:search" class="size-[18px]" aria-hidden="true" />
+          </Button>
+
+          <ClientOnly>
+            <ModeToggle class="hidden min-[691px]:inline-flex" />
+
+            <template #fallback>
+              <span
+                class="hidden size-9 shrink-0 rounded-lg min-[691px]:inline-flex"
+                aria-hidden="true"
+              />
+            </template>
+          </ClientOnly>
+
+          <SiteLocaleSwitcher class="hidden min-[691px]:flex" />
+
+          <SiteSocialLinks v-if="config.nav.socialIcons" />
+
+          <Sheet v-model:open="isMobileMenuOpen">
+            <SheetTrigger as-child>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="size-9 rounded-lg min-[691px]:hidden"
+                :aria-label="t('nav.openMenu')"
+                type="button"
               >
-                <nav
-                  class="flex min-h-0 w-1/2 flex-col overflow-x-hidden overflow-y-auto px-6"
-                  :aria-label="t('nav.mobile')"
-                  :inert="menuLevel !== 'root'"
+                <Icon name="lucide:menu" class="size-[18px]" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="top"
+              class="inset-0 h-dvh gap-0 overflow-hidden border-b-0 bg-background/95 p-0 backdrop-blur-md min-[691px]:hidden"
+            >
+              <SheetTitle class="sr-only">{{ t("nav.mobile") }}</SheetTitle>
+              <SheetDescription class="sr-only">{{ t("nav.main") }}</SheetDescription>
+              <div class="flex h-full min-h-0 flex-col pt-16">
+                <div
+                  class="flex min-h-0 w-[200%] flex-1 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+                  :class="menuLevel === 'docs' ? '-translate-x-1/2' : ''"
                 >
-                  <div class="m-auto w-full space-y-8 py-6">
-                    <template v-for="item in rootNavItems" :key="item.href">
-                      <button
-                        v-if="item.drill"
-                        :ref="setDrillButtonRef"
-                        type="button"
-                        class="group block w-full text-start"
-                        @click="drillIntoDocs"
-                      >
-                        <span
-                          class="flex items-center gap-2.5 text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
-                          :class="
-                            isActive(item.href)
-                              ? 'text-foreground'
-                              : 'text-foreground/70 transition-colors group-hover:text-foreground'
-                          "
+                  <nav
+                    class="flex min-h-0 w-1/2 flex-col overflow-x-hidden overflow-y-auto px-6"
+                    :aria-label="t('nav.mobile')"
+                    :inert="menuLevel !== 'root'"
+                  >
+                    <div class="m-auto w-full space-y-8 py-6">
+                      <template v-for="item in rootNavItems" :key="item.href">
+                        <button
+                          v-if="item.drill"
+                          :ref="setDrillButtonRef"
+                          type="button"
+                          class="group block w-full text-start"
+                          @click="drillIntoDocs"
                         >
-                          {{ item.label }}
-                          <Icon
-                            name="lucide:chevron-right"
-                            class="size-6 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                          <span
+                            class="flex items-center gap-2.5 text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
+                            :class="
+                              isActive(item.href)
+                                ? 'text-foreground'
+                                : 'text-foreground/70 transition-colors group-hover:text-foreground'
+                            "
+                          >
+                            {{ item.label }}
+                            <Icon
+                              name="lucide:chevron-right"
+                              class="size-6 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                              aria-hidden="true"
+                            />
+                          </span>
+                          <span
+                            v-if="item.description"
+                            class="mt-1.5 block text-sm text-muted-foreground"
+                          >
+                            {{ item.description }}
+                          </span>
+                        </button>
+                        <NuxtLink v-else :to="item.href" class="group block" @click="closeMenu">
+                          <span
+                            class="block text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
+                            :class="
+                              isActive(item.href)
+                                ? 'text-foreground'
+                                : 'text-foreground/70 transition-colors group-hover:text-foreground'
+                            "
+                          >
+                            {{ item.label }}
+                          </span>
+                          <span
+                            v-if="item.description"
+                            class="mt-1.5 block text-sm text-muted-foreground"
+                          >
+                            {{ item.description }}
+                          </span>
+                        </NuxtLink>
+                      </template>
+                    </div>
+                  </nav>
+
+                  <nav
+                    v-if="hasDocsLevel"
+                    class="flex min-h-0 w-1/2 flex-col px-6"
+                    :aria-label="docsLevelTitle"
+                    :inert="menuLevel !== 'docs'"
+                  >
+                    <button
+                      ref="docsBackButton"
+                      type="button"
+                      class="flex items-center gap-1 self-start py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                      @click="backToRoot"
+                    >
+                      <Icon name="lucide:chevron-left" class="size-4" aria-hidden="true" />
+                      {{ t("nav.menu") }}
+                    </button>
+                    <p
+                      class="mt-1 text-[2rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground"
+                    >
+                      {{ docsLevelTitle }}
+                    </p>
+                    <div class="-mx-2 mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-4">
+                      <template v-for="section in docsMenuSections" :key="section.id">
+                        <p
+                          v-if="section.title"
+                          class="mt-6 mb-1 px-2 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase first:mt-2"
+                        >
+                          {{ section.title }}
+                        </p>
+                        <NuxtLink
+                          v-for="link in section.links"
+                          :key="link.id"
+                          :to="link.href"
+                          class="flex items-center rounded-md px-2 py-2 text-lg font-semibold transition-colors"
+                          :class="
+                            link.active
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-foreground hover:bg-muted/60'
+                          "
+                          :aria-current="link.active ? 'true' : undefined"
+                          @click="closeMenu"
+                        >
+                          {{ link.label }}
+                          <span
+                            v-if="link.active"
+                            class="mr-1 ml-auto size-1.5 rounded-full bg-primary"
                             aria-hidden="true"
                           />
-                        </span>
-                        <span
-                          v-if="item.description"
-                          class="mt-1.5 block text-sm text-muted-foreground"
-                        >
-                          {{ item.description }}
-                        </span>
-                      </button>
-                      <NuxtLink v-else :to="item.href" class="group block" @click="closeMenu">
-                        <span
-                          class="block text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
-                          :class="
-                            isActive(item.href)
-                              ? 'text-foreground'
-                              : 'text-foreground/70 transition-colors group-hover:text-foreground'
-                          "
-                        >
-                          {{ item.label }}
-                        </span>
-                        <span
-                          v-if="item.description"
-                          class="mt-1.5 block text-sm text-muted-foreground"
-                        >
-                          {{ item.description }}
-                        </span>
-                      </NuxtLink>
-                    </template>
-                  </div>
-                </nav>
+                        </NuxtLink>
+                      </template>
+                    </div>
+                  </nav>
+                </div>
 
-                <nav
-                  v-if="hasDocsLevel"
-                  class="flex min-h-0 w-1/2 flex-col px-6"
-                  :aria-label="docsLevelTitle"
-                  :inert="menuLevel !== 'docs'"
-                >
-                  <button
-                    ref="docsBackButton"
-                    type="button"
-                    class="flex items-center gap-1 self-start py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-                    @click="backToRoot"
-                  >
-                    <Icon name="lucide:chevron-left" class="size-4" aria-hidden="true" />
-                    {{ t("nav.menu") }}
-                  </button>
-                  <p
-                    class="mt-1 text-[2rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground"
-                  >
-                    {{ docsLevelTitle }}
-                  </p>
-                  <div class="-mx-2 mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-4">
-                    <template v-for="section in docsMenuSections" :key="section.id">
-                      <p
-                        v-if="section.title"
-                        class="mt-6 mb-1 px-2 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase first:mt-2"
-                      >
-                        {{ section.title }}
-                      </p>
-                      <NuxtLink
-                        v-for="link in section.links"
-                        :key="link.id"
-                        :to="link.href"
-                        class="flex items-center rounded-md px-2 py-2 text-lg font-semibold transition-colors"
-                        :class="
-                          link.active
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-muted/60'
-                        "
-                        :aria-current="link.active ? 'true' : undefined"
-                        @click="closeMenu"
-                      >
-                        {{ link.label }}
-                        <span
-                          v-if="link.active"
-                          class="mr-1 ml-auto size-1.5 rounded-full bg-primary"
-                          aria-hidden="true"
-                        />
-                      </NuxtLink>
-                    </template>
-                  </div>
-                </nav>
-              </div>
-
-              <div class="shrink-0 space-y-3.5 px-6 pt-4 pb-8">
-                <button
-                  type="button"
-                  class="flex h-11 w-full items-center gap-2.5 rounded-md border border-border bg-muted/40 px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
-                  @click="openSearch"
-                >
-                  <Icon name="lucide:search" class="size-4" aria-hidden="true" />
-                  {{ t("nav.search") }}...
-                  <Kbd class="ml-auto h-5 bg-background text-[10px]">{{ searchShortcut }}</Kbd>
-                </button>
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="shrink-0 space-y-3 border-t border-border px-6 pt-4 pb-8">
                   <ClientOnly>
-                    <ModeToggle variant="pill" />
+                    <ModeToggle variant="menu-row" />
+                    <SiteLocaleSwitcher variant="menu-row" @navigate="closeMenu" />
+
                     <template #fallback>
-                      <span
-                        class="h-9 w-24 rounded-full border border-border bg-background"
-                        aria-hidden="true"
-                      />
+                      <span class="block h-28" aria-hidden="true" />
                     </template>
                   </ClientOnly>
-                  <SiteLocaleSwitcher variant="pill" class="flex" @navigate="closeMenu" />
-                  <SiteSocialLinks
-                    v-if="config.nav.socialIcons"
-                    class="ml-auto"
-                    @navigate="closeMenu"
-                  />
-                  <span v-else-if="socialLinks.length" class="ml-auto flex items-center gap-2">
+                  <div
+                    v-if="!config.nav.socialIcons && socialLinks.length"
+                    class="flex flex-wrap items-center gap-2"
+                  >
                     <NuxtLink
                       v-for="link in socialLinks"
                       :key="link.href"
@@ -372,12 +359,12 @@ watch(
                       <Icon v-if="link.icon" :name="link.icon" class="size-4" aria-hidden="true" />
                       {{ link.label }}
                     </NuxtLink>
-                  </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </div>
   </header>

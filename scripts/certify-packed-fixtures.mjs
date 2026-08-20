@@ -43,12 +43,35 @@ const variants = [
     singleLocale: true,
     usesLayerLocaleDefault: true,
     blog: false,
+    socialMode: "none",
     nuxtVersion: "4.5.1",
   },
   { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.1" },
-  { name: "i18n-list", switcher: "list", singleLocale: false, nuxtVersion: "4.5.1" },
+  {
+    name: "i18n-list",
+    switcher: "list",
+    singleLocale: false,
+    socialMode: "three",
+    nuxtVersion: "4.5.1",
+  },
 ];
 const plausibleScriptId = "CertificationScriptId";
+const headerOverflowWidths = [1024, 820, 700, 690, 360];
+const defaultSocialLabels = {
+  github: "GitHub",
+  discord: "Discord",
+  linkedin: "LinkedIn",
+};
+
+function fixtureHeaderSocialLabels(directory) {
+  const source = readFileSync(resolve(directory, "app/app.config.ts"), "utf8");
+  if (!/socialIcons:\s*true/.test(source)) return [];
+
+  return Object.entries(defaultSocialLabels).flatMap(([platform, label]) => {
+    const pattern = new RegExp(`\\b${platform}\\s*:`);
+    return pattern.test(source) ? [label] : [];
+  });
+}
 
 function run(command, args, cwd) {
   execFileSync(command, args, { cwd, stdio: "inherit" });
@@ -132,6 +155,22 @@ function copyFixture(variant, directory) {
       /    analytics: \{ plausible: \{ scriptId: "[A-Za-z0-9_-]+" \} \},/u,
       `    analytics: { plausible: { scriptId: "${plausibleScriptId}" } },`,
       `${variant.name} analytics configuration`,
+    );
+  }
+  if (variant.socialMode === "none") {
+    appConfig = replaceRequired(
+      appConfig,
+      /    social: \{\n      github:[\s\S]*?\n    \},\n/u,
+      "    social: {},\n",
+      `${variant.name} empty social configuration`,
+    );
+  }
+  if (variant.socialMode === "three") {
+    appConfig = replaceRequired(
+      appConfig,
+      '        icon: "logos:discord-icon",\n      },\n',
+      '        icon: "logos:discord-icon",\n      },\n      linkedin: "https://www.linkedin.com/company/lupinum/",\n',
+      `${variant.name} three-social configuration`,
     );
   }
   writeFileSync(appConfigPath, appConfig);
@@ -277,7 +316,117 @@ function chromiumExecutable() {
   return executable;
 }
 
+async function assertHeaderLayout(page, variant, width = page.viewportSize()?.width) {
+  const overflow = await page.evaluate(() => {
+    const header = document.querySelector("header");
+    return header ? header.scrollWidth > header.clientWidth + 1 : false;
+  });
+  if (overflow) {
+    throw new Error(`${variant.name} header overflowed horizontally at ${width}px.`);
+  }
+}
+
+async function assertHeaderSocialLinks(page, labels) {
+  for (const label of labels) {
+    await page.getByRole("link", { name: label }).first().waitFor({ state: "visible" });
+  }
+
+  const renderedLabels = await page
+    .locator('header a[target="_blank"][aria-label]')
+    .evaluateAll((elements) => elements.map((element) => element.getAttribute("aria-label")));
+
+  if (renderedLabels.length !== labels.length) {
+    throw new Error(
+      `Expected ${labels.length} header social links (${labels.join(", ")}), found ${renderedLabels.length} (${renderedLabels.join(", ")}).`,
+    );
+  }
+}
+
+async function assertNoHeaderSocialLinks(page) {
+  const count = await page.locator('header a[target="_blank"][aria-label]').count();
+  if (count !== 0) {
+    throw new Error(`Expected no header social links, found ${count}.`);
+  }
+}
+
+async function certifyHeaderControls(page, variant, { socialLabels = [] } = {}) {
+  await assertHeaderLayout(page, variant);
+
+  const searchTrigger = page.getByRole("button", { name: /search/i }).first();
+  await searchTrigger.click();
+  const commandCenter = page.getByRole("dialog");
+  await commandCenter.waitFor({ state: "visible" });
+  await page.keyboard.press("Escape");
+  await commandCenter.waitFor({ state: "hidden" });
+  const searchFocusReturned = await searchTrigger.evaluate(
+    (element) => document.activeElement === element,
+  );
+  if (!searchFocusReturned) {
+    throw new Error(`${variant.name} search did not restore focus to its trigger.`);
+  }
+
+  const viewportWidth = page.viewportSize()?.width ?? 1440;
+  if (viewportWidth >= 691) {
+    const themeToggle = page.locator('header [role="switch"]').first();
+    const initialTheme = await themeToggle.getAttribute("aria-checked");
+    await themeToggle.click();
+    await page.waitForFunction((previous) => {
+      const toggle = document.querySelector('header [role="switch"]');
+      return toggle?.getAttribute("aria-checked") !== previous;
+    }, initialTheme);
+  }
+
+  if (socialLabels.length) {
+    await assertHeaderSocialLinks(page, socialLabels);
+  } else {
+    await assertNoHeaderSocialLinks(page);
+  }
+
+  if (variant.singleLocale || viewportWidth < 691) return;
+
+  const language = page.getByRole("button", { name: /(language|sprache)/i }).first();
+  await language.click();
+  await page.locator('a[lang="de"]').first().click();
+  await page.waitForURL((url) => url.pathname.startsWith("/de/"));
+  await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
+  await assertHeaderLayout(page, variant);
+
+  if (socialLabels.length) {
+    await page.getByRole("link", { name: socialLabels[0] }).first().focus();
+    await page.waitForFunction(
+      (label) => document.activeElement?.getAttribute("aria-label") === label,
+      socialLabels[0],
+    );
+  }
+}
+
+async function certifyHeaderOverflowWidths(page, variant) {
+  for (const width of headerOverflowWidths) {
+    await page.setViewportSize({ width, height: 900 });
+    await assertHeaderLayout(page, variant, width);
+  }
+}
+
+async function certifyMobileHeaderDrawer(page, _variant) {
+  const menuTrigger = page.getByRole("button", { name: /(open menu|menü öffnen)/i });
+  await menuTrigger.click();
+  const navigation = page.getByRole("navigation", { name: /mobile navigation/i });
+  await navigation.waitFor({
+    state: "visible",
+  });
+  await page.getByRole("switch").first().click();
+  await page.keyboard.press("Escape");
+  await navigation.waitFor({ state: "hidden" });
+  const menuFocusReturned = await menuTrigger.evaluate(
+    (element) => document.activeElement === element,
+  );
+  if (!menuFocusReturned) {
+    throw new Error("The mobile menu did not restore focus to its trigger.");
+  }
+}
+
 async function certifyBrowser(variant, directory) {
+  const socialLabels = fixtureHeaderSocialLabels(directory);
   const server = await startServer(directory);
   const browser = await chromium.launch({ executablePath: chromiumExecutable(), headless: true });
   try {
@@ -394,28 +543,26 @@ async function certifyBrowser(variant, directory) {
           throw new Error("The list fixture did not switch structural sections.");
         });
     }
-    if (!variant.singleLocale) {
-      const language = page.getByRole("button", { name: /language/i }).first();
-      await language.click();
-      await page.locator('a[lang="de"]').first().click();
-      await page.waitForURL((url) => url.pathname.startsWith("/de/"));
-      await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
-    }
+    await certifyHeaderControls(page, variant, { socialLabels });
+    await certifyHeaderOverflowWidths(page, variant);
+
+    const mobilePath = variant.singleLocale ? "/docs/getting-started" : startPath;
+    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await mobile.goto(`${server.baseURL}${mobilePath}`, { waitUntil: "networkidle" });
+    await certifyHeaderControls(mobile, variant, { socialLabels });
+    await certifyMobileHeaderDrawer(mobile, variant);
+
     if (variant.singleLocale) {
-      const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
-      await mobile.goto(`${server.baseURL}/docs/getting-started`, { waitUntil: "networkidle" });
-      await mobile.getByRole("button", { name: "Open menu" }).click();
-      await mobile.getByRole("navigation", { name: "Mobile navigation" }).waitFor({
-        state: "visible",
-      });
       await mobile.locator('a[href="https://lupinum.com/impressum"]').waitFor({
         state: "attached",
       });
       await mobile.locator('a[href="https://lupinum.com/datenschutz"]').waitFor({
         state: "attached",
       });
-      await mobile.close();
     }
+
+    await mobile.close();
+
     if (failures.length)
       throw new Error(`${variant.name} browser failures:\n${failures.join("\n")}`);
   } finally {
