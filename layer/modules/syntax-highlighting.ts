@@ -74,6 +74,21 @@ export async function patchShikiThemes(
   }
 }
 
+export function mergeSyntaxRuntimeConfig(
+  current: Record<string, unknown> | undefined,
+  themes: GinkoDocsSyntaxHighlightingConfig["themes"],
+) {
+  return {
+    ...current,
+    syntaxHighlighting: {
+      themes: {
+        light: themes.light,
+        dark: themes.dark,
+      },
+    },
+  };
+}
+
 export default defineNuxtModule<GinkoDocsNuxtConfig>({
   meta: {
     name: "ginko-docs-syntax-highlighting",
@@ -82,14 +97,10 @@ export default defineNuxtModule<GinkoDocsNuxtConfig>({
   async setup(options, nuxt) {
     const themes = options.syntaxHighlighting?.themes ?? DEFAULT_SYNTAX_THEMES;
 
-    nuxt.options.runtimeConfig.public.ginkoDocs = {
-      syntaxHighlighting: {
-        themes: {
-          light: themes.light,
-          dark: themes.dark,
-        },
-      },
-    };
+    nuxt.options.runtimeConfig.public.ginkoDocs = mergeSyntaxRuntimeConfig(
+      nuxt.options.runtimeConfig.public.ginkoDocs,
+      themes,
+    );
 
     if (!options.syntaxHighlighting) return;
 

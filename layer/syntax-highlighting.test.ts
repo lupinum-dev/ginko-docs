@@ -9,6 +9,7 @@ import {
   countShikiPlugins,
   DEFAULT_SYNTAX_THEMES,
   findShikiPlugin,
+  mergeSyntaxRuntimeConfig,
   patchShikiThemes,
   resolveBundledTheme,
 } from "./modules/syntax-highlighting";
@@ -104,6 +105,26 @@ describe("syntax highlighting configuration", () => {
     expect(DEFAULT_SYNTAX_THEMES).toEqual({
       light: "light-plus",
       dark: "dark-plus",
+    });
+  });
+
+  it("preserves sibling public runtime configuration", () => {
+    expect(
+      mergeSyntaxRuntimeConfig(
+        { feedback: { enabled: true } },
+        {
+          light: "material-theme-lighter",
+          dark: "material-theme-palenight",
+        },
+      ),
+    ).toEqual({
+      feedback: { enabled: true },
+      syntaxHighlighting: {
+        themes: {
+          light: "material-theme-lighter",
+          dark: "material-theme-palenight",
+        },
+      },
     });
   });
 
