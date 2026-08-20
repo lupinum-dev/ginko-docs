@@ -156,10 +156,10 @@ watch(
         </NuxtLink>
       </nav>
 
-      <div class="ml-auto flex min-w-0 flex-1 items-center gap-1 min-[691px]:gap-1.5">
+      <div class="ml-auto flex min-w-0 items-center gap-1 min-[691px]:gap-1.5">
         <Button
           variant="outline"
-          class="hidden h-9 min-w-40 max-w-[22.5rem] flex-1 justify-start gap-2 rounded-lg border-border/70 bg-muted/35 px-3 text-muted-foreground min-[691px]:flex"
+          class="hidden h-9 w-72 min-w-0 max-w-[22.5rem] flex-1 justify-start gap-2 overflow-hidden rounded-lg border-border/70 bg-muted/35 px-3 whitespace-nowrap text-muted-foreground min-[691px]:flex"
           :aria-label="t('nav.searchDocumentation')"
           type="button"
           @click="openSearch"
@@ -168,10 +168,12 @@ watch(
           <span class="min-w-0 flex-1 truncate text-left" aria-hidden="true">{{
             t("nav.searchDocumentation")
           }}</span>
-          <Kbd class="h-5 shrink-0 bg-background text-[10px]">{{ searchShortcut }}</Kbd>
+          <Kbd class="hidden h-5 shrink-0 bg-background text-[10px] min-[900px]:inline-flex">{{
+            searchShortcut
+          }}</Kbd>
         </Button>
 
-        <div class="ml-auto flex shrink-0 items-center gap-0.5">
+        <div class="flex shrink-0 items-center gap-0.5">
           <Button
             variant="ghost"
             size="icon"

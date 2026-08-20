@@ -5,7 +5,8 @@ import { useColorMode, useI18n } from "#imports";
 import { cn } from "#ginko-docs/utils";
 import { headerUtilityButtonClass } from "#ginko-docs/components/site/header-utils";
 import {
-  nextExplicitColorMode,
+  nextColorModePreference,
+  readSystemColorMode,
   themeToggleIcon,
   themeToggleLabelKey,
 } from "#ginko-docs/components/site/mode-toggle.utils";
@@ -28,7 +29,8 @@ const toggleIcon = computed(() => themeToggleIcon(isDark.value));
 const toggleLabel = computed(() => t(themeToggleLabelKey(isDark.value)));
 
 function toggleColorMode() {
-  colorMode.preference = nextExplicitColorMode(isDark.value ? "dark" : "light");
+  const currentRendered = isDark.value ? "dark" : "light";
+  colorMode.preference = nextColorModePreference(currentRendered, readSystemColorMode());
 }
 </script>
 

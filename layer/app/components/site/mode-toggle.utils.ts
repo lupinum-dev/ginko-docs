@@ -1,7 +1,26 @@
 export type RenderedColorMode = "light" | "dark";
+export type StoredColorModePreference = "system" | RenderedColorMode;
 
-export function nextExplicitColorMode(current: RenderedColorMode): RenderedColorMode {
-  return current === "dark" ? "light" : "dark";
+/**
+ * Next stored preference for a two-state theme toggle.
+ *
+ * Shows the resolved appearance, toggles to the opposite on click, and clears
+ * the stored override when that target matches the OS preference.
+ */
+export function nextColorModePreference(
+  currentRendered: RenderedColorMode,
+  systemPreference: RenderedColorMode,
+): StoredColorModePreference {
+  const target = currentRendered === "dark" ? "light" : "dark";
+  return target === systemPreference ? "system" : target;
+}
+
+export function readSystemColorMode(): RenderedColorMode {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return "light";
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function themeToggleIcon(isDark: boolean) {
