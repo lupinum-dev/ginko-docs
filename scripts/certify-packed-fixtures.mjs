@@ -605,6 +605,17 @@ try {
     run("vp", ["install"], directory);
     run("vp", ["exec", "nuxi", "typecheck"], directory);
     runWithoutNuxtDiagnostics("vp", ["exec", "nuxt", "build"], directory);
+    if (variant.singleLocale) {
+      const sitemap = readFileSync(
+        resolve(directory, ".output/public/__sitemap__/en-US.xml"),
+        "utf8",
+      );
+      for (const disabledPath of ["/blog", "/de"]) {
+        if (sitemap.includes(`https://ginko-docs.lupinum.com${disabledPath}`)) {
+          throw new Error(`${variant.name} advertised disabled sitemap route ${disabledPath}.`);
+        }
+      }
+    }
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
     const installedContent = JSON.parse(
       readFileSync(resolve(directory, "node_modules/@lupinum/ginko-content/package.json"), "utf8"),
