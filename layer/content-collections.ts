@@ -1,4 +1,5 @@
 import { defineCollection, defineContentConfig, reference } from "@lupinum/ginko-content/config";
+import type { ContentAgentCollectionConfig } from "@lupinum/ginko-content/config";
 import { z } from "zod";
 import { routeSlugs } from "./shared/route-slugs";
 
@@ -51,7 +52,10 @@ const authorsSchema = z.object({
   links: z.array(z.object({ label: z.string(), href: z.string() })).optional(),
 });
 
-export function createGinkoDocsCollections(i18n: boolean) {
+export function createGinkoDocsCollections(
+  i18n: boolean,
+  docsMarkdown: ContentAgentCollectionConfig["markdown"] = true,
+) {
   return defineContentConfig({
     collections: {
       docs: defineCollection({
@@ -59,7 +63,7 @@ export function createGinkoDocsCollections(i18n: boolean) {
         source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
         i18n: i18n ? true : undefined,
         route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
-        agent: { section: "optional", markdown: true },
+        agent: { section: "optional", markdown: docsMarkdown },
         strict: true,
         schema: docsSchemaWithLastmod,
       }),

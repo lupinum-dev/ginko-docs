@@ -1,10 +1,23 @@
 import {
+  defineAgentAppPage,
   defineAgentMetadataFields,
   defineAgentSection,
   defineContentConfig,
 } from "@lupinum/ginko-content/config";
-import type { ContentConfig } from "@lupinum/ginko-content/config";
+import type { ContentAgentMarkdownOptions, ContentConfig } from "@lupinum/ginko-content/config";
 import { createGinkoDocsCollections } from "./content-collections";
+
+type GinkoDocsAgentPage = Parameters<typeof defineAgentAppPage>[0];
+type GinkoDocsAgentSection = Parameters<typeof defineAgentSection>[0];
+
+export interface GinkoDocsAgentOptions {
+  /** Control whether authored documentation appears in compact and full indexes. */
+  documentation?: ContentAgentMarkdownOptions;
+  /** Add compact index pages that point agents to canonical raw Markdown. */
+  pages?: readonly GinkoDocsAgentPage[];
+  /** Add sections before the built-in blog and optional documentation sections. */
+  sections?: readonly GinkoDocsAgentSection[];
+}
 
 export interface GinkoDocsContentOptions {
   site: {
@@ -12,6 +25,7 @@ export interface GinkoDocsContentOptions {
     description: string | { en: string; de: string };
     url: string;
   };
+  agent?: GinkoDocsAgentOptions;
   locales?: readonly ["en"] | readonly ["en", "de"];
   blog?: boolean;
 }
@@ -54,7 +68,7 @@ export function defineGinkoDocsConfig(
     "source",
     "updated",
   ]);
-  const { docs, blog, authors } = createGinkoDocsCollections(i18n);
+  const { docs, blog, authors } = createGinkoDocsCollections(i18n, options.agent?.documentation);
   const config = {
     agent: {
       site: {
@@ -64,6 +78,7 @@ export function defineGinkoDocsConfig(
       },
       markdown: { metadata: { enabled: true, defaultFields: metadata } },
       sections: [
+        ...(options.agent?.sections ?? []),
         ...(options.blog
           ? [defineAgentSection({ id: "blog", title: { en: "Blog", de: "Blog" }, order: 40 })]
           : []),
@@ -73,6 +88,7 @@ export function defineGinkoDocsConfig(
           order: 100,
         }),
       ],
+      ...(options.agent?.pages ? { pages: [...options.agent.pages] } : {}),
     },
   };
 

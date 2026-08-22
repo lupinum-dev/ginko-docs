@@ -47,6 +47,34 @@ describe("defineGinkoDocsConfig", () => {
     expect(config.agent?.pages).toBeUndefined();
   });
 
+  it("adds curated agent sections without duplicating documentation content", () => {
+    const render = () => "# Start here\n\n- [Install](/raw/docs/getting-started/installation.md)";
+    const config = defineGinkoDocsConfig({
+      site,
+      agent: {
+        documentation: { includeInFull: true, includeInIndex: false },
+        pages: [
+          {
+            id: "start-here",
+            route: "/agents/start-here",
+            section: "start",
+            title: "Start here",
+            description: "First Nuxt PDF tasks.",
+            render,
+          },
+        ],
+        sections: [{ id: "start", title: "Start here", order: 10 }],
+      },
+    });
+
+    expect(config.collections.docs.agent).toEqual({
+      section: "optional",
+      markdown: { includeInFull: true, includeInIndex: false },
+    });
+    expect(config.agent?.sections?.map((section) => section.id)).toEqual(["start", "optional"]);
+    expect(config.agent?.pages).toEqual([expect.objectContaining({ id: "start-here", render })]);
+  });
+
   it.each([
     { locales: [] },
     { locales: ["de"] },
