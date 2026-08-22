@@ -349,7 +349,35 @@ async function assertNoHeaderSocialLinks(page) {
   }
 }
 
-async function certifyHeaderControls(page, variant, { socialLabels = [] } = {}) {
+async function certifyLocaleNavigation(page, variant, socialLabels = []) {
+  const viewportWidth = page.viewportSize()?.width ?? 1440;
+  if (variant.singleLocale || viewportWidth < 691) return;
+
+  const language = page.getByRole("button", { name: /(language|sprache)/i }).first();
+  await language.click();
+  await page.locator('a[lang="de"]').first().click();
+  await page.waitForURL((url) => url.pathname.startsWith("/de/"));
+  await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
+  await assertHeaderLayout(page, variant);
+
+  if (socialLabels.length) {
+    await page.getByRole("link", { name: socialLabels[0] }).first().focus();
+    await page.waitForFunction(
+      (label) => document.activeElement?.getAttribute("aria-label") === label,
+      socialLabels[0],
+    );
+  }
+}
+
+async function certifyHeaderControls(
+  page,
+  variant,
+  { socialLabels = [], includeLocaleNavigation = true } = {},
+) {
+  // The search button is present in server-rendered HTML before Vue attaches
+  // its click handler. ModeToggle renders through ClientOnly, so its switch is
+  // a deterministic signal that header interactions are ready.
+  await page.locator('header [role="switch"]').first().waitFor({ state: "attached" });
   await assertHeaderLayout(page, variant);
 
   const searchTrigger = page.getByRole("button", { name: /search/i }).first();
@@ -382,28 +410,18 @@ async function certifyHeaderControls(page, variant, { socialLabels = [] } = {}) 
     await assertNoHeaderSocialLinks(page);
   }
 
-  if (variant.singleLocale || viewportWidth < 691) return;
-
-  const language = page.getByRole("button", { name: /(language|sprache)/i }).first();
-  await language.click();
-  await page.locator('a[lang="de"]').first().click();
-  await page.waitForURL((url) => url.pathname.startsWith("/de/"));
-  await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
-  await assertHeaderLayout(page, variant);
-
-  if (socialLabels.length) {
-    await page.getByRole("link", { name: socialLabels[0] }).first().focus();
-    await page.waitForFunction(
-      (label) => document.activeElement?.getAttribute("aria-label") === label,
-      socialLabels[0],
-    );
-  }
+  if (includeLocaleNavigation) await certifyLocaleNavigation(page, variant, socialLabels);
 }
 
 async function certifyHeaderOverflowWidths(page, variant) {
-  for (const width of headerOverflowWidths) {
-    await page.setViewportSize({ width, height: 900 });
-    await assertHeaderLayout(page, variant, width);
+  const originalViewport = page.viewportSize();
+  try {
+    for (const width of headerOverflowWidths) {
+      await page.setViewportSize({ width, height: 900 });
+      await assertHeaderLayout(page, variant, width);
+    }
+  } finally {
+    if (originalViewport) await page.setViewportSize(originalViewport);
   }
 }
 
@@ -473,6 +491,11 @@ async function certifyBrowser(variant, directory) {
     await page.goto(`${server.baseURL}${startPath}`, { waitUntil: "networkidle" });
     const sidebar = page.locator('aside[data-variant="desktop"]');
     await sidebar.waitFor({ state: "visible" });
+    await certifyHeaderControls(page, variant, {
+      socialLabels,
+      includeLocaleNavigation: false,
+    });
+    await certifyHeaderOverflowWidths(page, variant);
     await sidebar.locator(`[data-slot="docs-sidebar-${variant.switcher}"]`).waitFor({
       state: "visible",
     });
@@ -546,8 +569,7 @@ async function certifyBrowser(variant, directory) {
           throw new Error("The list fixture did not switch structural sections.");
         });
     }
-    await certifyHeaderControls(page, variant, { socialLabels });
-    await certifyHeaderOverflowWidths(page, variant);
+    await certifyLocaleNavigation(page, variant, socialLabels);
 
     const mobilePath = variant.singleLocale ? "/docs/getting-started" : startPath;
     const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
