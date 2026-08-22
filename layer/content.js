@@ -81,7 +81,7 @@ const authorsSchema = z.object({
     )
     .optional(),
 });
-function createGinkoDocsCollections(i18n) {
+function createGinkoDocsCollections(i18n, docsMarkdown = true) {
   return defineContentConfig({
     collections: {
       docs: defineCollection({
@@ -91,7 +91,7 @@ function createGinkoDocsCollections(i18n) {
         route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
         agent: {
           section: "optional",
-          markdown: true,
+          markdown: docsMarkdown,
         },
         strict: true,
         schema: docsSchemaWithLastmod,
@@ -141,7 +141,7 @@ function defineGinkoDocsConfig(options) {
     "source",
     "updated",
   ]);
-  const { docs, blog, authors } = createGinkoDocsCollections(i18n);
+  const { docs, blog, authors } = createGinkoDocsCollections(i18n, options.agent?.documentation);
   const config = {
     agent: {
       site: {
@@ -156,6 +156,7 @@ function defineGinkoDocsConfig(options) {
         },
       },
       sections: [
+        ...(options.agent?.sections ?? []),
         ...(options.blog
           ? [
               defineAgentSection({
@@ -177,6 +178,7 @@ function defineGinkoDocsConfig(options) {
           order: 100,
         }),
       ],
+      ...(options.agent?.pages ? { pages: [...options.agent.pages] } : {}),
     },
   };
   if (options.blog)
