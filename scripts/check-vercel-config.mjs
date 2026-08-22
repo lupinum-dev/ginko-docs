@@ -18,7 +18,10 @@ const check = (condition, message) => {
 };
 
 check(!existsSync(resolve(root, "vercel.json")), "Keep vercel.json in the deployable docs app.");
-check(previewWorkflow.includes("/v13/deployments"), "Create previews through the Vercel deployment API.");
+check(
+  previewWorkflow.includes("/v13/deployments"),
+  "Create previews through the Vercel deployment API.",
+);
 check(
   previewWorkflow.includes("checks: write") &&
     previewWorkflow.includes("cancel-in-progress: false"),
