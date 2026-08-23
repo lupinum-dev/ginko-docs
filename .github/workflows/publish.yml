@@ -69,7 +69,16 @@ jobs:
           printf 'source-sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
           printf 'run-id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Checkout current main for manual reconciliation
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: main
+
+      - name: Checkout the successful CI source
+        if: github.event_name == 'workflow_run'
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
           ref: ${{ steps.source.outputs.source-sha }}

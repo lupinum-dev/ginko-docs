@@ -119,6 +119,15 @@ assert(
   publish.on?.workflow_dispatch !== undefined && publish.on.workflow_dispatch?.inputs === undefined,
   "Manual reconciliation must not require a version or run ID.",
 );
+const manualCheckout = publish.jobs?.verify?.steps?.find(
+  (step) => step.name === "Checkout current main for manual reconciliation",
+);
+assert(
+  manualCheckout?.if === "github.event_name == 'workflow_dispatch'" &&
+    manualCheckout?.with?.ref === "main" &&
+    manualCheckout?.with?.["persist-credentials"] === false,
+  "Manual reconciliation must checkout literal main without persisted credentials.",
+);
 assert(
   verifyJobSource.includes("Expected exactly one successful current-main CI run") &&
     verifyJobSource.includes("github.event.workflow_run.head_sha") &&
