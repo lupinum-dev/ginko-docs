@@ -78,7 +78,7 @@ jobs:
           name: ginko-docs-release
           if-no-files-found: error
           include-hidden-files: true
-          retention-days: 7
+          retention-days: 14
           path: |
             layer/.pack/*.tgz
             layer/.pack/release-artifact.json

@@ -93,14 +93,18 @@ Never publish from a workstation. Never run Changelogen with `--release` or `--p
 
 ## Recovery
 
-If publishing fails, do not build a replacement tarball. Fix the workflow in a
-pull request and start a new `Publish` dispatch from updated `main`. A rerun of
-the old run still uses the old workflow definition.
+If publishing fails, do not build a replacement tarball. Rerun the failed job
+when the existing workflow is correct. If the workflow itself needs a fix,
+retain the original candidate and reconcile from its certified source SHA after
+the fix. Never dispatch a later `main` commit to repair an earlier npm version.
 
 If npm already accepted the exact certified bytes, the workflow verifies the
-registry SHA-1, provenance, and dist-tag, skips publication, and completes the
-same GitHub release. Different bytes stop the workflow. A GitHub-only failure
-does not require a new package version.
+registry SHA-1 and uses an isolated Sigstore 5 verifier to cryptographically
+verify the provenance, exact publishing workflow, source commit, and tarball
+SHA-512 in the unprivileged job. The protected job accepts only that
+verification record and stops if registry existence or bytes changed before
+approval. It then skips publication and completes the same GitHub release. A
+GitHub-only failure does not require a new package version.
 
 ## Credential incidents
 
