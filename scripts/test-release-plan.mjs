@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { classifyRelease } from "./plan-release.mjs";
+import { classifyRelease, releaseMetadataState } from "./plan-release.mjs";
 
 const base = {
   registryState: "verified-existing",
@@ -8,6 +8,7 @@ const base = {
   tagState: "verified",
   releaseState: "present",
   assetState: "verified",
+  metadataState: "verified",
 };
 
 assert.equal(classifyRelease(base), "complete");
@@ -35,6 +36,17 @@ assert.throws(
 assert.equal(classifyRelease({ ...base, tagState: "absent", releaseState: "absent" }), "repair");
 assert.equal(classifyRelease({ ...base, releaseState: "absent", assetState: "absent" }), "repair");
 assert.equal(classifyRelease({ ...base, assetState: "conflict" }), "repair");
+assert.equal(classifyRelease({ ...base, metadataState: "conflict" }), "repair");
+const release = { name: "v1.2.3", body: "Certified notes\n", isPrerelease: false };
+assert.equal(releaseMetadataState(release, "1.2.3", "Certified notes"), "verified");
+assert.equal(
+  releaseMetadataState({ ...release, name: "stale title" }, "1.2.3", "Certified notes"),
+  "conflict",
+);
+assert.equal(
+  releaseMetadataState({ ...release, body: "stale" }, "1.2.3", "Certified notes"),
+  "conflict",
+);
 assert.throws(() => classifyRelease({ ...base, tagState: "conflict" }), /different commit/u);
 assert.throws(
   () => classifyRelease({ ...base, tagState: "absent", releaseState: "present" }),

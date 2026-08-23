@@ -25,6 +25,7 @@ appendFileSync(
     `| npm | ${registry.registryState} |\n` +
     `| Tag | ${plan.tagState} |\n` +
     `| GitHub Release | ${plan.releaseState} |\n` +
+    `| Release metadata | ${plan.metadataState} |\n` +
     `| Release asset | ${plan.assetState} |\n` +
     `| Artifact | verified and retained |\n` +
     `| Approval | ${action === "publish" ? "awaiting protected npm approval" : "not required"} |\n\n` +

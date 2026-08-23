@@ -16,6 +16,7 @@ export const classifyRelease = ({
   tagState,
   releaseState,
   assetState,
+  metadataState,
 }) => {
   if (tagState === "conflict") fail("The release tag targets a different commit.");
   if (tagState === "absent" && releaseState === "present") {
@@ -29,11 +30,24 @@ export const classifyRelease = ({
   }
   if (registryState !== "verified-existing") fail("The npm publication is not verified.");
   if (channelVersion !== version) fail(`npm channel does not point to ${version}.`);
-  if (tagState === "absent" || releaseState === "absent" || assetState !== "verified") {
+  if (
+    tagState === "absent" ||
+    releaseState === "absent" ||
+    assetState !== "verified" ||
+    metadataState !== "verified"
+  ) {
     return "repair";
   }
   return "complete";
 };
+
+export const releaseMetadataState = (release, version, expectedBody) =>
+  release.name === `v${version}` &&
+  release.isPrerelease === version.includes("-") &&
+  typeof release.body === "string" &&
+  release.body.replace(/\r\n/gu, "\n").trimEnd() === expectedBody.trimEnd()
+    ? "verified"
+    : "conflict";
 
 const run = (command, args, options = {}) => {
   const result = spawnSync(command, args, { encoding: "utf8", ...options });
@@ -68,7 +82,7 @@ const resolveTag = (version, sourceSha) => {
   return type === "commit" && sha === sourceSha ? "verified" : "conflict";
 };
 
-const inspectRelease = (version, tarball, expectedSha256) => {
+const inspectRelease = (version, tarball, expectedSha256, expectedBody) => {
   const view = spawnSync(
     "gh",
     [
@@ -78,20 +92,18 @@ const inspectRelease = (version, tarball, expectedSha256) => {
       "--repo",
       process.env.GITHUB_REPOSITORY,
       "--json",
-      "assets,isPrerelease",
+      "assets,body,isPrerelease,name",
     ],
     { encoding: "utf8" },
   );
   if (view.status !== 0 && /HTTP 404|release not found/iu.test(view.stderr)) {
-    return { releaseState: "absent", assetState: "absent" };
+    return { releaseState: "absent", assetState: "absent", metadataState: "absent" };
   }
   if (view.status !== 0) fail(`Could not read v${version} Release: ${view.stderr.trim()}`);
   const release = JSON.parse(view.stdout);
+  const metadataState = releaseMetadataState(release, version, expectedBody);
   if (!release.assets.some(({ name }) => name === tarball)) {
-    return { releaseState: "present", assetState: "absent" };
-  }
-  if (release.isPrerelease !== version.includes("-")) {
-    return { releaseState: "present", assetState: "conflict" };
+    return { releaseState: "present", assetState: "absent", metadataState };
   }
 
   const directory = mkdtempSync(join(tmpdir(), "ginko-docs-release-"));
@@ -119,6 +131,7 @@ const inspectRelease = (version, tarball, expectedSha256) => {
     return {
       releaseState: "present",
       assetState: actual === expectedSha256 ? "verified" : "conflict",
+      metadataState,
     };
   } finally {
     rmSync(directory, { recursive: true });
@@ -137,10 +150,12 @@ const main = () => {
   }
   const channel = manifest.packageVersion.includes("-") ? "next" : "latest";
   const tagState = resolveTag(manifest.packageVersion, manifest.commit);
-  const { releaseState, assetState } = inspectRelease(
+  const expectedBody = readFileSync(join(releaseDir, "release-notes.md"), "utf8");
+  const { releaseState, assetState, metadataState } = inspectRelease(
     manifest.packageVersion,
     manifest.tarball,
     manifest.sha256,
+    expectedBody,
   );
   const channelVersion =
     record.registryState === "absent"
@@ -153,8 +168,17 @@ const main = () => {
     tagState,
     releaseState,
     assetState,
+    metadataState,
   });
-  const plan = { action, channel, channelVersion, tagState, releaseState, assetState };
+  const plan = {
+    action,
+    channel,
+    channelVersion,
+    tagState,
+    releaseState,
+    assetState,
+    metadataState,
+  };
   process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(process.env.GITHUB_OUTPUT, `action=${action}\n`);
