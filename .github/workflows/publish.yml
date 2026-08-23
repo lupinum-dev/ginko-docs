@@ -32,8 +32,16 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           node -e "if (!/^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) throw new Error('Invalid release version')"
           tag_ref="refs/tags/v$RELEASE_VERSION"
-          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v$RELEASE_VERSION" --jq ".[] | select(.ref == \"$tag_ref\") | .object.sha")"
-          test -z "$tag_sha" || test "$tag_sha" = "$GITHUB_SHA"
+          tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v$RELEASE_VERSION" --jq ".[] | select(.ref == \"$tag_ref\") | [.object.type, .object.sha] | @tsv")"
+          if test -n "$tag_object"; then
+            IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
+            while test "$tag_type" = tag; do
+              tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$tag_sha" --jq '[.object.type, .object.sha] | @tsv')"
+              IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
+            done
+            test "$tag_type" = commit
+            test "$tag_sha" = "$GITHUB_SHA"
+          fi
 
       - name: Find successful CI for this commit
         id: ci
@@ -47,6 +55,22 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+
+      - name: Install isolated Sigstore verifier
+        env:
+          SIGSTORE_PREFIX: ${{ runner.temp }}/sigstore
+        run: |
+          mkdir -p "$SIGSTORE_PREFIX"
+          cp scripts/sigstore-verifier/package.json \
+            scripts/sigstore-verifier/package-lock.json \
+            "$SIGSTORE_PREFIX/"
+          npm ci --prefix "$SIGSTORE_PREFIX" --ignore-scripts --no-audit --no-fund
 
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -69,6 +93,12 @@ jobs:
           const contentVersion=p.peerDependencies['@lupinum/ginko-content'].match(/>=([^ ]+)/)?.[1];
           if(m.packageName!=='@lupinum/ginko-docs'||m.packageVersion!==process.env.RELEASE_VERSION||m.commit!==process.env.GITHUB_SHA||!m.sourceClean||m.tarball!==tarball||m.sha256!==digest||c.packageName!==m.packageName||c.packageVersion!==m.packageVersion||c.commit!==m.commit||c.tarball!==tarball||c.sha256!==digest||c.contentVersion!==contentVersion||c.contentSource!=='registry'||!c.releaseEvidence||lanes!=='i18n-dropdown,i18n-list,single-tabs')throw new Error('Artifact failed exact-SHA release validation')"
 
+      - name: Verify registry recovery state
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          SIGSTORE_PREFIX: ${{ runner.temp }}/sigstore
+        run: node scripts/verify-npm-recovery.mjs
+
       - name: Extract release notes
         env:
           RELEASE_VERSION: ${{ inputs.version }}
@@ -82,7 +112,7 @@ jobs:
           path: .release
           include-hidden-files: true
           if-no-files-found: error
-          retention-days: 2
+          retention-days: 14
 
   publish:
     name: Publish to npm
@@ -122,23 +152,64 @@ jobs:
             if (/E404|404 Not Found/.test(result.stderr)) return null
             fail(`npm view failed for ${spec} ${field}: ${result.stderr.trim()}`)
           }
+          const hasProvenance = metadata =>
+            typeof metadata?.url === 'string' && metadata.url.length > 0 &&
+            metadata.provenance?.predicateType === 'https://slsa.dev/provenance/v1'
           const manifest = JSON.parse(readFileSync('.release/release-artifact.json', 'utf8'))
+          const record = JSON.parse(readFileSync('.release/registry-verification.json', 'utf8'))
           if (manifest.packageVersion !== process.env.RELEASE_VERSION) fail('Release version differs.')
           const npmVersion = run(['--version']).stdout.trim().split('.').map(Number)
           if (npmVersion[0] < 11 || (npmVersion[0] === 11 && npmVersion[1] < 5)) fail('npm 11.5 or newer is required.')
-          const shasum = createHash('sha1').update(readFileSync(`.release/${manifest.tarball}`)).digest('hex')
+          if (!/^[a-z0-9._-]+\.tgz$/.test(manifest.tarball)) fail('Unsafe tarball filename.')
+          const bytes = readFileSync(`.release/${manifest.tarball}`)
+          const shasum = createHash('sha1').update(bytes).digest('hex')
+          const sha512 = createHash('sha512').update(bytes).digest('hex')
           const channel = manifest.packageVersion.includes('-') ? 'next' : 'latest'
           const spec = `${manifest.packageName}@${manifest.packageVersion}`
-          const existing = view(spec, 'dist.shasum')
-          if (existing && existing !== shasum) fail(`${spec} exists with different bytes.`)
+          const recordKeys = [
+            'packageName', 'packageVersion', 'provenanceBundleSha256', 'registryShasum',
+            'registryState', 'schemaVersion', 'sourceSha', 'tarball', 'tarballSha1',
+            'tarballSha512',
+          ]
+          if (
+            Object.keys(record).sort().join(',') !== recordKeys.join(',') ||
+            record.schemaVersion !== 1 ||
+            record.packageName !== '@lupinum/ginko-docs' ||
+            record.packageName !== manifest.packageName ||
+            record.packageVersion !== process.env.RELEASE_VERSION ||
+            record.packageVersion !== manifest.packageVersion ||
+            record.sourceSha !== process.env.GITHUB_SHA ||
+            record.sourceSha !== manifest.commit ||
+            record.tarball !== manifest.tarball ||
+            record.tarballSha1 !== shasum ||
+            record.tarballSha512 !== sha512 ||
+            !(
+              record.registryState === 'absent' && record.registryShasum === null &&
+                record.provenanceBundleSha256 === null ||
+              record.registryState === 'verified-existing' &&
+                /^[0-9a-f]{40}$/.test(record.registryShasum) &&
+                /^[0-9a-f]{64}$/.test(record.provenanceBundleSha256)
+            )
+          ) fail('Registry verification record does not match the certified artifact.')
+          const registryVersion = view(spec, 'version')
+          const registryState = registryVersion === null ? 'absent' : 'verified-existing'
+          const existing = registryVersion === null ? null : view(spec, 'dist.shasum')
+          if (
+            registryVersion !== null && registryVersion !== manifest.packageVersion ||
+            registryState !== record.registryState ||
+            existing !== record.registryShasum
+          ) {
+            fail(`${spec} registry existence or bytes changed after verification.`)
+          }
           if (existing) {
-            if (!view(spec, 'dist.attestations')) fail(`${spec} exists without required provenance.`)
+            // The unprivileged job already verified this exact version with Sigstore.
           } else {
             const result = run(['publish', `.release/${manifest.tarball}`, '--access', 'public', '--tag', channel, '--ignore-scripts', '--provenance'], true)
             if (result.status !== 0) fail(`npm publish failed for ${spec}.`)
           }
           for (let attempt = 0; attempt < 240; attempt += 1) {
-            if (view(spec, 'dist.shasum') === shasum && view(spec, 'dist.attestations') && view(manifest.packageName, `dist-tags.${channel}`) === manifest.packageVersion) process.exit(0)
+            const provenance = view(spec, 'dist.attestations')
+            if (view(spec, 'dist.shasum') === shasum && hasProvenance(provenance) && view(manifest.packageName, `dist-tags.${channel}`) === manifest.packageVersion) process.exit(0)
             Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5000)
           }
           fail(`${spec} did not expose the required bytes, provenance, and ${channel} tag.`)
@@ -165,18 +236,33 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           TARBALL=$(node -e "process.stdout.write(require('./.release/release-artifact.json').tarball)")
-          PRERELEASE=()
-          case "$RELEASE_VERSION" in *-*) PRERELEASE=(--prerelease) ;; esac
-          if gh release view "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$RELEASE_VERSION" --jq '.object.sha')"
+          PRERELEASE_CREATE=()
+          PRERELEASE_EDIT=(--prerelease=false)
+          case "$RELEASE_VERSION" in
+            *-*) PRERELEASE_CREATE=(--prerelease); PRERELEASE_EDIT=(--prerelease) ;;
+          esac
+          tag_ref="refs/tags/v$RELEASE_VERSION"
+          tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v$RELEASE_VERSION" --jq ".[] | select(.ref == \"$tag_ref\") | [.object.type, .object.sha] | @tsv")"
+          tag_exists=false
+          if test -n "$tag_object"; then
+            tag_exists=true
+            IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
+            while test "$tag_type" = tag; do
+              tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$tag_sha" --jq '[.object.type, .object.sha] | @tsv')"
+              IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
+            done
+            test "$tag_type" = commit
             test "$tag_sha" = "$GITHUB_SHA"
+          fi
+          if gh release view "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            test "$tag_exists" = true
             gh release upload "v$RELEASE_VERSION" ".release/$TARBALL" --repo "$GITHUB_REPOSITORY" --clobber
-            gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --title "v$RELEASE_VERSION" --notes-file .release/release-notes.md
+            gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --title "v$RELEASE_VERSION" --notes-file .release/release-notes.md "${PRERELEASE_EDIT[@]}"
           else
             gh release create "v$RELEASE_VERSION" ".release/$TARBALL" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "v$RELEASE_VERSION" \
               --notes-file .release/release-notes.md \
-              "${PRERELEASE[@]}"
+              "${PRERELEASE_CREATE[@]}"
           fi
