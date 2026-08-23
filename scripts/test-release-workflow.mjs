@@ -116,23 +116,13 @@ assert(
   "Publishing must reconcile after the repository CI workflow completes.",
 );
 assert(
-  publish.on?.workflow_dispatch !== undefined && publish.on.workflow_dispatch?.inputs === undefined,
-  "Manual reconciliation must not require a version or run ID.",
-);
-const manualCheckout = publish.jobs?.verify?.steps?.find(
-  (step) => step.name === "Checkout current main for manual reconciliation",
+  publish.on?.workflow_dispatch === undefined,
+  "Release reconciliation must begin only from the exact successful CI event.",
 );
 assert(
-  manualCheckout?.if === "github.event_name == 'workflow_dispatch'" &&
-    manualCheckout?.with?.ref === "main" &&
-    manualCheckout?.with?.["persist-credentials"] === false,
-  "Manual reconciliation must checkout literal main without persisted credentials.",
-);
-assert(
-  verifyJobSource.includes("Expected exactly one successful current-main CI run") &&
-    verifyJobSource.includes("context.payload.workflow_run.head_sha") &&
+  verifyJobSource.includes("context.payload.workflow_run.head_sha") &&
     verifyJobSource.includes("Number(process.env.RUN_ATTEMPT) > 1") &&
-    verifyJobSource.includes("artifact.name === 'ginko-docs-release' && !artifact.expired") &&
+    verifyJobSource.includes("context.payload.workflow_run.id") &&
     verifyJobSource.includes("steps.source.outputs.source-sha"),
   "Candidate selection must be exact and reject ambiguous manual reconciliation.",
 );

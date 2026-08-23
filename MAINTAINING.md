@@ -74,9 +74,9 @@ artifact. A successful current-`main` CI run starts `Publish` automatically.
 The workflow derives the reviewed version and CI run from that artifact,
 verifies it again, and stops without approval when the release is already
 complete. A new publication pauses at the protected `npm` environment,
-publishes through npm trusted publishing, and creates the GitHub release.
-Dispatch `Publish` without inputs only to reconcile the current `main` when the
-automatic run was missed.
+publishes through npm trusted publishing, and creates the GitHub release. If
+the automatic run was missed, rerun the successful current-`main` CI workflow;
+its exact completion event starts reconciliation again.
 
 For a new release, the version and its `v<version>` tag do not exist before the
 workflow starts. During recovery, an existing tag must target the same certified
