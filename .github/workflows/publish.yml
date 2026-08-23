@@ -2,11 +2,11 @@ name: Publish
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: Exact package version from layer/package.json
-        required: true
-        type: string
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
 
 permissions: {}
 
@@ -17,44 +17,62 @@ concurrency:
 jobs:
   verify:
     name: Verify certified artifact
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       actions: read
       contents: read
+    outputs:
+      action: ${{ steps.state.outputs.action }}
+      channel: ${{ steps.candidate.outputs.channel }}
+      run-id: ${{ steps.source.outputs.run-id }}
+      source-sha: ${{ steps.source.outputs.source-sha }}
+      version: ${{ steps.candidate.outputs.version }}
 
     steps:
-      - name: Require main
+      - name: Select one certified source
+        id: source
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          test "$GITHUB_REF" = "refs/heads/main"
-          node -e "if (!/^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) throw new Error('Invalid release version')"
-          tag_ref="refs/tags/v$RELEASE_VERSION"
-          tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v$RELEASE_VERSION" --jq ".[] | select(.ref == \"$tag_ref\") | [.object.type, .object.sha] | @tsv")"
-          if test -n "$tag_object"; then
-            IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
-            while test "$tag_type" = tag; do
-              tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$tag_sha" --jq '[.object.type, .object.sha] | @tsv')"
-              IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
-            done
-            test "$tag_type" = commit
-            test "$tag_sha" = "$GITHUB_SHA"
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)"
+          if test "$EVENT_NAME" = workflow_run; then
+            if test "$RUN_ATTEMPT" = 1; then test "$EVENT_SOURCE_SHA" = "$current_main"; fi
+            source_sha="$EVENT_SOURCE_SHA"
+            run_id="$EVENT_RUN_ID"
+          else
+            source_sha="$current_main"
+            mapfile -t candidates < <(
+              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&event=push&status=completed&per_page=20" \
+                --jq '.workflow_runs[] | select(.conclusion == "success" and .head_branch == "main") | .id' |
+              while read -r candidate; do
+                count="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
+                  --jq '[.artifacts[] | select(.name == "ginko-docs-release" and (.expired | not))] | length')"
+                if test "$count" = 1; then printf '%s\n' "$candidate"; fi
+              done
+            )
+            if test "${#candidates[@]}" -ne 1; then
+              echo "Expected exactly one successful current-main CI run with a retained ginko-docs-release artifact; found ${#candidates[@]}." >&2
+              exit 1
+            fi
+            run_id="${candidates[0]}"
           fi
-
-      - name: Find successful CI for this commit
-        id: ci
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          run_id="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&event=push&status=completed&per_page=20" --jq '.workflow_runs | map(select(.conclusion == "success" and .head_branch == "main")) | first | .id // empty')"
-          test -n "$run_id"
+          printf 'source-sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
           printf 'run-id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          ref: ${{ steps.source.outputs.source-sha }}
 
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
@@ -77,11 +95,25 @@ jobs:
           name: ginko-docs-release
           path: .release
           github-token: ${{ github.token }}
-          run-id: ${{ steps.ci.outputs.run-id }}
+          run-id: ${{ steps.source.outputs.run-id }}
+
+      - name: Read reviewed release intent
+        id: candidate
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
+        run: |
+          version="$(node -p "require('./layer/package.json').version")"
+          node -e "if (!/^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1])) throw new Error('Invalid reviewed version')" "$version"
+          channel=latest
+          case "$version" in *-*) channel=next ;; esac
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+          printf 'channel=%s\n' "$channel" >> "$GITHUB_OUTPUT"
 
       - name: Verify exact artifact
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
+          SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
         run: >-
           node -e "const fs=require('node:fs');const crypto=require('node:crypto');const path=require('node:path');
           const files=fs.readdirSync('.release');const tarballs=files.filter(file=>file.endsWith('.tgz'));
@@ -91,20 +123,37 @@ jobs:
           const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join('.release',tarball))).digest('hex');
           const lanes=[...(c.lanes||[])].sort().join(',');
           const contentVersion=p.peerDependencies['@lupinum/ginko-content'].match(/>=([^ ]+)/)?.[1];
-          if(m.packageName!=='@lupinum/ginko-docs'||m.packageVersion!==process.env.RELEASE_VERSION||m.commit!==process.env.GITHUB_SHA||!m.sourceClean||m.tarball!==tarball||m.sha256!==digest||c.packageName!==m.packageName||c.packageVersion!==m.packageVersion||c.commit!==m.commit||c.tarball!==tarball||c.sha256!==digest||c.contentVersion!==contentVersion||c.contentSource!=='registry'||!c.releaseEvidence||lanes!=='i18n-dropdown,i18n-list,single-tabs')throw new Error('Artifact failed exact-SHA release validation')"
+          if(m.packageName!=='@lupinum/ginko-docs'||m.packageVersion!==process.env.RELEASE_VERSION||m.commit!==process.env.SOURCE_SHA||!m.sourceClean||m.tarball!==tarball||m.sha256!==digest||c.packageName!==m.packageName||c.packageVersion!==m.packageVersion||c.commit!==m.commit||c.tarball!==tarball||c.sha256!==digest||c.contentVersion!==contentVersion||c.contentSource!=='registry'||!c.releaseEvidence||lanes!=='i18n-dropdown,i18n-list,single-tabs')throw new Error('Artifact failed exact-SHA release validation')"
 
       - name: Verify registry recovery state
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
           SIGSTORE_PREFIX: ${{ runner.temp }}/sigstore
         run: node scripts/verify-npm-recovery.mjs
 
       - name: Extract release notes
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
         run: |
           awk -v version="v$RELEASE_VERSION" '$0 == "## " version { capture=1 } capture && /^## / && $0 != "## " version { exit } capture' CHANGELOG.md > .release/release-notes.md
           test -s .release/release-notes.md
+
+      - name: Derive reconciliation state
+        id: state
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
+          SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
+        run: node scripts/plan-release.mjs
+
+      - name: Write release summary
+        env:
+          ACTION: ${{ steps.state.outputs.action }}
+          CHANNEL: ${{ steps.candidate.outputs.channel }}
+          RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
+          RUN_ID: ${{ steps.source.outputs.run-id }}
+          SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
+        run: node scripts/write-release-summary.mjs
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -117,6 +166,7 @@ jobs:
   publish:
     name: Publish to npm
     needs: verify
+    if: needs.verify.outputs.action == 'publish'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: npm
@@ -138,7 +188,8 @@ jobs:
 
       - name: Publish or verify the certified tarball
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ needs.verify.outputs.version }}
+          SOURCE_SHA: ${{ needs.verify.outputs.source-sha }}
         run: |
           node --input-type=module <<'NODE'
           import { spawnSync } from 'node:child_process'
@@ -178,7 +229,7 @@ jobs:
             record.packageName !== manifest.packageName ||
             record.packageVersion !== process.env.RELEASE_VERSION ||
             record.packageVersion !== manifest.packageVersion ||
-            record.sourceSha !== process.env.GITHUB_SHA ||
+            record.sourceSha !== process.env.SOURCE_SHA ||
             record.sourceSha !== manifest.commit ||
             record.tarball !== manifest.tarball ||
             record.tarballSha1 !== shasum ||
@@ -217,7 +268,13 @@ jobs:
 
   github-release:
     name: Create GitHub release
-    needs: publish
+    needs:
+      - verify
+      - publish
+    if: >-
+      always() && needs.verify.result == 'success' &&
+      needs.verify.outputs.action != 'complete' &&
+      (needs.publish.result == 'success' || needs.publish.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -233,7 +290,8 @@ jobs:
       - name: Create release from the published artifact
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_VERSION: ${{ needs.verify.outputs.version }}
+          SOURCE_SHA: ${{ needs.verify.outputs.source-sha }}
         run: |
           TARBALL=$(node -e "process.stdout.write(require('./.release/release-artifact.json').tarball)")
           PRERELEASE_CREATE=()
@@ -252,17 +310,27 @@ jobs:
               IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
             done
             test "$tag_type" = commit
-            test "$tag_sha" = "$GITHUB_SHA"
+            test "$tag_sha" = "$SOURCE_SHA"
           fi
           if gh release view "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             test "$tag_exists" = true
             gh release upload "v$RELEASE_VERSION" ".release/$TARBALL" --repo "$GITHUB_REPOSITORY" --clobber
             gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --title "v$RELEASE_VERSION" --notes-file .release/release-notes.md "${PRERELEASE_EDIT[@]}"
           else
-            gh release create "v$RELEASE_VERSION" ".release/$TARBALL" \
+            error_file="$(mktemp)"
+            if ! gh release create "v$RELEASE_VERSION" ".release/$TARBALL" \
               --repo "$GITHUB_REPOSITORY" \
-              --target "$GITHUB_SHA" \
+              --target "$SOURCE_SHA" \
               --title "v$RELEASE_VERSION" \
               --notes-file .release/release-notes.md \
-              "${PRERELEASE_CREATE[@]}"
+              "${PRERELEASE_CREATE[@]}" 2>"$error_file"; then
+              if grep -Eq 'Resource not accessible by integration|HTTP 403' "$error_file"; then
+                echo "HUMAN-ONLY: GitHub could not create historical tag v$RELEASE_VERSION at certified commit $SOURCE_SHA." >&2
+                echo "Run: git fetch origin && git tag v$RELEASE_VERSION $SOURCE_SHA && git push origin refs/tags/v$RELEASE_VERSION" >&2
+                echo "Then verify: git ls-remote origin refs/tags/v$RELEASE_VERSION" >&2
+                echo "Finally rerun only this failed GitHub release job; do not rebuild or republish." >&2
+              fi
+              cat "$error_file" >&2
+              exit 1
+            fi
           fi
