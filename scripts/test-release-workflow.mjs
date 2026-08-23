@@ -130,8 +130,9 @@ assert(
 );
 assert(
   verifyJobSource.includes("Expected exactly one successful current-main CI run") &&
-    verifyJobSource.includes("github.event.workflow_run.head_sha") &&
-    verifyJobSource.includes('if test "$RUN_ATTEMPT" = 1') &&
+    verifyJobSource.includes("context.payload.workflow_run.head_sha") &&
+    verifyJobSource.includes("Number(process.env.RUN_ATTEMPT) > 1") &&
+    verifyJobSource.includes("artifact.name === 'ginko-docs-release' && !artifact.expired") &&
     verifyJobSource.includes("steps.source.outputs.source-sha"),
   "Candidate selection must be exact and reject ambiguous manual reconciliation.",
 );

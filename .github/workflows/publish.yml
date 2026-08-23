@@ -37,37 +37,63 @@ jobs:
     steps:
       - name: Select one certified source
         id: source
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
-          EVENT_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
-        run: |
-          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)"
-          if test "$EVENT_NAME" = workflow_run; then
-            if test "$RUN_ATTEMPT" = 1; then test "$EVENT_SOURCE_SHA" = "$current_main"; fi
-            source_sha="$EVENT_SOURCE_SHA"
-            run_id="$EVENT_RUN_ID"
-          else
-            source_sha="$current_main"
-            mapfile -t candidates < <(
-              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&event=push&status=completed&per_page=20" \
-                --jq '.workflow_runs[] | select(.conclusion == "success" and .head_branch == "main") | .id' |
-              while read -r candidate; do
-                count="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
-                  --jq '[.artifacts[] | select(.name == "ginko-docs-release" and (.expired | not))] | length')"
-                if test "$count" = 1; then printf '%s\n' "$candidate"; fi
-              done
-            )
-            if test "${#candidates[@]}" -ne 1; then
-              echo "Expected exactly one successful current-main CI run with a retained ginko-docs-release artifact; found ${#candidates[@]}." >&2
-              exit 1
-            fi
-            run_id="${candidates[0]}"
-          fi
-          printf 'source-sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
-          printf 'run-id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
+        with:
+          script: |
+            const { data: repository } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const { data: currentMain } = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${repository.default_branch}`,
+            })
+            const sourceSha = context.eventName === 'workflow_run'
+              ? context.payload.workflow_run.head_sha
+              : currentMain.object.sha
+            const isHistoricalRetry = context.eventName === 'workflow_run' &&
+              Number(process.env.RUN_ATTEMPT) > 1
+            if (sourceSha !== currentMain.object.sha && !isHistoricalRetry) {
+              core.setFailed('The successful CI SHA is no longer current main.')
+              return
+            }
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: repository.default_branch,
+              event: 'push',
+              status: 'completed',
+              per_page: 20,
+            })
+            const candidates = []
+            for (const run of runs.workflow_runs.filter(candidate =>
+              candidate.conclusion === 'success' && candidate.head_sha === sourceSha,
+            )) {
+              const { data: artifacts } = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+                per_page: 100,
+              })
+              if (artifacts.artifacts.filter(artifact =>
+                artifact.name === 'ginko-docs-release' && !artifact.expired,
+              ).length === 1) candidates.push(run)
+            }
+            const selected = context.eventName === 'workflow_run'
+              ? candidates.filter(run => run.id === context.payload.workflow_run.id)
+              : candidates
+            if (selected.length !== 1) {
+              core.setFailed(
+                `Expected exactly one successful current-main CI run with a retained ginko-docs-release artifact; found ${selected.length}.`,
+              )
+              return
+            }
+            core.setOutput('source-sha', sourceSha)
+            core.setOutput('run-id', String(selected[0].id))
 
       - name: Checkout current main for manual reconciliation
         if: github.event_name == 'workflow_dispatch'
