@@ -51,7 +51,7 @@ for (const forbidden of [
 for (const required of [
   "registry-verification.json",
   "Object.keys(record).sort()",
-  "record.sourceSha !== process.env.GITHUB_SHA",
+  "record.sourceSha !== process.env.SOURCE_SHA",
   "record.tarballSha512 !== sha512",
   "existing !== record.registryShasum",
   "registry existence or bytes changed after verification",
@@ -109,6 +109,31 @@ for (const required of [
 
 const verifiedUpload = publish.jobs?.verify?.steps?.find(
   (step) => step.with?.name === "verified-ginko-docs-release",
+);
+assert(
+  publish.on?.workflow_run?.workflows?.includes("CI") &&
+    publish.on?.workflow_run?.types?.includes("completed"),
+  "Publishing must reconcile after the repository CI workflow completes.",
+);
+assert(
+  publish.on?.workflow_dispatch === undefined,
+  "Release reconciliation must begin only from the exact successful CI event.",
+);
+assert(
+  verifyJobSource.includes("context.payload.workflow_run.head_sha") &&
+    verifyJobSource.includes("Number(process.env.RUN_ATTEMPT) > 1") &&
+    verifyJobSource.includes("context.payload.workflow_run.id") &&
+    verifyJobSource.includes("steps.source.outputs.source-sha"),
+  "Candidate selection must be exact and reject ambiguous manual reconciliation.",
+);
+assert(
+  publish.jobs?.publish?.if === "needs.verify.outputs.action == 'publish'",
+  "A complete or repair-only release must not enter the npm environment.",
+);
+assert(
+  publishSource.includes("HUMAN-ONLY: GitHub could not create historical tag") &&
+    publishSource.includes("rerun only this failed GitHub release job"),
+  "Historical tag failures must provide the exact safe maintainer action.",
 );
 assert(
   verifiedUpload?.with?.["retention-days"] === 14,

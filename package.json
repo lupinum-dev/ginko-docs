@@ -8,7 +8,7 @@
     "docs:build": "vp run build",
     "audit:all": "pnpm audit",
     "check": "vp check && vp run lint:vue-template && vp run typecheck",
-    "check:release-workflow": "node scripts/test-release-workflow.mjs && node scripts/test-release-recovery.mjs && node scripts/test-npm-recovery.mjs",
+    "check:release-workflow": "node scripts/test-release-workflow.mjs && node scripts/test-release-plan.mjs && node scripts/test-release-recovery.mjs && node scripts/test-npm-recovery.mjs",
     "dev": "vp run ginko-docs-site#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",
     "pack:layer": "vp run build:content-entry && vp pm pack --filter @lupinum/ginko-docs --pack-destination layer/.pack",

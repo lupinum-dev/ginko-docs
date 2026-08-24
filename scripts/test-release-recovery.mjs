@@ -109,7 +109,7 @@ const runProtected = ({ attestations, recordChange }) => {
       encoding: "utf8",
       env: {
         ...process.env,
-        GITHUB_SHA: sourceSha,
+        SOURCE_SHA: sourceSha,
         NPM_FIXTURE: npmFixture,
         PATH: `${binDir}${delimiter}${process.env.PATH ?? ""}`,
         RELEASE_VERSION: releaseVersion,
@@ -206,7 +206,7 @@ const runGithubRelease = ({ version, tag, peeled = {}, releaseExists }) => {
         GH_LOG: ghLog,
         GH_TOKEN: "fixture",
         GITHUB_REPOSITORY: "lupinum-dev/ginko-docs",
-        GITHUB_SHA: sourceSha,
+        SOURCE_SHA: sourceSha,
         PATH: `${binDir}${delimiter}${process.env.PATH ?? ""}`,
         RELEASE_VERSION: version,
       },

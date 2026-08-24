@@ -178,7 +178,12 @@ describe("ginko docs release guardrails", () => {
     const workflow = read(".github/workflows/publish.yml");
     const certification = read("scripts/certify-packed-fixtures.mjs");
 
-    expect(workflow).toContain('test "$tag_sha" = "$GITHUB_SHA"');
+    expect(workflow).toContain('test "$tag_sha" = "$SOURCE_SHA"');
+    expect(workflow).toContain("steps.source.outputs.source-sha");
+    expect(workflow).toContain("context.payload.workflow_run.head_sha");
+    expect(workflow).toContain("context.payload.workflow_run.id");
+    expect(workflow).toContain("Number(process.env.RUN_ATTEMPT) > 1");
+    expect(workflow).not.toContain("workflow_dispatch:");
     expect(workflow).toContain('gh release edit "v$RELEASE_VERSION"');
     expect(workflow).toContain("environment: npm");
     expect(workflow).toContain("id-token: write");

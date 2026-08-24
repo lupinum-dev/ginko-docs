@@ -70,14 +70,18 @@ the generated text before you commit it.
 ## Protected publishing
 
 The `CI` workflow certifies the exact `main` commit and uploads one release
-artifact. Start the `Publish` workflow with the exact version. The workflow
-finds the successful CI run for the current `main` commit, verifies its
-artifact again, pauses at the protected `npm` environment, publishes through
-npm trusted publishing, and creates the GitHub release.
+artifact. A successful current-`main` CI run starts `Publish` automatically.
+The workflow derives the reviewed version and CI run from that artifact,
+verifies it again, and stops without approval when the release is already
+complete. A new publication pauses at the protected `npm` environment,
+publishes through npm trusted publishing, and creates the GitHub release. If
+the automatic run was missed, rerun the successful current-`main` CI workflow;
+its exact completion event starts reconciliation again.
 
 For a new release, the version and its `v<version>` tag do not exist before the
 workflow starts. During recovery, an existing tag must target the same certified
-main commit. Do not prepare or push a release tag from a workstation.
+main commit. Do not prepare or push a release tag from a workstation during a
+normal release.
 
 The npm trusted publisher must use these values:
 
@@ -89,7 +93,7 @@ The npm trusted publisher must use these values:
 
 The GitHub `npm` environment must allow only `main` and require a reviewer. Do not add an `NPM_TOKEN`.
 
-Never publish from a workstation. Never run Changelogen with `--release` or `--publish`. Never create the tag or GitHub release manually. The protected workflow publishes the already-certified tarball and creates the release.
+Never publish from a workstation. Never run Changelogen with `--release` or `--publish`. The protected workflow publishes the already-certified tarball and creates the release. The only manual-tag exception is a historical npm publication whose provenance, retained artifact, absent tag, and source SHA were verified first. In that case, use only the exact `HUMAN-ONLY` lightweight-tag command printed by the failed GitHub Release job, verify the remote tag target, and rerun only that job.
 
 ## Recovery
 
@@ -139,8 +143,9 @@ GitHub must have:
 npm must bind `@lupinum/ginko-docs` to `publish.yml` and the `npm` environment
 through trusted publishing.
 
-Vercel must deploy the `docs/` app from `main` to `ginko-docs.lupinum.com` and
-create pull-request previews. Set the Vercel Root Directory to `docs`. Enable
+Vercel must deploy the `docs/` app from `main` to `ginko-docs.lupinum.com`.
+Pull-request previews run only after a maintainer requests `/vercel`; ordinary
+PR pushes must not build automatically. Set the Vercel Root Directory to `docs`. Enable
 source files outside the Root Directory so the app can consume the local
 `layer/` package. Do not set an Output Directory override; Nuxt emits the
 Vercel Build Output API files. Do not set an Install Command override. Vercel
