@@ -180,6 +180,10 @@ describe("ginko docs release guardrails", () => {
 
     expect(workflow).toContain('test "$tag_sha" = "$SOURCE_SHA"');
     expect(workflow).toContain("steps.source.outputs.source-sha");
+    expect(workflow).toContain("ref: ${{ github.sha }}");
+    expect(workflow).not.toContain("ref: ${{ steps.source.outputs.source-sha }}");
+    expect(workflow).toContain("Read certified source metadata as data");
+    expect(workflow).toContain(".source/layer-package.json");
     expect(workflow).toContain("context.payload.workflow_run?.head_sha");
     expect(workflow).toContain("context.payload.workflow_run?.id");
     expect(workflow).toContain("context.eventName === 'workflow_dispatch'");

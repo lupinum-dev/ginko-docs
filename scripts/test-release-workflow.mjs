@@ -32,6 +32,13 @@ const publishJobSource =
   /^  publish:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
 const verifyJobSource =
   /^  verify:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
+assert(
+  verifyJobSource.includes("ref: ${{ github.sha }}") &&
+    !verifyJobSource.includes("ref: ${{ steps.source.outputs.source-sha }}") &&
+    verifyJobSource.includes("Read certified source metadata as data") &&
+    verifyJobSource.includes(".source/layer-package.json"),
+  "Historical reconciliation must execute only the protected verifier and read certified source files as data.",
+);
 for (const forbidden of [
   "actions/checkout@",
   "npm install",
