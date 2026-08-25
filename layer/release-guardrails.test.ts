@@ -180,10 +180,13 @@ describe("ginko docs release guardrails", () => {
 
     expect(workflow).toContain('test "$tag_sha" = "$SOURCE_SHA"');
     expect(workflow).toContain("steps.source.outputs.source-sha");
-    expect(workflow).toContain("context.payload.workflow_run.head_sha");
-    expect(workflow).toContain("context.payload.workflow_run.id");
-    expect(workflow).toContain("Number(process.env.RUN_ATTEMPT) > 1");
-    expect(workflow).not.toContain("workflow_dispatch:");
+    expect(workflow).toContain("context.payload.workflow_run?.head_sha");
+    expect(workflow).toContain("context.payload.workflow_run?.id");
+    expect(workflow).toContain("context.eventName === 'workflow_dispatch'");
+    expect(workflow).toContain("incomplete.length > 1");
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain('gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"');
+    expect(workflow).toContain("git/ref/tags/v$RELEASE_VERSION");
     expect(workflow).toContain('gh release edit "v$RELEASE_VERSION"');
     expect(workflow).toContain("environment: npm");
     expect(workflow).toContain("id-token: write");

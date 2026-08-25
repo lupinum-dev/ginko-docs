@@ -75,8 +75,9 @@ The workflow derives the reviewed version and CI run from that artifact,
 verifies it again, and stops without approval when the release is already
 complete. A new publication pauses at the protected `npm` environment,
 publishes through npm trusted publishing, and creates the GitHub release. If
-the automatic run was missed, rerun the successful current-`main` CI workflow;
-its exact completion event starts reconciliation again.
+the automatic event was missed, run the input-free `Publish` dispatch from
+`main`. It selects one unique incomplete retained candidate and fails instead
+of guessing when more than one candidate is plausible.
 
 For a new release, the version and its `v<version>` tag do not exist before the
 workflow starts. During recovery, an existing tag must target the same certified
@@ -100,7 +101,8 @@ Never publish from a workstation. Never run Changelogen with `--release` or `--p
 If publishing fails, do not build a replacement tarball. Rerun the failed job
 when the existing workflow is correct. If the workflow itself needs a fix,
 retain the original candidate and reconcile from its certified source SHA after
-the fix. Never dispatch a later `main` commit to repair an earlier npm version.
+the fix with the input-free `Publish` dispatch. Never dispatch a later `main`
+commit to repair an earlier npm version.
 
 If npm already accepted the exact certified bytes, the workflow verifies the
 registry SHA-1 and uses an isolated Sigstore 5 verifier to cryptographically
