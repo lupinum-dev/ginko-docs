@@ -151,14 +151,35 @@ const githubReleaseProgram = stepProgram(
   "Create release from the published artifact",
 );
 const fakeGhSource = `#!/usr/bin/env node
-const { appendFileSync, readFileSync } = require("node:fs");
+const { appendFileSync, readFileSync, writeFileSync } = require("node:fs");
 const fixture = JSON.parse(readFileSync(process.env.GH_FIXTURE, "utf8"));
 const args = process.argv.slice(2);
 appendFileSync(process.env.GH_LOG, JSON.stringify(args) + "\\n");
 if (args[0] === "api") {
-  const endpoint = args[1] || "";
+  const endpoint = args.find(arg => arg.startsWith("repos/")) || "";
+  if (args.includes("POST") && endpoint.endsWith("/git/refs")) {
+    if (fixture.tagCreateError) {
+      process.stderr.write(fixture.tagCreateError + "\\n");
+      process.exit(1);
+    }
+    const shaIndex = args.indexOf("sha=" + process.env.SOURCE_SHA);
+    const refIndex = args.indexOf("ref=refs/tags/v" + process.env.RELEASE_VERSION);
+    if (shaIndex < 0 || refIndex < 0) {
+      process.stderr.write("Wrong lightweight tag coordinates.\\n");
+      process.exit(2);
+    }
+    writeFileSync(process.env.GH_STATE, JSON.stringify({ tag: { type: "commit", sha: process.env.SOURCE_SHA } }));
+    process.exit(0);
+  }
   if (endpoint.includes("/git/matching-refs/tags/")) {
-    if (fixture.tag) process.stdout.write(fixture.tag.type + "\\t" + fixture.tag.sha + "\\n");
+    const state = JSON.parse(readFileSync(process.env.GH_STATE, "utf8"));
+    if (state.tag) process.stdout.write(state.tag.type + "\\t" + state.tag.sha + "\\n");
+    process.exit(0);
+  }
+  if (endpoint.includes("/git/ref/tags/")) {
+    const state = JSON.parse(readFileSync(process.env.GH_STATE, "utf8"));
+    if (!state.tag) process.exit(1);
+    process.stdout.write(state.tag.type + "\\t" + state.tag.sha + "\\n");
     process.exit(0);
   }
   const tagObject = endpoint.match(/\\/git\\/tags\\/([0-9a-f]+)$/);
@@ -178,7 +199,7 @@ process.stderr.write("Unexpected gh command: " + args.join(" ") + "\\n");
 process.exit(2);
 `;
 
-const runGithubRelease = ({ version, tag, peeled = {}, releaseExists }) => {
+const runGithubRelease = ({ version, tag, peeled = {}, releaseExists, tagCreateError }) => {
   const directory = mkdtempSync(join(tmpdir(), "ginko-docs-github-release-"));
   try {
     const releaseDir = join(directory, ".release");
@@ -190,8 +211,10 @@ const runGithubRelease = ({ version, tag, peeled = {}, releaseExists }) => {
     writeFileSync(join(releaseDir, tarball), tarballBytes);
 
     const ghFixture = join(directory, "gh-fixture.json");
+    const ghState = join(directory, "gh-state.json");
     const ghLog = join(directory, "gh.log");
-    writeFileSync(ghFixture, JSON.stringify({ tag, peeled, releaseExists }));
+    writeFileSync(ghFixture, JSON.stringify({ peeled, releaseExists, tagCreateError }));
+    writeFileSync(ghState, JSON.stringify({ tag }));
     writeFileSync(ghLog, "");
     const fakeGh = join(binDir, "gh");
     writeFileSync(fakeGh, fakeGhSource);
@@ -204,6 +227,7 @@ const runGithubRelease = ({ version, tag, peeled = {}, releaseExists }) => {
         ...process.env,
         GH_FIXTURE: ghFixture,
         GH_LOG: ghLog,
+        GH_STATE: ghState,
         GH_TOKEN: "fixture",
         GITHUB_REPOSITORY: "lupinum-dev/ginko-docs",
         SOURCE_SHA: sourceSha,
@@ -275,10 +299,37 @@ const freshRelease = runGithubRelease({
   releaseExists: false,
 });
 assert.equal(freshRelease.result.status, 0, freshRelease.result.stderr);
+const createTagCall = freshRelease.calls.find(
+  (args) =>
+    args[0] === "api" && args.includes("POST") && args.some((arg) => arg.endsWith("/git/refs")),
+);
+assert(createTagCall, "A missing tag must be created explicitly through the Git refs API.");
 const createCall = freshRelease.calls.find((args) => args[0] === "release" && args[1] === "create");
 assert(createCall, "A missing tag and Release must use create.");
-assert.equal(createCall[createCall.indexOf("--target") + 1], sourceSha);
+assert(
+  !createCall.includes("--target"),
+  "Release creation must consume the verified existing tag.",
+);
 assert(!createCall.includes("--prerelease"));
+
+const historicalTagDenied = runGithubRelease({
+  version: releaseVersion,
+  tag: null,
+  releaseExists: false,
+  tagCreateError: "Resource not accessible by integration (HTTP 403)",
+});
+assert.notEqual(historicalTagDenied.result.status, 0, "A denied historical tag must stop repair.");
+assert.match(
+  historicalTagDenied.result.stderr,
+  /HUMAN-ONLY: GitHub could not create historical tag/u,
+);
+assert.match(historicalTagDenied.result.stderr, new RegExp(`grep -Fx ${sourceSha}`, "u"));
+assert(
+  !historicalTagDenied.calls.some(
+    (args) => args[0] === "release" && ["create", "edit", "upload"].includes(args[1]),
+  ),
+  "A denied historical tag must not mutate the GitHub Release.",
+);
 
 const orphanedRelease = runGithubRelease({
   version: releaseVersion,

@@ -6,6 +6,7 @@ on:
       - CI
     types:
       - completed
+  workflow_dispatch:
 
 permissions: {}
 
@@ -17,9 +18,10 @@ jobs:
   verify:
     name: Verify certified artifact
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main'
+      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -33,6 +35,16 @@ jobs:
       version: ${{ steps.candidate.outputs.version }}
 
     steps:
+      - name: Require the protected verifier ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          VERIFIER_REF: ${{ github.ref }}
+        run: |
+          if test "$EVENT_NAME" = workflow_dispatch && test "$VERIFIER_REF" != refs/heads/main; then
+            echo 'Manual reconciliation must be dispatched from the protected main branch.' >&2
+            exit 1
+          fi
+
       - name: Select one certified source
         id: source
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
@@ -40,6 +52,16 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
         with:
           script: |
+            const readJson = async (path, ref) => {
+              const response = await github.rest.repos.getContent({ ...context.repo, path, ref })
+              if (Array.isArray(response.data) || response.data.type !== 'file') throw new Error(`Missing ${path} at ${ref}.`)
+              return JSON.parse(Buffer.from(response.data.content, response.data.encoding).toString('utf8'))
+            }
+            const readText = async (path, ref) => {
+              const response = await github.rest.repos.getContent({ ...context.repo, path, ref })
+              if (Array.isArray(response.data) || response.data.type !== 'file') throw new Error(`Missing ${path} at ${ref}.`)
+              return Buffer.from(response.data.content, response.data.encoding).toString('utf8')
+            }
             const { data: repository } = await github.rest.repos.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -49,20 +71,81 @@ jobs:
               repo: context.repo.repo,
               ref: `heads/${repository.default_branch}`,
             })
-            const sourceSha = context.payload.workflow_run.head_sha
-            const isHistoricalRetry = Number(process.env.RUN_ATTEMPT) > 1
+            let sourceSha
+            let runId
+            if (context.eventName === 'workflow_dispatch') {
+              const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                ...context.repo,
+                workflow_id: 'ci.yml',
+                status: 'success',
+                event: 'push',
+                branch: repository.default_branch,
+                per_page: 100,
+              })
+              const retained = []
+              const incomplete = []
+              for (const run of runs) {
+                const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                  ...context.repo,
+                  run_id: run.id,
+                  per_page: 100,
+                })
+                if (!artifacts.some(artifact => artifact.name === 'ginko-docs-release' && !artifact.expired)) continue
+                const manifest = await readJson('layer/package.json', run.head_sha)
+                const changelog = await readText('CHANGELOG.md', run.head_sha)
+                const tag = `v${manifest.version}`
+                if (!changelog.split('\n').some(line => line === `## ${tag}` || line.startsWith(`## ${tag} `))) continue
+                const registry = await fetch(`https://registry.npmjs.org/${manifest.name.replace('/', '%2f')}/${manifest.version}`)
+                if (registry.status !== 404 && !registry.ok) throw new Error(`npm state for ${manifest.name}@${manifest.version} is unavailable: HTTP ${registry.status}.`)
+                const tagRef = await github.rest.git.getRef({ ...context.repo, ref: `tags/${tag}` }).catch(error => error.status === 404 ? null : Promise.reject(error))
+                const release = await github.rest.repos.getReleaseByTag({ ...context.repo, tag }).catch(error => error.status === 404 ? null : Promise.reject(error))
+                retained.push(run)
+                if (registry.status === 404 || !tagRef || !release) incomplete.push(run)
+              }
+              if (incomplete.length > 1) throw new Error(`Multiple incomplete retained candidates exist (${incomplete.map(run => run.id).join(', ')}). Finish the earlier release first.`)
+              const selected = incomplete[0] ?? retained[0]
+              if (!selected) throw new Error('No retained release candidate with reviewed intent is available for reconciliation.')
+              sourceSha = selected.head_sha
+              runId = selected.id
+            } else {
+              sourceSha = context.payload.workflow_run?.head_sha
+              runId = context.payload.workflow_run?.id
+              if (!sourceSha || !runId) throw new Error('The successful CI source is missing.')
+            }
+            const isHistoricalRetry = context.eventName === 'workflow_dispatch' || Number(process.env.RUN_ATTEMPT) > 1
             if (sourceSha !== currentMain.object.sha && !isHistoricalRetry) {
               core.setFailed('The successful CI SHA is no longer current main.')
               return
             }
             core.setOutput('source-sha', sourceSha)
-            core.setOutput('run-id', String(context.payload.workflow_run.id))
+            core.setOutput('run-id', String(runId))
 
-      - name: Checkout the successful CI source
+      - name: Checkout the protected verifier
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-          ref: ${{ steps.source.outputs.source-sha }}
+          ref: ${{ github.sha }}
+
+      - name: Read certified source metadata as data
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
+        with:
+          script: |
+            const { mkdirSync, writeFileSync } = require('node:fs')
+            mkdirSync('.source', { recursive: true })
+            for (const [path, target] of [
+              ['layer/package.json', '.source/layer-package.json'],
+              ['CHANGELOG.md', '.source/CHANGELOG.md'],
+            ]) {
+              const response = await github.rest.repos.getContent({
+                ...context.repo,
+                path,
+                ref: process.env.SOURCE_SHA,
+              })
+              if (Array.isArray(response.data) || response.data.type !== 'file') throw new Error(`Missing ${path} at the certified source.`)
+              writeFileSync(target, Buffer.from(response.data.content, response.data.encoding))
+            }
 
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
@@ -92,11 +175,10 @@ jobs:
         env:
           SOURCE_SHA: ${{ steps.source.outputs.source-sha }}
         run: |
-          version="$(node -p "require('./layer/package.json').version")"
+          version="$(node -p "require('./.source/layer-package.json').version")"
           node -e "if (!/^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1])) throw new Error('Invalid reviewed version')" "$version"
           channel=latest
           case "$version" in *-*) channel=next ;; esac
-          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
           printf 'channel=%s\n' "$channel" >> "$GITHUB_OUTPUT"
 
@@ -108,7 +190,7 @@ jobs:
           node -e "const fs=require('node:fs');const crypto=require('node:crypto');const path=require('node:path');
           const files=fs.readdirSync('.release');const tarballs=files.filter(file=>file.endsWith('.tgz'));
           if(tarballs.length!==1||!files.includes('release-artifact.json')||!files.includes('release-certification.json'))throw new Error('Expected one tarball and both release manifests');
-          const m=require('./.release/release-artifact.json');const c=require('./.release/release-certification.json');const p=require('./layer/package.json');const tarball=tarballs[0];
+          const m=require('./.release/release-artifact.json');const c=require('./.release/release-certification.json');const p=require('./.source/layer-package.json');const tarball=tarballs[0];
           if(!/^[a-z0-9._-]+\.tgz$/.test(tarball))throw new Error('Unsafe tarball filename');
           const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join('.release',tarball))).digest('hex');
           const lanes=[...(c.lanes||[])].sort().join(',');
@@ -125,7 +207,7 @@ jobs:
         env:
           RELEASE_VERSION: ${{ steps.candidate.outputs.version }}
         run: |
-          awk -v version="v$RELEASE_VERSION" '$0 == "## " version { capture=1 } capture && /^## / && $0 != "## " version { exit } capture' CHANGELOG.md > .release/release-notes.md
+          awk -v version="v$RELEASE_VERSION" '$0 == "## " version { capture=1 } capture && /^## / && $0 != "## " version { exit } capture' .source/CHANGELOG.md > .release/release-notes.md
           test -s .release/release-notes.md
 
       - name: Derive reconciliation state
@@ -302,25 +384,43 @@ jobs:
             test "$tag_type" = commit
             test "$tag_sha" = "$SOURCE_SHA"
           fi
+          release_exists=false
           if gh release view "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            test "$tag_exists" = true
-            gh release upload "v$RELEASE_VERSION" ".release/$TARBALL" --repo "$GITHUB_REPOSITORY" --clobber
-            gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --title "v$RELEASE_VERSION" --notes-file .release/release-notes.md "${PRERELEASE_EDIT[@]}"
-          else
+            release_exists=true
+          fi
+          if test "$tag_exists" = false && test "$release_exists" = true; then
+            echo "A GitHub Release exists without its certified tag v$RELEASE_VERSION." >&2
+            exit 1
+          fi
+          if test "$tag_exists" = false; then
             error_file="$(mktemp)"
-            if ! gh release create "v$RELEASE_VERSION" ".release/$TARBALL" \
-              --repo "$GITHUB_REPOSITORY" \
-              --target "$SOURCE_SHA" \
-              --title "v$RELEASE_VERSION" \
-              --notes-file .release/release-notes.md \
-              "${PRERELEASE_CREATE[@]}" 2>"$error_file"; then
+            if ! gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="$tag_ref" \
+              -f sha="$SOURCE_SHA" > /dev/null 2>"$error_file"; then
               if grep -Eq 'Resource not accessible by integration|HTTP 403' "$error_file"; then
                 echo "HUMAN-ONLY: GitHub could not create historical tag v$RELEASE_VERSION at certified commit $SOURCE_SHA." >&2
                 echo "Run: git fetch origin && git tag v$RELEASE_VERSION $SOURCE_SHA && git push origin refs/tags/v$RELEASE_VERSION" >&2
-                echo "Then verify: git ls-remote origin refs/tags/v$RELEASE_VERSION" >&2
+                echo "Then verify: git ls-remote origin refs/tags/v$RELEASE_VERSION | awk '{print \$1}' | grep -Fx $SOURCE_SHA" >&2
                 echo "Finally rerun only this failed GitHub release job; do not rebuild or republish." >&2
               fi
               cat "$error_file" >&2
               exit 1
             fi
+            tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$RELEASE_VERSION" --jq '[.object.type, .object.sha] | @tsv')"
+            test -n "$tag_object"
+            IFS=$'\t' read -r tag_type tag_sha <<< "$tag_object"
+            test "$tag_type" = commit
+            test "$tag_sha" = "$SOURCE_SHA"
+            tag_exists=true
+          fi
+          if test "$release_exists" = true; then
+            test "$tag_exists" = true
+            gh release upload "v$RELEASE_VERSION" ".release/$TARBALL" --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --title "v$RELEASE_VERSION" --notes-file .release/release-notes.md "${PRERELEASE_EDIT[@]}"
+          else
+            gh release create "v$RELEASE_VERSION" ".release/$TARBALL" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "v$RELEASE_VERSION" \
+              --notes-file .release/release-notes.md \
+              "${PRERELEASE_CREATE[@]}"
           fi

@@ -32,6 +32,13 @@ const publishJobSource =
   /^  publish:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
 const verifyJobSource =
   /^  verify:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
+assert(
+  verifyJobSource.includes("ref: ${{ github.sha }}") &&
+    !verifyJobSource.includes("ref: ${{ steps.source.outputs.source-sha }}") &&
+    verifyJobSource.includes("Read certified source metadata as data") &&
+    verifyJobSource.includes(".source/layer-package.json"),
+  "Historical reconciliation must execute only the protected verifier and read certified source files as data.",
+);
 for (const forbidden of [
   "actions/checkout@",
   "npm install",
@@ -116,15 +123,18 @@ assert(
   "Publishing must reconcile after the repository CI workflow completes.",
 );
 assert(
-  publish.on?.workflow_dispatch === undefined,
-  "Release reconciliation must begin only from the exact successful CI event.",
+  Object.hasOwn(publish.on ?? {}, "workflow_dispatch"),
+  "Release reconciliation must provide an input-free recovery dispatch.",
 );
 assert(
-  verifyJobSource.includes("context.payload.workflow_run.head_sha") &&
-    verifyJobSource.includes("Number(process.env.RUN_ATTEMPT) > 1") &&
-    verifyJobSource.includes("context.payload.workflow_run.id") &&
+  verifyJobSource.includes("context.payload.workflow_run?.head_sha") &&
+    verifyJobSource.includes("context.eventName === 'workflow_dispatch'") &&
+    verifyJobSource.includes("listWorkflowRuns") &&
+    verifyJobSource.includes("listWorkflowRunArtifacts") &&
+    verifyJobSource.includes("!artifact.expired") &&
+    verifyJobSource.includes("incomplete.length > 1") &&
     verifyJobSource.includes("steps.source.outputs.source-sha"),
-  "Candidate selection must be exact and reject ambiguous manual reconciliation.",
+  "Candidate selection must bind exact automatic runs and reject ambiguous retained recovery candidates.",
 );
 assert(
   publish.jobs?.publish?.if === "needs.verify.outputs.action == 'publish'",
@@ -132,8 +142,10 @@ assert(
 );
 assert(
   publishSource.includes("HUMAN-ONLY: GitHub could not create historical tag") &&
+    publishSource.includes('gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs"') &&
+    publishSource.includes("git/ref/tags/v$RELEASE_VERSION") &&
     publishSource.includes("rerun only this failed GitHub release job"),
-  "Historical tag failures must provide the exact safe maintainer action.",
+  "Release history must create and read back an exact lightweight tag or provide the safe historical repair action.",
 );
 assert(
   verifiedUpload?.with?.["retention-days"] === 14,
