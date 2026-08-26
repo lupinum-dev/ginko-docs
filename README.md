@@ -39,7 +39,7 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 Install the layer and its content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.4.0-rc.1 @lupinum/ginko-content@1.0.0-beta.4
+pnpm add -D @lupinum/ginko-docs@0.4.0-rc.2 @lupinum/ginko-content@1.0.0-beta.5
 ```
 
 Extend the layer:

@@ -150,9 +150,9 @@ describe("ginko docs release guardrails", () => {
     });
     expect(manifest.publishConfig).toEqual({ access: "public" });
     expect(manifest.main).toBe("./nuxt.config.ts");
-    expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
+    expect(read("layer/nuxt.config.ts")).toContain("version: packageMetadata.version");
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.4 <2.0.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.5 <2.0.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -198,7 +198,7 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).not.toContain("NPM_TOKEN");
     expect(certification).toContain("minimumReleaseAge: 1440");
     expect(certification).toContain(
-      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.4"]',
+      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.5"]',
     );
   });
 
@@ -339,7 +339,9 @@ describe("ginko docs release guardrails", () => {
     expect(config).toContain("crawlLinks: true");
     expect(config).toContain("failOnError: true");
     expect(config).toContain('validation: "error"');
-    expect(config).toContain("markdownNegotiation: true");
+    expect(config).toContain('delivery: "static"');
+    expect(config).not.toContain("markdownNegotiation:");
+    expect(config).not.toContain("prerender: true");
     expect(config).toContain('"/llms.txt"');
     expect(config).toContain('"/sitemap.xml"');
     expect(config).toContain('excludeAppSources: ["nuxt:prerender"]');

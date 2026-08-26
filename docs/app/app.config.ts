@@ -17,6 +17,10 @@ export default defineAppConfig({
       docsSidebarSwitcher: "tabs",
       legalLinks: [
         {
+          label: { en: "About", de: "Über Ginko Docs" },
+          to: { en: "/about", de: "/de/ueber-ginko-docs" },
+        },
+        {
           label: { en: "Legal notice", de: "Impressum" },
           to: "https://lupinum.com/impressum",
         },
@@ -159,7 +163,7 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs@0.4.0-rc.1 @lupinum/ginko-content@1.0.0-beta.4",
+        command: "pnpm add -D @lupinum/ginko-docs@0.4.0-rc.2 @lupinum/ginko-content@1.0.0-beta.5",
       },
       features: [
         {

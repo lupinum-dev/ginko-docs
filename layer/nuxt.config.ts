@@ -10,6 +10,7 @@ import { i18nPages } from "./i18n/routes";
 import { defaultLocale, localeCodes, locales, localizedPath } from "./i18n/locales";
 import { routeSlugs } from "./shared/route-slugs";
 import { layerIconCollections, layerIconNames } from "./icon-bundle";
+import packageMetadata from "./package.json" with { type: "json" };
 
 const root = dirname(fileURLToPath(import.meta.url));
 const app = join(root, "app");
@@ -56,7 +57,7 @@ export default defineNuxtConfig({
   },
   mcp: {
     name: "Ginko Docs",
-    version: "0.4.0-rc.1",
+    version: packageMetadata.version,
   },
   components: {
     dirs: [
@@ -163,7 +164,7 @@ export default defineNuxtConfig({
     },
     search: { engine: "minisearch" },
     sitemap: true,
-    agent: { routes: true, linkHeaders: true, markdownNegotiation: true, prerender: true },
+    agent: { routes: true, linkHeaders: true, delivery: "static" },
   },
   sitemap: {
     excludeAppSources: ["nuxt:prerender"],

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.0-rc.2
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.1...v0.4.0-rc.2)
+
+### 🚀 Enhancements
+
+- **agent:** Add portable static delivery ([aa82f37](https://github.com/lupinum-dev/ginko-docs/commit/aa82f37))
+- **agent:** Adopt static Ginko Content delivery ([c6d2825](https://github.com/lupinum-dev/ginko-docs/commit/c6d2825))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.4.0-rc.1
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0...v0.4.0-rc.1)

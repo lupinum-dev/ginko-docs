@@ -5,6 +5,8 @@ import { parse } from "yaml";
 
 const root = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(root, "docs/vercel.json"), "utf8"));
+const docsPackage = JSON.parse(readFileSync(resolve(root, "docs/package.json"), "utf8"));
+const routingMiddleware = readFileSync(resolve(root, "docs/middleware.ts"), "utf8");
 const previewWorkflow = readFileSync(resolve(root, ".github/workflows/vercel-preview.yml"), "utf8");
 const previewConfig = parse(previewWorkflow);
 const previewSteps = Object.values(previewConfig.jobs ?? {}).flatMap((job) => job.steps ?? []);
@@ -61,6 +63,20 @@ check(
   "Use pnpm 11 or newer for strict dependency quarantine.",
 );
 check(config.framework === "nuxtjs", "Select the Nuxt framework explicitly.");
+check(
+  docsPackage.dependencies?.["@vercel/functions"] === "3.9.5",
+  "Pin the official Vercel Routing Middleware helper in the deployable app.",
+);
+check(
+  [
+    'import { next } from "@vercel/functions"',
+    'request.headers.get("accept")',
+    "withMarkdownHeaders(response)",
+    "markdownNotFound(new URL(request.url).pathname)",
+    "rawMarkdownPath(url.pathname)",
+  ].every((boundary) => routingMiddleware.includes(boundary)),
+  "Keep weighted Markdown routing, exclusions, cache variance, and noindex in the live app.",
+);
 check(
   config.git?.deploymentEnabled?.["**"] === false &&
     config.git.deploymentEnabled.main === true &&
