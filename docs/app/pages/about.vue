@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useI18n, useSeoMeta } from "#imports";
 
 const { locale } = useI18n();
-const german = computed(() => locale.value === "de");
+const german = computed(() => String(locale.value) === "de");
 const title = computed(() => (german.value ? "Über Ginko Docs" : "About Ginko Docs"));
 const description = computed(() =>
   german.value
