@@ -164,7 +164,7 @@ export default defineNuxtConfig({
     },
     search: { engine: "minisearch" },
     sitemap: true,
-    agent: { routes: true, linkHeaders: true, markdownNegotiation: true, prerender: true },
+    agent: { routes: true, linkHeaders: true, delivery: "static" },
   },
   sitemap: {
     excludeAppSources: ["nuxt:prerender"],
