@@ -1,0 +1,6 @@
+[[edge_functions]]
+path = "/*"
+function = "agent-markdown"
+
+# Copy netlify-edge.ts to netlify/edge-functions/agent-markdown.ts and keep
+# agent-routing.ts beside the app source imported by that function.

@@ -17,6 +17,9 @@ export default defineNuxtConfig({
       { code: "en", language: "en-US", name: "English" },
       { code: "de", language: "de-AT", name: "Deutsch" },
     ],
+    pages: {
+      about: { en: "/about", de: "/ueber-ginko-docs" },
+    },
   },
   content: {
     componentPolicy: {

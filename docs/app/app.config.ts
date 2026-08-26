@@ -17,6 +17,10 @@ export default defineAppConfig({
       docsSidebarSwitcher: "tabs",
       legalLinks: [
         {
+          label: { en: "About", de: "Über Ginko Docs" },
+          to: { en: "/about", de: "/de/ueber-ginko-docs" },
+        },
+        {
           label: { en: "Legal notice", de: "Impressum" },
           to: "https://lupinum.com/impressum",
         },

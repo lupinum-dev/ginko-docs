@@ -18,6 +18,7 @@ const siteUrl = docsConfig.site.url;
 
 useSeoMeta({
   ogSiteName: computed(() => getLocalizedSiteText(docsConfig.site.name, locale.value)),
+  ogType: "website",
   ogUrl: canonicalUrl,
   twitterCard: "summary_large_image",
 });
@@ -34,6 +35,15 @@ useSchemaJsonLd(() => [
     description: getLocalizedSiteText(docsConfig.site.description, locale.value),
     url: siteUrl,
     inLanguage: locale.value,
+  },
+  {
+    "@type": "SoftwareApplication",
+    name: getLocalizedSiteText(docsConfig.site.name, locale.value),
+    description: getLocalizedSiteText(docsConfig.site.description, locale.value),
+    url: siteUrl,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    ...(docsConfig.social?.github ? { sameAs: [docsConfig.social.github] } : {}),
   },
 ]);
 

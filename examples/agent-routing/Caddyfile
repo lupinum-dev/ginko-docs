@@ -1,0 +1,4 @@
+# Nitro runtime profile. Caddy forwards Accept unchanged by default.
+docs.example.com {
+  reverse_proxy 127.0.0.1:3000
+}
