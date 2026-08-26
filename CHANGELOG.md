@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.4.0-rc.1
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0...v0.4.0-rc.1)
+
+### 🚀 Enhancements
+
+- **content:** Support curated agent indexes ([f81e4e2](https://github.com/lupinum-dev/ginko-docs/commit/f81e4e2))
+- **release:** Automate safe reconciliation ([#39](https://github.com/lupinum-dev/ginko-docs/pull/39))
+- **content:** Support Ginko Content 1.0 beta ([ce5cf09](https://github.com/lupinum-dev/ginko-docs/commit/ce5cf09))
+
+### ⚠️ Migration
+
+- Replace `defineGinkoDocsConfig().site.url` with the required `site.whenToUse`. Keep the canonical origin in Nuxt Site configuration.
+
+### 🩹 Fixes
+
+- **ci:** Wait for hydration before browser checks ([#35](https://github.com/lupinum-dev/ginko-docs/pull/35))
+- **sitemap:** Omit disabled routes and locales ([#36](https://github.com/lupinum-dev/ginko-docs/pull/36))
+- **release:** Verify source-bound recovery ([10160d9](https://github.com/lupinum-dev/ginko-docs/commit/10160d9))
+- **release:** Make reconciliation input-free ([#40](https://github.com/lupinum-dev/ginko-docs/pull/40))
+
+### 🤖 CI
+
+- Classify expensive verification ([#33](https://github.com/lupinum-dev/ginko-docs/pull/33))
+- **vercel:** Cut library preview build usage ([#37](https://github.com/lupinum-dev/ginko-docs/pull/37))
+
+### ❤️ Contributors
+
+- Mat4m0
+- Matthias Amon
+
 ## v0.3.0
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.3.0-rc.5...v0.3.0)

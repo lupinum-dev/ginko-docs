@@ -152,7 +152,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain(`version: "${manifest.version}"`);
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=0.4.0-rc.2 <0.5.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.4 <2.0.0");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
@@ -197,7 +197,9 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).toContain("'--ignore-scripts', '--provenance'");
     expect(workflow).not.toContain("NPM_TOKEN");
     expect(certification).toContain("minimumReleaseAge: 1440");
-    expect(certification).not.toContain("minimumReleaseAgeExclude");
+    expect(certification).toContain(
+      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.4"]',
+    );
   });
 
   it("publishes package previews only for trusted repository branches", () => {

@@ -147,7 +147,8 @@ function defineGinkoDocsConfig(options) {
       site: {
         title: options.site.name,
         description: options.site.description,
-        url: options.site.url,
+        whenToUse: options.site.whenToUse,
+        ...(options.site.whenNotToUse ? { whenNotToUse: options.site.whenNotToUse } : {}),
       },
       markdown: {
         metadata: {

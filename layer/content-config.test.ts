@@ -4,7 +4,7 @@ import { defineGinkoDocsConfig } from "./content.js";
 const site = {
   name: "Example Docs",
   description: "Example documentation.",
-  url: "https://docs.example.com",
+  whenToUse: "Use this site for Example documentation.",
 };
 
 describe("defineGinkoDocsConfig", () => {
@@ -24,7 +24,11 @@ describe("defineGinkoDocsConfig", () => {
       site: {
         name: { en: "Example Docs", de: "Example Docs" },
         description: { en: "Example documentation.", de: "Beispieldokumentation." },
-        url: site.url,
+        whenToUse: { en: "Use this site for Example docs.", de: "Nutze diese Example-Doku." },
+        whenNotToUse: {
+          en: "Do not use this site for product support.",
+          de: "Nutze diese Website nicht für Produkt-Support.",
+        },
       },
       locales: ["en", "de"],
       blog: true,
