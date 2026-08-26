@@ -23,7 +23,8 @@ export interface GinkoDocsContentOptions {
   site: {
     name: string | { en: string; de: string };
     description: string | { en: string; de: string };
-    url: string;
+    whenToUse: string | { en: string; de: string };
+    whenNotToUse?: string | { en: string; de: string };
   };
   agent?: GinkoDocsAgentOptions;
   locales?: readonly ["en"] | readonly ["en", "de"];
@@ -74,7 +75,8 @@ export function defineGinkoDocsConfig(
       site: {
         title: options.site.name,
         description: options.site.description,
-        url: options.site.url,
+        whenToUse: options.site.whenToUse,
+        ...(options.site.whenNotToUse ? { whenNotToUse: options.site.whenNotToUse } : {}),
       },
       markdown: { metadata: { enabled: true, defaultFields: metadata } },
       sections: [

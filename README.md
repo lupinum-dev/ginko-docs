@@ -39,7 +39,7 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 Install the layer and its content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.3.0 @lupinum/ginko-content@0.4.0-rc.2
+pnpm add -D @lupinum/ginko-docs@0.3.0 @lupinum/ginko-content@1.0.0-beta.4
 ```
 
 Extend the layer:
@@ -63,7 +63,7 @@ export default defineGinkoDocsConfig({
   site: {
     name: "Example Docs",
     description: "Documentation for Example.",
-    url: "https://docs.example.com",
+    whenToUse: "Use this site to learn and operate Example.",
   },
   locales: ["en"],
   blog: false,

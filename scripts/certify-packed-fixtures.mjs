@@ -248,6 +248,7 @@ function copyFixture(variant, directory) {
       "minimumReleaseAge: 1440",
       "minimumReleaseAgeStrict: true",
       "minimumReleaseAgeIgnoreMissingTime: false",
+      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.4"]',
       "",
       "allowBuilds:",
       "  esbuild: true",
