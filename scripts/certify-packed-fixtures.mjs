@@ -185,7 +185,7 @@ function copyFixture(variant, directory) {
   if (variant.usesLayerLocaleDefault) {
     nuxtConfig = replaceRequired(
       nuxtConfig,
-      '  i18n: {\n    baseUrl: site.url,\n    locales: [\n      { code: "en", language: "en-US", name: "English" },\n      { code: "de", language: "de-AT", name: "Deutsch" },\n    ],\n  },\n',
+      '  i18n: {\n    baseUrl: site.url,\n    locales: [\n      { code: "en", language: "en-US", name: "English" },\n      { code: "de", language: "de-AT", name: "Deutsch" },\n    ],\n    pages: {\n      about: { en: "/about", de: "/ueber-ginko-docs" },\n    },\n  },\n',
       "",
       `${variant.name} layer locale default`,
     );
