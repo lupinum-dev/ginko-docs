@@ -153,6 +153,7 @@ describe("ginko docs release guardrails", () => {
     expect(read("layer/nuxt.config.ts")).toContain("version: packageMetadata.version");
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
     expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.5 <2.0.0");
+    expect(manifest.dependencies.zod).toBe("4.4.3");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
     expect(manifest.peerDependencies.vue).toBe("^3.5.35");
