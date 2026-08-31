@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0-rc.4
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.3...v0.4.0-rc.4)
+
+### 🩹 Fixes
+
+- **server:** Keep route types on Nuxt H3 ([9487951](https://github.com/lupinum-dev/ginko-docs/commit/9487951))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.4.0-rc.3
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.2...v0.4.0-rc.3)
