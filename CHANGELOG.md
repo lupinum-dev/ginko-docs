@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0-rc.6
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.5...v0.4.0-rc.6)
+
+### 🚀 Enhancements
+
+- **hero:** Support wide code panels ([#47](https://github.com/lupinum-dev/ginko-docs/pull/47))
+
+### ❤️ Contributors
+
+- Matthias Amon
+
 ## v0.4.0-rc.5
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.4...v0.4.0-rc.5)
