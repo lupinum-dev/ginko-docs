@@ -559,6 +559,8 @@ describe("ginko docs release guardrails", () => {
 
     expect(defaults).toContain("legalLinks: []");
     expect(footer).toContain('v-for="link in site.legalLinks"');
+    expect(footer).toContain(':aria-label="site.name"');
+    expect(footer).not.toContain("<span>{{ site.name }}</span>");
     expect(docsConfig).toContain("https://lupinum.com/impressum");
     expect(docsConfig).toContain("https://lupinum.com/datenschutz");
   });
