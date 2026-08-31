@@ -22,10 +22,10 @@ const resources = computed(() => [
         <div class="max-w-sm">
           <NuxtLink
             :to="localizedPath('home')"
+            :aria-label="site.name"
             class="flex items-center gap-2 font-semibold text-foreground"
           >
             <SiteLogoMark />
-            <span>{{ site.name }}</span>
           </NuxtLink>
           <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
             {{ site.description }}
