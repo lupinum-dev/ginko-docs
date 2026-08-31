@@ -58,8 +58,20 @@ export interface GinkoDocsHeroCodeTab {
 
 export type GinkoDocsHeroMedia =
   | { type: "image"; src: string; alt: string }
-  | { type: "code"; code: string; language?: string; filename?: string }
-  | { type: "code-tabs"; tabs: GinkoDocsHeroCodeTab[] };
+  | {
+      type: "code";
+      code: string;
+      language?: string;
+      filename?: string;
+      /** Let the code panel use otherwise empty viewport space on wide screens. */
+      layout?: "wide";
+    }
+  | {
+      type: "code-tabs";
+      tabs: GinkoDocsHeroCodeTab[];
+      /** Let the code panel use otherwise empty viewport space on wide screens. */
+      layout?: "wide";
+    };
 
 export interface GinkoDocsAppConfig {
   theme: {

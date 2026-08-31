@@ -69,6 +69,11 @@ const heroCodeTabs = computed(() => {
   return [];
 });
 
+const hasWideHeroCode = computed(() => {
+  const media = landing.value.heroMedia;
+  return media?.type !== "image" && media?.layout === "wide";
+});
+
 // Feature icon tiles cycle through the theme-adaptive hero accent pairs.
 const FEATURE_TINTS = [
   { tile: "bg-(--hero-blue-muted)", icon: "text-(--hero-blue-dark)" },
@@ -174,7 +179,11 @@ useSeoMeta({
             width="576"
             loading="lazy"
           />
-          <SiteHeroCode v-else-if="heroCodeTabs.length" :tabs="heroCodeTabs" />
+          <SiteHeroCode
+            v-else-if="heroCodeTabs.length"
+            :tabs="heroCodeTabs"
+            :class="hasWideHeroCode && 'site-hero-code-wide'"
+          />
         </div>
       </div>
     </section>
@@ -257,3 +266,13 @@ useSeoMeta({
     </section>
   </div>
 </template>
+
+<style scoped>
+/* Keep the hero grid intact; only use spare space toward the viewport edge. */
+@media (min-width: 80rem) {
+  .site-hero-code-wide {
+    width: min(48.75rem, calc(50vw - 2rem));
+    max-width: none;
+  }
+}
+</style>
