@@ -86,6 +86,8 @@ export interface GinkoDocsAppConfig {
     name: GinkoDocsLocalizedText;
     description: GinkoDocsLocalizedText;
     url: string;
+    /** Square product mark used for browser icons and generated social cards. */
+    icon: string;
     logo: { light: string; dark: string };
     docsSidebarSwitcher: "dropdown" | "list" | "tabs";
     lupinumAttribution: boolean;

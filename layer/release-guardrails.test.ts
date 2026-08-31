@@ -168,6 +168,10 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.exports["./nuxt-config"]).toBe("./shared/types/nuxt-config.ts");
     expect(manifest.exports["./components"]).toBe("./components.ts");
     expect(manifest.files).toContain("icon-bundle.ts");
+    expect(manifest.files).toContain("runtime");
+    expect(manifest.bin).toEqual({
+      "ginko-docs-favicons": "./runtime/generate-favicons.mjs",
+    });
     expect(read("layer/README.md")).toContain('<h1 align="center">@lupinum/ginko-docs</h1>');
     expect(read("layer/LICENSE")).toContain("MIT License");
 
@@ -609,14 +613,19 @@ describe("ginko docs release guardrails", () => {
 
   it("ships safe defaults for navigation, banner, and integrations", () => {
     const defaults = read("layer/app/app.config.ts");
+    const app = read("layer/app/app.vue");
     // Header social icons stay off so an upgrade never adds links to a site's bar.
     expect(defaults).toContain('nav: { links: "auto", socialIcons: false }');
     expect(defaults).toContain("enabled: false");
     expect(defaults).toContain("showOnLanding: true");
     expect(defaults).toContain('ogImage: { enabled: true, component: "GinkoDocs" }');
+    expect(defaults).toContain('icon: "/favicon.svg"');
     expect(defaults).toContain("markdownActions: { chatGpt: true, claude: true, mcp: true }");
     expect(defaults).toContain("images: { zoom: true }");
     expect(defaults).toContain("toc: { depth: 3 }");
+    expect(app).toContain('type: "image/svg+xml"');
+    expect(app).toContain('href: "/favicon-96x96.png"');
+    expect(app).toContain('rel: "apple-touch-icon"');
     // Analytics stays off unless a consumer configures a Plausible script ID.
     expect(defaults).not.toContain("analytics:");
   });

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lupinum-dev/ginko-docs/main/docs/public/web-app-manifest-512x512.png" width="128" alt="Ginko Docs icon">
+  <img src="https://raw.githubusercontent.com/lupinum-dev/ginko-docs/main/docs/public/favicon.svg" width="128" alt="Ginko Docs icon">
 </p>
 
 <h1 align="center">@lupinum/ginko-docs</h1>
@@ -57,6 +57,14 @@ export default defineGinkoDocsConfig({
 ```
 
 Put Markdown files in `content/docs`. Open `/docs` after the Nuxt server starts.
+
+Generate the browser icon set from one square SVG or raster source:
+
+```bash
+pnpm exec ginko-docs-favicons --source public/product-icon.svg --out public
+```
+
+The command writes `favicon.svg`, `favicon-96x96.png`, `apple-touch-icon.png`, and `favicon.ico`. Ginko Docs adds the matching head links and uses the generated 96px PNG in Nuxt-preset social images so every supported source format renders consistently.
 
 ## Exports
 
