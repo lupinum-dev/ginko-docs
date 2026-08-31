@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.0-rc.5
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.4...v0.4.0-rc.5)
+
+### 🚀 Enhancements
+
+- **theme:** Add a coordinated Nuxt preset ([4c3d6b9](https://github.com/lupinum-dev/ginko-docs/commit/4c3d6b9))
+
+### 🏡 Chore
+
+- **docs:** Align the documentation runtime ([#45](https://github.com/lupinum-dev/ginko-docs/pull/45))
+
+### ❤️ Contributors
+
+- Mat4m0
+- Matthias Amon
+
 ## v0.4.0-rc.4
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.3...v0.4.0-rc.4)
