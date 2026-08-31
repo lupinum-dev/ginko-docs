@@ -1,6 +1,6 @@
 {
   "name": "@lupinum/ginko-docs",
-  "version": "0.4.0-rc.3",
+  "version": "0.4.0-rc.4",
   "description": "A Nuxt documentation layer powered by Ginko Content.",
   "keywords": [
     "content",
@@ -77,6 +77,7 @@
     "@vueuse/core": "^14.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "h3": "1.15.11",
     "motion-v": "^2.3.0",
     "nitropack": "^2.13.4",
     "nuxt-og-image": "^6.7.8",
