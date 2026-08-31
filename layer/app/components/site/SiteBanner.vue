@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
     ref="bannerElement"
     role="region"
     :aria-label="banner.text"
-    class="relative z-30 bg-primary px-10 py-2.5 text-center text-sm leading-5 font-medium text-primary-foreground"
+    class="relative z-30 bg-brand px-10 py-2.5 text-center text-sm leading-5 font-medium text-brand-foreground"
   >
     <span class="mx-auto block max-w-[min(100%,52rem)]">
       {{ banner.text }}
@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
     </span>
     <button
       type="button"
-      class="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-foreground/50 focus-visible:outline-none"
+      class="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-foreground/50 focus-visible:outline-none"
       :aria-label="t('banner.dismiss')"
       @click="dismissed = true"
     >

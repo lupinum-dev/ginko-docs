@@ -2,6 +2,7 @@ import type { GinkoDocsAppConfig } from "../shared/types/app-config";
 export default {
   ginkoDocs: {
     theme: {
+      preset: "default",
       neutral: "zinc",
       primary: "neutral",
       codeBlocks: "dark",

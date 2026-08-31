@@ -2,9 +2,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { GINKO_DOCS_NEUTRAL_PALETTES, GINKO_DOCS_PRIMARY_PALETTES } from "./shared/theme-palettes";
+import { GINKO_DOCS_THEME_PRESETS } from "./shared/theme-presets";
 
 const root = process.cwd();
 const palettes = readFileSync(join(root, "layer/app/assets/css/theme-palettes.css"), "utf8");
+const presets = readFileSync(join(root, "layer/app/assets/css/theme-presets.css"), "utf8");
 const tailwindTheme = readFileSync(join(root, "layer/node_modules/tailwindcss/theme.css"), "utf8");
 
 function selectorValues(attribute: "neutral" | "primary") {
@@ -21,6 +23,25 @@ function blockForPrimary(primary: string) {
 
 function variable(source: string, name: string) {
   return source.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim();
+}
+
+function hexRelativeLuminance(value: string) {
+  const channels = value
+    .replace("#", "")
+    .match(/.{2}/g)
+    ?.map((channel) => Number.parseInt(channel, 16) / 255);
+  if (!channels || channels.length !== 3)
+    throw new Error(`Expected a hex color, received ${value}`);
+  const [red, green, blue] = channels.map((channel) =>
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+  );
+  return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
+}
+
+function hexContrast(first: string, second: string) {
+  const light = Math.max(hexRelativeLuminance(first), hexRelativeLuminance(second));
+  const dark = Math.min(hexRelativeLuminance(first), hexRelativeLuminance(second));
+  return (light + 0.05) / (dark + 0.05);
 }
 
 function resolveTailwindColor(value: string) {
@@ -55,6 +76,25 @@ function contrast(first: string, second: string) {
 }
 
 describe("theme palettes", () => {
+  it("ships each public theme preset", () => {
+    const selectors = [...presets.matchAll(/html\[data-theme-preset="([a-z]+)"\]/g)].map(
+      ([, value]) => value,
+    );
+    expect([...new Set(["default", ...selectors])].sort()).toEqual(
+      [...GINKO_DOCS_THEME_PRESETS].sort(),
+    );
+  });
+
+  it("uses official Nuxt colors with accessible semantic pairs", () => {
+    expect(variable(presets, "nuxt-green-400")).toBe("#00dc82");
+    expect(variable(presets, "nuxt-green-700")).toBe("#007f45");
+    expect(variable(presets, "brand")).toBe("var(--nuxt-green-400)");
+    expect(variable(presets, "brand-foreground")).toBe("#020420");
+    expect(variable(presets, "theme-primary-light")).toBe("var(--nuxt-green-700)");
+    expect(hexContrast("#00dc82", "#020420")).toBeGreaterThanOrEqual(4.5);
+    expect(hexContrast("#007f45", "#ffffff")).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("keeps public palette names and CSS selectors aligned", () => {
     expect(selectorValues("neutral").sort()).toEqual(
       GINKO_DOCS_NEUTRAL_PALETTES.filter((name) => name !== "custom").sort(),
@@ -96,13 +136,16 @@ describe("theme palettes", () => {
 
     expect(defaults).toContain('neutral: "zinc"');
     expect(defaults).toContain('primary: "neutral"');
+    expect(defaults).toContain('preset: "default"');
     expect(defaults).toContain('codeBlocks: "dark"');
     expect(plugin).toContain('"data-neutral": theme.neutral');
     expect(plugin).toContain('"data-primary": theme.primary');
+    expect(plugin).toContain('"data-theme-preset": theme.preset ?? "default"');
     expect(plugin).toContain('"data-code-blocks": theme.codeBlocks');
     expect(landing).not.toMatch(/(?:bg|text)-zinc-/);
     expect(landing).toContain("bg-agent-background");
     expect(landing).toContain("text-emerald-300/90");
+    expect(landing).toContain("bg-brand");
   });
 
   it("keeps dark code blocks configurable without changing inline code", () => {
