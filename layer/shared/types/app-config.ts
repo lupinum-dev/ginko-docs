@@ -1,5 +1,7 @@
 export type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
+export type { GinkoDocsThemePreset } from "../theme-presets";
 import type { GinkoDocsNeutralPalette, GinkoDocsPrimaryPalette } from "../theme-palettes";
+import type { GinkoDocsThemePreset } from "../theme-presets";
 
 export type GinkoDocsLocalizedText = string | { en: string; de?: string };
 
@@ -61,6 +63,8 @@ export type GinkoDocsHeroMedia =
 
 export interface GinkoDocsAppConfig {
   theme: {
+    /** Coordinated visual system. A non-default preset owns palette and surface tokens. */
+    preset?: GinkoDocsThemePreset;
     neutral: GinkoDocsNeutralPalette;
     primary: GinkoDocsPrimaryPalette;
     codeBlocks: GinkoDocsCodeBlockTheme;

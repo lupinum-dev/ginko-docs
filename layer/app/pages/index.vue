@@ -127,7 +127,7 @@ useSeoMeta({
           <div class="mt-10 flex flex-wrap items-center gap-3">
             <NuxtLink
               :to="landing.primary.to"
-              class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+              class="inline-flex h-11 items-center gap-2 rounded-md bg-brand px-5 text-sm font-semibold text-brand-foreground transition-transform hover:-translate-y-0.5"
             >
               {{ landing.primary.label }}
               <Icon name="lucide:arrow-right" class="size-4" aria-hidden="true" />
@@ -240,7 +240,7 @@ useSeoMeta({
         <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
           <NuxtLink
             :to="landing.cta.primary.to"
-            class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+            class="inline-flex h-11 items-center gap-2 rounded-md bg-brand px-5 text-sm font-semibold text-brand-foreground transition-transform hover:-translate-y-0.5"
           >
             {{ landing.cta.primary.label }}
             <Icon name="lucide:arrow-right" class="size-4" aria-hidden="true" />

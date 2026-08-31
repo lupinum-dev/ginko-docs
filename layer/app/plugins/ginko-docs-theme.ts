@@ -5,6 +5,7 @@ export default defineNuxtPlugin(() => {
 
   useHead({
     htmlAttrs: {
+      "data-theme-preset": theme.preset ?? "default",
       "data-neutral": theme.neutral,
       "data-primary": theme.primary,
       "data-code-blocks": theme.codeBlocks,
