@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0-rc.3
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.2...v0.4.0-rc.3)
+
+### 🩹 Fixes
+
+- **footer:** Avoid duplicated site wordmark ([156951c](https://github.com/lupinum-dev/ginko-docs/commit/156951c))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.4.0-rc.2
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.1...v0.4.0-rc.2)
