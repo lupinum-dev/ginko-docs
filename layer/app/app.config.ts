@@ -17,6 +17,7 @@ export default {
         de: "Dokumentations-Sites auf Basis von Nuxt und Ginko Content.",
       },
       url: "http://localhost:3000",
+      icon: "/favicon.svg",
       logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
       docsSidebarSwitcher: "tabs",
       lupinumAttribution: true,

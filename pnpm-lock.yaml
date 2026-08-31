@@ -178,13 +178,16 @@ importers:
         version: 2.13.4(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(oxc-parser@0.143.0)(rolldown@1.2.3)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
       nuxt-og-image:
         specifier: ^6.7.8
-        version: 6.7.8(b477ec1782a408a0ee721d49006b4361)
+        version: 6.7.8(c014771790af1e26b16ca45782864ae5)
       reka-ui:
         specifier: ^2.10.3
         version: 2.10.3(vue@3.5.42(typescript@5.9.3))
       satori:
         specifier: ^0.19.3
         version: 0.19.3
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@25.9.5)
       shiki:
         specifier: ^4.4.3
         version: 4.4.3
@@ -6760,8 +6763,7 @@ snapshots:
       '@iconify/types': 2.0.0
       vue: 3.5.42(typescript@5.9.3)
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.3':
     optionalDependencies:
@@ -12729,7 +12731,7 @@ snapshots:
 
   nuxt-define@1.0.0: {}
 
-  nuxt-og-image@6.7.8(b477ec1782a408a0ee721d49006b4361):
+  nuxt-og-image@6.7.8(c014771790af1e26b16ca45782864ae5):
     dependencies:
       '@clack/prompts': 1.7.0
       '@nuxt/kit': 4.5.2(magic-string@1.1.1)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(unplugin@3.3.0(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0))
@@ -12769,6 +12771,7 @@ snapshots:
       nitropack: 2.13.4(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(oxc-parser@0.143.0)(rolldown@1.2.3)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
       playwright-core: 1.62.1
       satori: 0.19.3
+      sharp: 0.35.3(@types/node@25.9.5)
       tailwindcss: 4.3.3
       unifont: 0.7.4
       zod: 4.4.3
@@ -14113,6 +14116,39 @@ snapshots:
       - supports-color
 
   setprototypeof@1.2.0: {}
+
+  sharp@0.35.3(@types/node@25.9.5):
+    dependencies:
+      '@img/colour': 1.1.0
+      detect-libc: 2.1.2
+      semver: 7.8.5
+    optionalDependencies:
+      '@img/sharp-darwin-arm64': 0.35.3
+      '@img/sharp-darwin-x64': 0.35.3
+      '@img/sharp-freebsd-wasm32': 0.35.3
+      '@img/sharp-libvips-darwin-arm64': 1.3.2
+      '@img/sharp-libvips-darwin-x64': 1.3.2
+      '@img/sharp-libvips-linux-arm': 1.3.2
+      '@img/sharp-libvips-linux-arm64': 1.3.2
+      '@img/sharp-libvips-linux-ppc64': 1.3.2
+      '@img/sharp-libvips-linux-riscv64': 1.3.2
+      '@img/sharp-libvips-linux-s390x': 1.3.2
+      '@img/sharp-libvips-linux-x64': 1.3.2
+      '@img/sharp-libvips-linuxmusl-arm64': 1.3.2
+      '@img/sharp-libvips-linuxmusl-x64': 1.3.2
+      '@img/sharp-linux-arm': 0.35.3
+      '@img/sharp-linux-arm64': 0.35.3
+      '@img/sharp-linux-ppc64': 0.35.3
+      '@img/sharp-linux-riscv64': 0.35.3
+      '@img/sharp-linux-s390x': 0.35.3
+      '@img/sharp-linux-x64': 0.35.3
+      '@img/sharp-linuxmusl-arm64': 0.35.3
+      '@img/sharp-linuxmusl-x64': 0.35.3
+      '@img/sharp-webcontainers-wasm32': 0.35.3
+      '@img/sharp-win32-arm64': 0.35.3
+      '@img/sharp-win32-ia32': 0.35.3
+      '@img/sharp-win32-x64': 0.35.3
+      '@types/node': 25.9.5
 
   sharp@0.35.3(@types/node@26.2.0):
     dependencies:

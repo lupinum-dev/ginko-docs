@@ -52,6 +52,21 @@ useHead(() => ({
     lang: locale.value,
   },
   link: [
+    {
+      key: "favicon-svg",
+      rel: "icon",
+      type: "image/svg+xml",
+      href: docsConfig.site.icon,
+    },
+    {
+      key: "favicon-png",
+      rel: "icon",
+      type: "image/png",
+      sizes: "96x96",
+      href: "/favicon-96x96.png",
+    },
+    { key: "favicon-ico", rel: "icon", sizes: "any", href: "/favicon.ico" },
+    { key: "apple-touch-icon", rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     { key: "canonical", rel: "canonical", href: canonicalUrl.value },
     ...locales.value.map((entry) => {
       const code = typeof entry === "string" ? entry : entry.code;
