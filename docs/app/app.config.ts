@@ -68,6 +68,7 @@ export default defineAppConfig({
       hero: {
         media: {
           type: "code-tabs",
+          layout: "wide",
           tabs: [
             {
               label: { en: "Nuxt", de: "Nuxt" },
