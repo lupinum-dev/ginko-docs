@@ -21,7 +21,7 @@ const emit = defineEmits<{
         class="flex min-h-9 w-full items-center gap-2 rounded-lg px-2 text-start text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
         :class="
           activeId === section.id
-            ? 'bg-accent font-medium text-foreground'
+            ? 'bg-muted font-medium text-foreground'
             : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
         "
         :aria-pressed="activeId === section.id"
