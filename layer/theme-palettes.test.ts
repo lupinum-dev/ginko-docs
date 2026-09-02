@@ -90,7 +90,7 @@ describe("theme palettes", () => {
     expect(variable(presets, "nuxt-green-700")).toBe("#007f45");
     expect(variable(presets, "brand")).toBe("var(--nuxt-green-400)");
     expect(variable(presets, "brand-foreground")).toBe("#020420");
-    expect(variable(presets, "theme-primary-light")).toBe("var(--nuxt-green-700)");
+    expect(variable(presets, "theme-primary-light")).toBe("var(--nuxt-green-400)");
     expect(hexContrast("#00dc82", "#020420")).toBeGreaterThanOrEqual(4.5);
     expect(hexContrast("#007f45", "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
