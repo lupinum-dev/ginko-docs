@@ -19,7 +19,15 @@ defineEmits<{ navigate: [] }>();
       :class="headerUtilityButtonClass"
       @click="$emit('navigate')"
     >
-      <Icon :name="link.icon ?? 'lucide:link'" class="size-[18px]" aria-hidden="true" />
+      <Icon :name="link.icon ?? 'lucide:link'" class="social-icon" aria-hidden="true" />
     </NuxtLink>
   </div>
 </template>
+
+<style scoped>
+.social-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+</style>

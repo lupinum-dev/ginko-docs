@@ -190,7 +190,7 @@ export async function useCommandCenter() {
             href: github.href,
             external: true,
             group: "actions" as const,
-            icon: github.icon ?? "lucide:github",
+            icon: github.icon ?? "ginko-social:github",
             keywords: ["repo", "source", "code"],
           },
         ]

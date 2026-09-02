@@ -3,10 +3,11 @@ import { resolveSocialLinks } from "../../composables/site-navigation.utils";
 import { layerIconNames } from "../../../icon-bundle";
 
 describe("Style 08 header social behavior", () => {
-  it("bundles the reference Discord brand icon", () => {
-    expect(layerIconNames).toContain("logos:discord-icon");
+  it("bundles the filled social brand icons", () => {
+    expect(layerIconNames).toContain("ginko-social:github");
+    expect(layerIconNames).toContain("ginko-social:discord");
     expect(resolveSocialLinks({ discord: "https://discord.gg/acme" })[0]?.icon).toBe(
-      "logos:discord-icon",
+      "ginko-social:discord",
     );
   });
 

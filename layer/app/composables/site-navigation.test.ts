@@ -67,7 +67,7 @@ describe("resolveSocialLinks", () => {
         label: "GitHub",
         href: "https://github.com/acme",
         external: true,
-        icon: "lucide:github",
+        icon: "ginko-social:github",
         platform: "github",
       },
     ]);
@@ -84,7 +84,7 @@ describe("resolveSocialLinks", () => {
 
   it("uses the bundled Discord brand mark by default", () => {
     expect(resolveSocialLinks({ discord: "https://discord.gg/acme" })[0]?.icon).toBe(
-      "logos:discord-icon",
+      "ginko-social:discord",
     );
   });
 

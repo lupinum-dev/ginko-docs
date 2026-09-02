@@ -68,8 +68,8 @@ export function resolveMainNav(
 
 /** Brand names are not translated, so the labels are literals. */
 const socialDefaults: Record<GinkoDocsSocialPlatform, { label: string; icon: string }> = {
-  github: { label: "GitHub", icon: "lucide:github" },
-  discord: { label: "Discord", icon: "logos:discord-icon" },
+  github: { label: "GitHub", icon: "ginko-social:github" },
+  discord: { label: "Discord", icon: "ginko-social:discord" },
   linkedin: { label: "LinkedIn", icon: "lucide:linkedin" },
 };
 
