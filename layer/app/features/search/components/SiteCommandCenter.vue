@@ -3,6 +3,10 @@ import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n, useRoute } from "#imports";
 import { useCommandCenter } from "#ginko-docs/features/search/useCommandCenter";
 import {
+  getSearchHighlightTerms,
+  shouldShowSearchResultBadges,
+} from "#ginko-docs/features/search/command-center";
+import {
   DialogContent,
   DialogDescription,
   DialogOverlay,
@@ -21,10 +25,13 @@ const { open, query, groupedItems, searchPending, searchError, searchIsEmpty, se
 
 const visibleItems = computed(() => groupedItems.value.flatMap((g) => g.items));
 const isSearching = computed(() => query.value.trim().length > 0);
+const showResultBadges = computed(
+  () => !isSearching.value || shouldShowSearchResultBadges(visibleItems.value),
+);
 
 // ── text highlighting ──────────────────────────────────────────────────────
 function highlightTokens(text: string, q: string): { text: string; match: boolean }[] {
-  const terms = q.trim().split(/\s+/).filter(Boolean);
+  const terms = getSearchHighlightTerms(q);
   if (terms.length === 0) return [{ text, match: false }];
   const pattern = terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
   return text
@@ -123,7 +130,7 @@ onMounted(async () => {
         class="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
       />
       <DialogContent
-        class="fixed top-[8vh] left-1/2 z-50 flex max-h-[84vh] w-[min(94vw,46rem)] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:top-[10vh]"
+        class="fixed top-[8vh] left-1/2 z-50 flex max-h-[80vh] w-[min(94vw,44rem)] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:top-[10vh]"
         @keydown="handleListNavigation"
       >
         <VisuallyHidden>
@@ -165,7 +172,9 @@ onMounted(async () => {
         </div>
 
         <!-- Results -->
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2">
+        <div
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 [scrollbar-color:var(--border)_transparent]"
+        >
           <div
             v-if="isSearching && searchPending"
             class="flex items-center justify-center gap-2 px-6 py-12 text-sm text-muted-foreground"
@@ -190,6 +199,13 @@ onMounted(async () => {
               <div class="flex items-center gap-2 px-2 pt-1.5 pb-1">
                 <span class="text-[11px] font-medium text-muted-foreground">{{ group.title }}</span>
                 <div class="flex-1 border-t border-border/60" />
+                <span
+                  v-if="group.id === 'search'"
+                  class="text-[11px] tabular-nums text-muted-foreground"
+                  aria-live="polite"
+                >
+                  {{ t("command.resultCount", { count: group.items.length }) }}
+                </span>
               </div>
 
               <button
@@ -198,7 +214,7 @@ onMounted(async () => {
                 type="button"
                 :data-item="item.id"
                 :aria-label="itemLabel(item)"
-                class="group flex w-full items-start gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors outline-none"
+                class="group flex w-full items-start gap-3 rounded-lg px-2.5 py-2 text-left transition-colors outline-none"
                 :class="
                   highlightedId === item.id ? 'bg-accent text-accent-foreground' : 'text-foreground'
                 "
@@ -208,7 +224,7 @@ onMounted(async () => {
               >
                 <!-- Icon -->
                 <div
-                  class="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-border bg-muted/50 transition-colors"
+                  class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-muted/50 transition-colors"
                   :class="highlightedId === item.id ? 'border-border/80 bg-background' : ''"
                 >
                   <Icon
@@ -235,14 +251,14 @@ onMounted(async () => {
                       >
                         <mark
                           v-if="token.match"
-                          class="rounded-[3px] bg-primary/15 font-medium text-primary not-italic"
+                          class="rounded-[3px] bg-accent-yellow px-0.5 font-medium text-accent-yellow-foreground not-italic"
                           >{{ token.text }}</mark
                         ><template v-else>{{ token.text }}</template>
                       </template>
                     </span>
                     <span
-                      v-if="item.badge"
-                      class="shrink-0 rounded-full bg-primary/10 px-1.5 py-px text-[10px] font-medium text-primary"
+                      v-if="item.badge && showResultBadges"
+                      class="shrink-0 rounded-full bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground"
                     >
                       {{ item.badge }}
                     </span>
@@ -263,7 +279,7 @@ onMounted(async () => {
                       >
                         <mark
                           v-if="token.match"
-                          class="rounded-[3px] bg-primary/15 font-medium text-primary not-italic"
+                          class="rounded-[3px] bg-accent-yellow px-0.5 font-medium text-accent-yellow-foreground not-italic"
                           >{{ token.text }}</mark
                         ><template v-else>{{ token.text }}</template>
                       </template>

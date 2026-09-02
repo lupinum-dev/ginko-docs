@@ -28,10 +28,10 @@ html[data-theme-preset="nuxt"] {
   --theme-neutral-900: var(--color-slate-900);
   --theme-neutral-950: var(--color-slate-950);
 
-  /* Normal-size text needs the darker green in light mode. */
-  --theme-primary-light: var(--nuxt-green-700);
-  --theme-primary-light-foreground: #ffffff;
-  --theme-primary-light-ring: var(--nuxt-green-600);
+  /* Nuxt uses one recognizable brand green across interactive surfaces. */
+  --theme-primary-light: var(--nuxt-green-400);
+  --theme-primary-light-foreground: #020420;
+  --theme-primary-light-ring: var(--nuxt-green-400);
   --theme-primary-dark: var(--nuxt-green-400);
   --theme-primary-dark-foreground: var(--nuxt-green-950);
   --theme-primary-dark-ring: var(--nuxt-green-400);

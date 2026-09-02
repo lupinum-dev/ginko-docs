@@ -1,9 +1,11 @@
 import { describe, expect, test } from "vite-plus/test";
 import {
   dedupeCommandCenterItems,
+  getSearchHighlightTerms,
   groupCommandCenterItems,
   rememberRecentItem,
   resolveRecentItems,
+  shouldShowSearchResultBadges,
   type CommandCenterItem,
 } from "./command-center";
 
@@ -58,5 +60,29 @@ describe("command-center domain", () => {
   test("stores one most-recent copy of a selection", () => {
     const stored = rememberRecentItem(fixtures[0]!, ["page-home", "docs-navigation"]);
     expect(stored).toEqual(["docs-navigation", "page-home"]);
+  });
+
+  test("highlights meaningful query terms instead of repeated stop words", () => {
+    expect(getSearchHighlightTerms("never restarts the backdrop")).toEqual([
+      "never",
+      "restarts",
+      "backdrop",
+    ]);
+    expect(getSearchHighlightTerms("the")).toEqual(["the"]);
+  });
+
+  test("shows result badges only when they distinguish result types", () => {
+    expect(
+      shouldShowSearchResultBadges([
+        { ...fixtures[0]!, badge: "Documentation" },
+        { ...fixtures[1]!, badge: "Documentation" },
+      ]),
+    ).toBe(false);
+    expect(
+      shouldShowSearchResultBadges([
+        { ...fixtures[0]!, badge: "Documentation" },
+        { ...fixtures[1]!, badge: "Blog" },
+      ]),
+    ).toBe(true);
   });
 });

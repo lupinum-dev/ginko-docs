@@ -71,7 +71,7 @@ export async function useCommandCenter() {
   // Nuxt/i18n composable after an awaited operation loses the setup context.
   const docsNavigationResult = useDocsNavigation();
   const contentSearchResult = useContentSearch({
-    limit: 12,
+    limit: 8,
     locale: () => locale.value,
   });
   const [
@@ -190,7 +190,7 @@ export async function useCommandCenter() {
             href: github.href,
             external: true,
             group: "actions" as const,
-            icon: github.icon ?? "lucide:github",
+            icon: github.icon ?? "ginko-social:github",
             keywords: ["repo", "source", "code"],
           },
         ]

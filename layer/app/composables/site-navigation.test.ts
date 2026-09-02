@@ -67,7 +67,7 @@ describe("resolveSocialLinks", () => {
         label: "GitHub",
         href: "https://github.com/acme",
         external: true,
-        icon: "lucide:github",
+        icon: "ginko-social:github",
         platform: "github",
       },
     ]);
@@ -80,6 +80,12 @@ describe("resolveSocialLinks", () => {
     });
 
     expect(items.map((item) => item.platform)).toEqual(["discord", "github"]);
+  });
+
+  it("uses the bundled Discord brand mark by default", () => {
+    expect(resolveSocialLinks({ discord: "https://discord.gg/acme" })[0]?.icon).toBe(
+      "ginko-social:discord",
+    );
   });
 
   it("lets a site override the label and icon per entry", () => {

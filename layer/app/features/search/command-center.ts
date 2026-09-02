@@ -24,6 +24,39 @@ export interface CommandCenterGroupResult {
 export const MAX_RECENT_ITEMS = 5;
 export const PAGE_HIGHLIGHT_STORAGE_KEY = "site-command-center-page-highlight";
 
+const SEARCH_HIGHLIGHT_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "der",
+  "die",
+  "das",
+  "ein",
+  "eine",
+  "for",
+  "in",
+  "of",
+  "or",
+  "the",
+  "to",
+  "und",
+  "von",
+  "zu",
+]);
+
+export function getSearchHighlightTerms(query: string): string[] {
+  const terms = [...new Set(query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean))];
+  const meaningfulTerms = terms.filter(
+    (term) => term.length > 1 && !SEARCH_HIGHLIGHT_STOP_WORDS.has(term),
+  );
+
+  return meaningfulTerms.length > 0 ? meaningfulTerms : terms;
+}
+
+export function shouldShowSearchResultBadges(items: CommandCenterItem[]): boolean {
+  return new Set(items.map((item) => item.badge).filter(Boolean)).size > 1;
+}
+
 export function dedupeCommandCenterItems(items: CommandCenterItem[]) {
   const seen = new Set<string>();
   return items.filter((item) => {

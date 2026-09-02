@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, watch } from "vue";
 import { useRoute } from "#imports";
+import { getSearchHighlightTerms } from "#ginko-docs/features/search/command-center";
 
 const STORAGE_KEY = "site-command-center-page-highlight";
 const HIGHLIGHT_SELECTOR = "mark[data-search-page-highlight]";
@@ -65,7 +66,8 @@ function highlightPattern(root: Element, pattern: RegExp) {
 
       const mark = document.createElement("mark");
       mark.dataset.searchPageHighlight = "";
-      mark.className = "rounded-[3px] bg-primary/15 px-0.5 text-primary";
+      mark.className =
+        "rounded-[3px] bg-accent-yellow px-0.5 font-medium text-accent-yellow-foreground";
       mark.textContent = value;
       fragment.append(mark);
 
@@ -83,7 +85,7 @@ function escapePattern(value: string) {
 
 function buildPatterns(query: string) {
   const phrase = query.trim().replace(/\s+/g, " ");
-  const tokens = phrase.split(/\s+/).filter((token) => token.length > 2);
+  const tokens = getSearchHighlightTerms(phrase);
   const phrasePattern = phrase.split(/\s+/).map(escapePattern).join("\\s+");
 
   return [

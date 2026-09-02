@@ -316,7 +316,7 @@ watch(
                           class="flex items-center rounded-md px-2 py-2 text-lg font-semibold transition-colors"
                           :class="
                             link.active
-                              ? 'bg-primary/10 text-primary'
+                              ? 'bg-muted text-foreground'
                               : 'text-foreground hover:bg-muted/60'
                           "
                           :aria-current="link.active ? 'true' : undefined"

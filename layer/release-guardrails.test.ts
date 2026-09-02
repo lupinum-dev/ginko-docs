@@ -368,7 +368,7 @@ describe("ginko docs release guardrails", () => {
     expect(config).toContain('".git"');
     expect(config).not.toContain('".*"');
 
-    const iconPattern = /\b(?:i-)?(circle-flags|logos|lucide)[:-]([a-z0-9-]+)\b/g;
+    const iconPattern = /\b(?:i-)?(circle-flags|ginko-social|logos|lucide)[:-]([a-z0-9-]+)\b/g;
     const sourceRoots = ["app", "i18n", "shared"].map((path) => join(root, "layer", path));
     const source = [...sourceRoots.flatMap(sourceFiles), join(root, "layer/tags.ts")].map((path) =>
       readFileSync(path, "utf8"),

@@ -66,14 +66,10 @@ export function resolveMainNav(
   return items;
 }
 
-/**
- * Brand names are not translated, so the labels are literals. The icons are
- * bundled defaults — Lucide has no Discord mark, so chat is the closest generic
- * stand-in and sites that ship the real one override `icon` per entry.
- */
+/** Brand names are not translated, so the labels are literals. */
 const socialDefaults: Record<GinkoDocsSocialPlatform, { label: string; icon: string }> = {
-  github: { label: "GitHub", icon: "lucide:github" },
-  discord: { label: "Discord", icon: "lucide:message-circle" },
+  github: { label: "GitHub", icon: "ginko-social:github" },
+  discord: { label: "Discord", icon: "ginko-social:discord" },
   linkedin: { label: "LinkedIn", icon: "lucide:linkedin" },
 };
 

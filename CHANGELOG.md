@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.0-rc.8
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/f711591...v0.4.0-rc.8)
+
+### 🩹 Fixes
+
+- **theme:** Polish Nuxt navigation identity ([a3dd0cb](https://github.com/lupinum-dev/ginko-docs/commit/a3dd0cb))
+- **theme:** Use the official Nuxt green everywhere ([55847ad](https://github.com/lupinum-dev/ginko-docs/commit/55847ad))
+- **header:** Use filled adaptive social icons ([ba9328d](https://github.com/lupinum-dev/ginko-docs/commit/ba9328d))
+- **header:** Keep utility hover states neutral ([3b243cf](https://github.com/lupinum-dev/ginko-docs/commit/3b243cf))
+- **search:** Reduce result noise and clarify matches ([2638489](https://github.com/lupinum-dev/ginko-docs/commit/2638489))
+- **navigation:** Keep active sidebar surfaces neutral ([fdca6d4](https://github.com/lupinum-dev/ginko-docs/commit/fdca6d4))
+
+### ❤️ Contributors
+
+- Mat4m0
+
 ## v0.4.0-rc.7
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.5...v0.4.0-rc.7)

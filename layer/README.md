@@ -29,7 +29,7 @@ Use this package when a Nuxt application needs documentation routes, navigation,
 ## Installation
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.4.0-rc.7 @lupinum/ginko-content@1.0.0-beta.5
+pnpm add -D @lupinum/ginko-docs@0.4.0-rc.8 @lupinum/ginko-content@1.0.0-beta.5
 ```
 
 ```ts
