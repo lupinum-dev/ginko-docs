@@ -1,12 +1,17 @@
 # Changelog
 
-## v0.4.0-rc.6
+## v0.4.0-rc.7
 
-[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.5...v0.4.0-rc.6)
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.5...v0.4.0-rc.7)
 
 ### 🚀 Enhancements
 
 - **hero:** Support wide code panels ([#47](https://github.com/lupinum-dev/ginko-docs/pull/47))
+- **theme:** Standardize docs social identity ([#49](https://github.com/lupinum-dev/ginko-docs/pull/49))
+
+### 🩹 Fixes
+
+- **theme:** Use Nuxt green for filled controls ([#50](https://github.com/lupinum-dev/ginko-docs/pull/50))
 
 ### ❤️ Contributors
 
