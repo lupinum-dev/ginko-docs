@@ -76,7 +76,7 @@ function scrollToHeading(id: string) {
 
     <div class="relative border-l border-border pl-3">
       <div
-        class="pointer-events-none absolute -left-px w-0.5 rounded-full bg-primary transition-all duration-200 ease-out"
+        class="pointer-events-none absolute -left-px w-0.5 rounded-full bg-brand transition-all duration-200 ease-out"
         :style="indicatorStyle"
       />
 
@@ -91,7 +91,7 @@ function scrollToHeading(id: string) {
               cn(
                 item.depth === 3 ? 'pl-3' : (item.depth ?? 2) >= 4 ? 'pl-6' : '',
                 activeIds.includes(item.id)
-                  ? 'font-medium text-primary'
+                  ? 'font-medium text-foreground'
                   : 'text-muted-foreground hover:text-foreground',
               )
             "

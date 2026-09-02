@@ -5,6 +5,9 @@ import { layerIconNames } from "../../../icon-bundle";
 describe("Style 08 header social behavior", () => {
   it("bundles the reference Discord brand icon", () => {
     expect(layerIconNames).toContain("logos:discord-icon");
+    expect(resolveSocialLinks({ discord: "https://discord.gg/acme" })[0]?.icon).toBe(
+      "logos:discord-icon",
+    );
   });
 
   it("renders no configured social destinations when social is empty", () => {

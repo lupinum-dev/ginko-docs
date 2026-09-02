@@ -48,13 +48,13 @@ const linkRowClass = computed(() =>
     "group relative flex w-full flex-row items-center gap-2 text-start [overflow-wrap:anywhere] text-muted-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "hover:bg-accent/50 hover:text-accent-foreground/80 hover:transition-none",
-    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium data-[active=true]:hover:transition-colors",
+    "data-[active=true]:bg-accent data-[active=true]:text-foreground data-[active=true]:font-medium data-[active=true]:hover:transition-colors",
     props.depth === 0
       ? "rounded-[7px] px-2 py-[5.5px] text-[13px]"
       : cn(
           "rounded-e-[7px] border-s border-border py-[5px] pe-2 text-[12.5px]",
           "hover:border-s-muted-foreground/40",
-          "data-[active=true]:border-s-primary",
+          "data-[active=true]:border-s-brand",
           paddingClass.value,
         ),
   ),

@@ -82,6 +82,12 @@ describe("resolveSocialLinks", () => {
     expect(items.map((item) => item.platform)).toEqual(["discord", "github"]);
   });
 
+  it("uses the bundled Discord brand mark by default", () => {
+    expect(resolveSocialLinks({ discord: "https://discord.gg/acme" })[0]?.icon).toBe(
+      "logos:discord-icon",
+    );
+  });
+
   it("lets a site override the label and icon per entry", () => {
     expect(
       resolveSocialLinks({
