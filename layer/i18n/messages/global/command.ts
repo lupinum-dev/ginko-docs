@@ -23,6 +23,7 @@ export const command = {
     actions: { de: "Aktionen", en: "Actions" },
   },
   loading: { de: "Suche läuft …", en: "Searching…" },
+  resultCount: { de: "{count} Treffer", en: "{count} results" },
   error: {
     de: "Die Suche ist gerade nicht verfügbar. Versuche es erneut.",
     en: "Search is temporarily unavailable. Please try again.",
