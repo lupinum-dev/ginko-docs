@@ -95,6 +95,15 @@ describe("theme palettes", () => {
     expect(hexContrast("#007f45", "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
 
+  it("uses the brand surface for filled controls", () => {
+    const button = readFileSync(join(root, "layer/app/components/ui/button/index.ts"), "utf8");
+    const badge = readFileSync(join(root, "layer/app/components/ui/badge/index.ts"), "utf8");
+
+    expect(button).toContain('default: "bg-brand text-brand-foreground hover:bg-brand/90"');
+    expect(button).toContain('link: "text-primary');
+    expect(badge).toContain("bg-brand text-brand-foreground");
+  });
+
   it("keeps public palette names and CSS selectors aligned", () => {
     expect(selectorValues("neutral").sort()).toEqual(
       GINKO_DOCS_NEUTRAL_PALETTES.filter((name) => name !== "custom").sort(),
