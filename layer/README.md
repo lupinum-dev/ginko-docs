@@ -23,7 +23,7 @@ Use this package when a Nuxt application needs documentation routes, navigation,
 
 - Node.js 22.18, 24.11, or 26 and later maintenance releases
 - Nuxt 4.5.1 or later in the Nuxt 4 line
-- Vue 3.5.35 or later
+- Vue 3.5.40 or later
 - Ginko Content 0.4 prerelease or later in the 0.4 line
 
 ## Installation

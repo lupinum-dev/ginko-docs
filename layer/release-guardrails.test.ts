@@ -156,7 +156,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.dependencies.zod).toBe("4.4.3");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
-    expect(manifest.peerDependencies.vue).toBe("^3.5.35");
+    expect(manifest.peerDependencies.vue).toBe("^3.5.40");
     expect(manifest.peerDependencies["vue-router"]).toBe("^5.1.0");
     expect(manifest.exports["./content"]).toEqual({
       types: "./content.ts",

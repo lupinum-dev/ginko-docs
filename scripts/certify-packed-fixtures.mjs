@@ -1,11 +1,13 @@
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 import {
   cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   writeFileSync,
@@ -26,6 +28,14 @@ const contentVersion =
 if (!contentVersion) throw new Error("Could not derive the minimum Ginko Content peer version.");
 const nuxtVersion = layerManifest.peerDependencies.nuxt.match(/^>=([^ ]+) </)?.[1];
 if (!nuxtVersion) throw new Error("Could not derive the minimum Nuxt peer version.");
+const vueVersion = layerManifest.peerDependencies.vue.match(/^\^([0-9]+\.[0-9]+\.[0-9]+)$/)?.[1];
+if (!vueVersion) throw new Error("Could not derive the minimum Vue peer version.");
+const docsManifest = JSON.parse(readFileSync(resolve(root, "docs/package.json"), "utf8"));
+const currentNuxtVersion = docsManifest.dependencies.nuxt;
+const currentVueVersion = docsManifest.dependencies.vue;
+if (!/^\d+\.\d+\.\d+$/.test(currentNuxtVersion) || !/^\d+\.\d+\.\d+$/.test(currentVueVersion)) {
+  throw new Error("The docs app must pin exact current Nuxt and Vue versions for certification.");
+}
 const contentArchive = process.env.GINKO_CONTENT_TARBALL
   ? resolve(process.env.GINKO_CONTENT_TARBALL)
   : null;
@@ -47,13 +57,17 @@ const variants = [
     usesLayerLocaleDefault: true,
     blog: false,
     socialMode: "none",
+    nuxtVersion,
+    vueVersion,
   },
-  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false },
+  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion, vueVersion },
   {
     name: "i18n-list",
     switcher: "list",
     singleLocale: false,
     socialMode: "three",
+    nuxtVersion: currentNuxtVersion,
+    vueVersion: currentVueVersion,
   },
 ];
 const plausibleScriptId = "CertificationScriptId";
@@ -232,8 +246,8 @@ function copyFixture(variant, directory) {
         dependencies: {
           "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
           "@lupinum/ginko-docs": `file:${archive[0]}`,
-          nuxt: nuxtVersion,
-          vue: "^3.5.35",
+          nuxt: variant.nuxtVersion,
+          vue: variant.vueVersion,
           "vue-router": "^5.1.0",
         },
         devDependencies: {
@@ -624,9 +638,22 @@ try {
     const installedNuxt = JSON.parse(
       readFileSync(resolve(directory, "node_modules/nuxt/package.json"), "utf8"),
     );
-    if (installedNuxt.version !== nuxtVersion) {
+    if (installedNuxt.version !== variant.nuxtVersion) {
       throw new Error(
-        `${variant.name} resolved Nuxt ${installedNuxt.version}, expected ${nuxtVersion}.`,
+        `${variant.name} resolved Nuxt ${installedNuxt.version}, expected ${variant.nuxtVersion}.`,
+      );
+    }
+    const directVueManifest = resolve(directory, "node_modules/vue/package.json");
+    const nuxtVueManifest = createRequire(
+      resolve(directory, "node_modules/nuxt/package.json"),
+    ).resolve("vue/package.json");
+    const installedVue = JSON.parse(readFileSync(directVueManifest, "utf8"));
+    if (
+      installedVue.version !== variant.vueVersion ||
+      realpathSync(directVueManifest) !== realpathSync(nuxtVueManifest)
+    ) {
+      throw new Error(
+        `${variant.name} must resolve one Vue ${variant.vueVersion} runtime shared with Nuxt.`,
       );
     }
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
@@ -673,6 +700,9 @@ writeFileSync(
       sha256: docsHash,
       contentVersion,
       nuxtVersion,
+      vueVersion,
+      currentNuxtVersion,
+      currentVueVersion,
       contentSource: contentArchive ? "tarball" : "registry",
       contentSha256: contentArchive ? sha256(contentArchive) : undefined,
       releaseEvidence: !contentArchive,
