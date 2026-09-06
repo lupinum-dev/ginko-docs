@@ -14,13 +14,8 @@ refactor.
 
 ## Prepare the repository
 
-Use the Node and pnpm versions declared by the repository. Vite+ owns project
-commands.
-
-```bash
-vp install
-pnpm verify
-```
+Follow [MAINTAINING.md](./MAINTAINING.md#setup-and-daily-work) for the declared
+toolchain, frozen installation, development server, and `pnpm verify` handoff gate.
 
 ## Keep the change focused
 

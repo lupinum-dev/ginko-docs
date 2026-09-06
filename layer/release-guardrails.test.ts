@@ -202,9 +202,6 @@ describe("ginko docs release guardrails", () => {
     expect(workflow).toContain("'--ignore-scripts', '--provenance'");
     expect(workflow).not.toContain("NPM_TOKEN");
     expect(certification).toContain("minimumReleaseAge: 1440");
-    expect(certification).toContain(
-      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.5"]',
-    );
   });
 
   it("publishes package previews only for trusted repository branches", () => {

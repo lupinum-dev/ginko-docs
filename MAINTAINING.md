@@ -2,16 +2,88 @@
 
 Ginko Docs publishes `@lupinum/ginko-docs` from `layer/`. Ginko Content is a required peer. Each consuming Nuxt application owns one explicit Ginko Content version.
 
-## Daily work
+## Setup and daily work
 
-Create a focused branch from `main`. Use Conventional Commits. Run the relevant tests while you work, then run the complete local gate before you open a pull request:
+Use the Node version from CI and the package manager declared in `package.json`.
+Root scripts use the Vite+ binary installed with the declared dependencies.
+Use `pnpm exec vp` for a focused tool command outside a package script; no global
+Vite+ installation is required. Install without changing dependency resolution:
 
 ```bash
-vp install
-pnpm verify
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
+Open the loopback URL printed by Nuxt (normally `http://localhost:3000`). The
+representative target is the docs app; no accounts, database, or credentials are
+needed. Keep one server running while editing. Stop it with Ctrl-C when finished;
+close owned browser sessions and preserve unrelated processes and files.
+
+The site includes public font/image services and Plausible analytics. For an isolated
+browser trial block `https://plausible.io/**`
+or substitute its script in that browser session. Do not use production credentials.
+
+| Command               | Purpose                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm dev`            | Run the bilingual docs app.                                                        |
+| `pnpm build`          | Generate the layer's JavaScript content entry from its typed source.               |
+| `pnpm docs:build`     | Build and prerender the documentation application.                                 |
+| `pnpm verify`         | Complete local handoff gate: policy, audit, source checks, tests, and docs output. |
+| `pnpm audit:all`      | Audit the complete workspace, including docs dependencies.                         |
+| `pnpm release:verify` | Run the handoff gate, reproducible packaging, and isolated packed consumers.       |
+
+Use a focused test while editing, for example
+`pnpm test --run layer/app/features/docs/docs-navigation.test.ts`, then run the
+final gate once. Do not run every child and then its aggregate again.
 Do not commit `layer/.pack`, `.nuxt`, `.output`, or generated archives.
+
+## Representative browser journey
+
+Open `/docs/getting-started`, follow a sidebar link, switch to German, and check
+the translated destination and active sidebar item. Open search, close it with
+Escape, and check that focus returns to the trigger. At a phone-sized viewport,
+open the menu, follow a docs link, and check theme controls and menu focus recovery.
+For authored-component changes, inspect the relevant rendered examples in both
+locales. Diagnose console errors and failed local requests before accepting a result.
+
+A controlled failure trial can temporarily introduce invalid frontmatter in an
+agent-owned content page, observe the parser diagnostic, restore it, and verify
+recovery. Keep this temporary fault out of the commit.
+
+## Verification evidence
+
+| Stage                | Input and preparation owner                                                                                                                                                                                  | Local and hosted evidence                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Source checks        | `verify` owns lint, Nuxt types, unit tests, policy checks, and workspace audit. The generated-entry test builds an independent temporary output and compares bytes.                                          | Local handoff and PR/main CI.                                                                       |
+| Docs build           | `docs:build` owns one workspace app build; `verify` calls it once.                                                                                                                                           | Prerendered content and examples; independent browser exploration is still required for UI changes. |
+| Reproducible package | `release:pack` builds two independent tarballs through prepack and compares bytes, then retains one archive and manifest.                                                                                    | Local release verification and main CI.                                                             |
+| Packed consumers     | `release:certify` consumes that retained archive in three isolated installs, types/builds each configuration, and runs desktop/mobile Chromium. It checks installed minimum Nuxt and Ginko Content versions. | Single-locale tabs and bilingual dropdown/list behavior; not every version in the peer ranges.      |
+| Publication          | Main CI retains the certified candidate. Protected Publish verifies bytes, provenance, and release recovery.                                                                                                 | Hosted only; local certification does not prove registry or account settings.                       |
+
+Release certification needs Chromium. Use
+`pnpm exec playwright-core install chromium` if no supported local Chrome exists;
+CI installs Chromium and its Ubuntu system dependencies. Windows, other browser
+engines, and other Node versions are not covered by this CI lane. Failed fixture
+directories are retained in the system temporary directory for diagnosis; remove
+only those owned directories after resolving the failure.
+
+## Authority
+
+An assigned routine task includes setup, diagnosis, implementation, independent
+review, PR completion, authorized protected merge, post-merge checks, and cleanup.
+Routine bug fixes, documentation fixes, updates within supported dependency ranges,
+and version preparation may proceed when scope is bounded, compatibility and
+permissions are unchanged, rollback is known, and required checks pass. Meaningful
+code, CI, and dependency changes need independent review of the final diff.
+
+Library documentation deploys automatically from protected main. npm publication
+still requires one protected human approval of the exact release candidate.
+Escalate unresolved product or compatibility choices, purchases, customer messages,
+destructive data changes, and changes to safeguards or delegation. Prepare the
+concrete decision first and continue other authorized work. Repository instructions
+cannot override user instructions, tool limits, or access controls; a PR cannot
+expand its own authority.
 
 ## Quick fixes
 
@@ -44,6 +116,14 @@ pnpm release:verify
 
 Review the lockfile. Keep the exact Ginko Content development dependency equal to the minimum supported peer version.
 
+`pnpm check:dependencies` validates quarantine policy during ordinary verification
+and the daily CI policy lane. The packed certifier validates the policy of each
+generated install before installation. Temporary exclusions must name one exact
+package/version with an inline JSON comment containing `reason`, `owner`, and
+`expires` in UTC; expiry must be within 24 hours. Remove the exclusion and comment
+together after expiry. The checker is a repository-owned copy of the reviewed
+Lupinum OSS shared asset; update it from that source, including its review evidence.
+
 The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` does so directly. Review this override after 2026-09-01. Remove it when the resolved dependency graph remains secure without it.
 
 ## Release preparation
@@ -58,7 +138,8 @@ The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` 
    Replace the example version and previous tag. The command does not commit,
    tag, push, or publish.
 
-3. Update `layer/nuxt.config.ts` and the README install command to the same version.
+3. Update public install examples to the same version. `layer/nuxt.config.ts`
+   derives its version from the package manifest; do not add a second version there.
 4. Set the exact Ginko Content development dependency and the supported peer range.
 5. Commit the release preparation.
 6. Run `pnpm release:verify` from the clean commit.
@@ -128,7 +209,8 @@ workflow change.
 GitHub must have:
 
 - a protected `main` branch with pull requests, linear history, resolved review
-  threads, and the repository's required CI and Vercel checks;
+  threads, the required `PR verification` gate, and configured security checks;
+  Vercel previews are optional and must not become a required PR check;
 - squash merge as the only merge method, auto-merge enabled, and merged branches
   deleted automatically;
 - GitHub Actions restricted to full commit-SHA references, with default
@@ -153,3 +235,15 @@ source files outside the Root Directory so the app can consume the local
 Vercel Build Output API files. Do not set an Install Command override. Vercel
 detects pnpm from the repository lockfile and installs the workspace before it
 runs the committed build command.
+
+## Standard adoption evidence
+
+Profile: single published Nuxt layer. This repository adopts the operating
+contract reviewed in [Lupinum OSS revision 4ce14ab](https://github.com/lupinum-dev/lupinum-oss/commit/4ce14ab396c3d34165e4e407b1b517f682d0f86c).
+[Rollout issue 57](https://github.com/lupinum-dev/lupinum-oss/issues/57) records
+current PRs, exact tested revisions, independent review, and hosted results.
+The dependency checker comes from [the reviewed dependency-policy change](https://github.com/lupinum-dev/lupinum-oss/pull/64).
+
+Adoption evidence belongs in the rollout issue. Record the tested source,
+environment, checks, and remaining gates there. Revert the focused adoption PR
+to roll back operations; no data or consumer API migration is required.
