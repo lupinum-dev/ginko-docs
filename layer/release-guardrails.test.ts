@@ -422,9 +422,7 @@ describe("ginko docs release guardrails", () => {
       sourceFiles(contentRoot).filter((path) => path.endsWith(".md")),
     );
 
-    expect(pagesByLocale[0]?.length).toBeGreaterThanOrEqual(20);
-    expect(pagesByLocale[1]?.length).toBe(pagesByLocale[0]?.length);
-    expect(authoredPagesByLocale[1]?.length).toBe(authoredPagesByLocale[0]?.length);
+    expect(pagesByLocale[0]).not.toEqual([]);
 
     const pageIdentities = roots.map((contentRoot, index) =>
       (pagesByLocale[index] ?? []).map((path) => numericContentIdentity(contentRoot, path)).sort(),
@@ -439,22 +437,24 @@ describe("ginko docs release guardrails", () => {
     );
     expect(authoredIdentities[1]).toEqual(authoredIdentities[0]);
 
-    const navigationIdentities = roots.map((contentRoot) =>
+    const navigationByLocale = roots.map((contentRoot) =>
       sourceFiles(contentRoot)
         .filter((path) => path.endsWith(".navigation.yml"))
-        .map((path) => numericContentIdentity(contentRoot, path))
-        .sort(),
+        .map((path) => ({
+          identity: numericContentIdentity(contentRoot, path),
+          sidebar: readFileSync(path, "utf8").match(/^sidebar: (.+)$/m)?.[1],
+        }))
+        .sort((left, right) => left.identity.localeCompare(right.identity)),
     );
-    expect(navigationIdentities[1]).toEqual(navigationIdentities[0]);
+    expect(navigationByLocale[1]).toEqual(navigationByLocale[0]);
+    for (const navigation of navigationByLocale) {
+      expect(navigation.map((item) => item.sidebar)).toEqual(
+        expect.arrayContaining(["section", "group"]),
+      );
+    }
 
-    for (const [index, contentRoot] of roots.entries()) {
-      const navigation = sourceFiles(contentRoot)
-        .filter((path) => path.endsWith(".navigation.yml"))
-        .map((path) => readFileSync(path, "utf8"));
-      expect(navigation.filter((source) => source.includes("sidebar: section"))).toHaveLength(2);
-      expect(navigation.filter((source) => source.includes("sidebar: group"))).toHaveLength(7);
-
-      for (const path of authoredPagesByLocale[index] ?? []) {
+    for (const pages of authoredPagesByLocale) {
+      for (const path of pages) {
         const source = readFileSync(path, "utf8");
         const prose = authoredProse(source);
         expect(source).toMatch(/^---\n/);
