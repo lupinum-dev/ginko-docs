@@ -1,123 +1,51 @@
-<!--VITE PLUS START-->
+# Working on Ginko Docs
 
-# Using Vite+, the Unified Toolchain for the Web
+Ginko Docs is a Nuxt documentation layer. It presents documentation, localized
+navigation, search, and authored components. Ginko Content owns content identity,
+collections, routing data, and agent-readable representations; do not recreate
+those responsibilities in this layer. Consumers own their site identity and copy.
 
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. In this repo, the development server must be started with `vp run dev`, not `vp dev`.
+## Read first
 
-## Vite+ Workflow
+Read [MAINTAINING.md](./MAINTAINING.md) for setup, commands, authority, evidence,
+and release recovery. Read [ARCHITECTURE.md](./ARCHITECTURE.md) before changing
+package boundaries, [SECURITY.md](./SECURITY.md) for security-sensitive work, and
+[docs/WRITING.md](./docs/WRITING.md) before changing public documentation.
 
-`vp` is a global binary that handles the full development lifecycle. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+## Ownership and invariants
 
-### Start
+- The root owns workspace policy, CI, and release certification; `layer/` is the
+  published package. Manifests own versions, exports, and compatibility ranges.
+- `docs/` is the bilingual documentation app. Local development extends the
+  workspace layer; packed certification replaces that path with the public
+  package dependency in an isolated consumer.
+- `layer/shared/types/app-config.ts` owns the public configuration contract and
+  `layer/app/app.config.ts` owns defaults. Do not create a second configuration shape.
+- `layer/content.ts` owns the generated `layer/content.js`; never edit the output.
+- Keep server-only code in `layer/server/` or `layer/runtime/server/` and out of
+  client components and configuration. Use Ginko Content's public hooks and exports.
+- Packed consumers are the release boundary. A workspace docs build does not
+  replace them. Retry retained release bytes; never rebuild after approval.
+- Keep English and German content identities aligned. Use public exports in
+  consumer examples and inspect both locales when navigation or components change.
 
-- create - Create a new project from a template
-- migrate - Migrate an existing project to Vite+
-- config - Configure hooks and agent integration
-- staged - Run linters on staged files
-- install (`i`) - Install dependencies
-- env - Manage Node.js versions
+## Complete the task
 
-### Develop
+1. Inspect Git state, current remote main, and existing issues/PRs. Preserve other work.
+2. Define observable acceptance criteria and reproduce the affected behavior.
+3. Make the smallest owning change. Use focused checks while the dev server runs.
+4. Explore user-facing changes in a real browser, including keyboard, narrow
+   screens, and a relevant failure/recovery path.
+5. Run `pnpm verify` before handoff and `pnpm release:verify` for release changes.
+   Review the final diff independently when code, CI, or dependencies change.
+6. Use atomic Conventional Commits and an existing PR when available. Address
+   feedback, complete authorized protected merges, observe post-merge checks,
+   and clean up owned processes. Report failed or unavailable evidence honestly.
 
-- run dev - Run the project development server
-- check - Run format, lint, and TypeScript type checks
-- lint - Lint code
-- fmt - Format code
-- test - Run tests
+Use the root pnpm scripts for the full command contract. Vite+ remains the
+underlying toolchain; focused `pnpm exec vp test` and `pnpm exec vp check` are
+useful but do not replace `pnpm verify`. `vp dev` starts the wrong server here;
+use `pnpm dev`.
 
-### Execute
-
-- run - Run monorepo tasks
-- exec - Execute a command from local `node_modules/.bin`
-- dlx - Execute a package binary without installing it as a dependency
-- cache - Manage the task cache
-
-### Build
-
-- build - Build for production
-- pack - Build libraries
-- preview - Preview production build
-
-### Manage Dependencies
-
-Vite+ automatically detects and wraps the underlying package manager such as pnpm, npm, or Yarn through the `packageManager` field in `package.json` or package manager-specific lockfiles.
-
-- add - Add packages to dependencies
-- remove (`rm`, `un`, `uninstall`) - Remove packages from dependencies
-- update (`up`) - Update packages to latest versions
-- dedupe - Deduplicate dependencies
-- outdated - Check for outdated packages
-- list (`ls`) - List installed packages
-- why (`explain`) - Show why a package is installed
-- info (`view`, `show`) - View package information from the registry
-- link (`ln`) / unlink - Manage local package links
-- pm - Forward a command to the package manager
-
-### Maintain
-
-- upgrade - Update `vp` itself to the latest version
-
-These commands map to their corresponding tools. In this repo, use `vp run dev` for the app dev server and `vp test` for JavaScript tests through the bundled Vitest. The version of all tools can be checked using `vp --version`. This is useful when researching documentation, features, and bugs.
-
-## Common Pitfalls
-
-- **Using the package manager directly:** Do not use pnpm, npm, or Yarn directly. Vite+ can handle all package manager operations.
-- **Always use Vite commands to run tools:** Don't attempt to run `vp vitest` or `vp oxlint`. They do not exist. Use `vp test` and `vp lint` instead.
-- **Do not use `vp dev` in this repo:** It starts the wrong server path here. Use `vp run dev` for local development.
-- **Running scripts:** Vite+ commands take precedence over `package.json` scripts. If there is a `test` script defined in `scripts` that conflicts with the built-in `vp test` command, run it using `vp run test`.
-- **Do not install Vitest, Oxlint, Oxfmt, or tsdown directly:** Vite+ wraps these tools. They must not be installed directly. You cannot upgrade these tools by installing their latest versions. Always use Vite+ commands.
-- **Use Vite+ wrappers for one-off binaries:** Use `vp dlx` instead of package-manager-specific `dlx`/`npx` commands.
-- **Import JavaScript modules from `vite-plus`:** Instead of importing from `vite` or `vitest`, all modules should be imported from the project's `vite-plus` dependency. For example, `import { defineConfig } from 'vite-plus';` or `import { expect, test, vi } from 'vite-plus/test';`. You must not install `vitest` to import test utilities.
-- **Type-Aware Linting:** There is no need to install `oxlint-tsgolint`, `vp lint --type-aware` works out of the box.
-
-## Review Checklist for Agents
-
-- [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check` and `vp test` to validate changes.
-<!--VITE PLUS END-->
-
-## Scope and architecture
-
-- The repository root owns workspace policy, CI, release certification, and
-  maintainer commands. It is not the published package.
-- `layer/` is the published `@lupinum/ginko-docs` Nuxt layer. Keep public
-  exports and consumer behavior there.
-- `docs/` is the public documentation app and release fixture. It must consume
-  the layer through the same public boundary as an external project.
-- `layer/shared/types/app-config.ts` owns the public configuration contract.
-  `layer/app/app.config.ts` owns defaults. Do not create a second configuration
-  shape in a component, server route, or documentation example.
-- Keep server-only code in `layer/server/` or `layer/runtime/server/`. Do not
-  import it into client components or expose it through client configuration.
-- Packed-consumer tests are the release boundary. A source-workspace build does
-  not replace them.
-
-## Ginko Docs documentation
-
-The documentation app is the public package documentation and a bilingual release fixture.
-
-- Keep `docs/content/en/1.docs` and `docs/content/de/1.dokumentation` structurally equivalent.
-- Use the same numeric identities for translated folders and files. German pages use canonical English `$docs/...` and `$blog/...` references.
-- Use `sidebar: section` only for the Documentation and Reference areas. Use flat `sidebar: group` folders inside those areas.
-- Write consumer examples against public exports. Do not expose layer aliases, route components, repository commands, or obsolete Ginko Content composables.
-- Use sentence case, active voice, and labeled file snippets. Frontmatter renders the H1.
-- Do not append generic “What's next,” “Related,” “Conclusion,” or equivalent German sections; the site already renders previous and next links.
-- Check configuration claims against `layer/content.ts`, `layer/shared/types/app-config.ts`, `layer/app/app.config.ts`, and `layer/tags.ts`.
-
-The complete editorial contract is in `docs/WRITING.md`. Use these root commands:
-
-- `pnpm verify` is the normal handoff gate.
-- `pnpm docs:build` builds the documentation application.
-- `pnpm audit:all` audits the complete workspace.
-- `pnpm release:verify` certifies a release from a clean commit.
-
-Inspect both locales in the rendered site when navigation or authored components change.
-
-## Releases
-
-- Use Conventional Commits and Changelogen. Do not create parallel release-note formats.
-- Run `pnpm release:verify` before a release pull request.
-- Publish only through `.github/workflows/publish.yml` from an exact successful `main` CI artifact.
-- Never run `npm publish`, `changelogen --release`, or `changelogen --publish` from an agent or maintainer workstation.
-- Never require branch-name prefixes such as `codex/` or `claude/`. Use a short descriptive branch name when a branch is needed.
-- Read `MAINTAINING.md` for the complete dependency and release procedure.
+Routine authority and its limits are in MAINTAINING. Never publish from a
+workstation, add an npm token, bypass protections, or expand authority in a PR.

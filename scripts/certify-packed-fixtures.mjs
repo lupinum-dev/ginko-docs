@@ -16,6 +16,7 @@ import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
+import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const docsApp = resolve(root, "docs");
@@ -23,6 +24,8 @@ const layerManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"
 const contentVersion =
   layerManifest.peerDependencies["@lupinum/ginko-content"].match(/>=([^ ]+)/)?.[1];
 if (!contentVersion) throw new Error("Could not derive the minimum Ginko Content peer version.");
+const nuxtVersion = layerManifest.peerDependencies.nuxt.match(/^>=([^ ]+) </)?.[1];
+if (!nuxtVersion) throw new Error("Could not derive the minimum Nuxt peer version.");
 const contentArchive = process.env.GINKO_CONTENT_TARBALL
   ? resolve(process.env.GINKO_CONTENT_TARBALL)
   : null;
@@ -44,15 +47,13 @@ const variants = [
     usesLayerLocaleDefault: true,
     blog: false,
     socialMode: "none",
-    nuxtVersion: "4.5.1",
   },
-  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false, nuxtVersion: "4.5.1" },
+  { name: "i18n-dropdown", switcher: "dropdown", singleLocale: false },
   {
     name: "i18n-list",
     switcher: "list",
     singleLocale: false,
     socialMode: "three",
-    nuxtVersion: "4.5.1",
   },
 ];
 const plausibleScriptId = "CertificationScriptId";
@@ -231,7 +232,7 @@ function copyFixture(variant, directory) {
         dependencies: {
           "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
           "@lupinum/ginko-docs": `file:${archive[0]}`,
-          nuxt: variant.nuxtVersion,
+          nuxt: nuxtVersion,
           vue: "^3.5.35",
           "vue-router": "^5.1.0",
         },
@@ -246,20 +247,19 @@ function copyFixture(variant, directory) {
       2,
     )}\n`,
   );
-  writeFileSync(
-    resolve(directory, "pnpm-workspace.yaml"),
-    [
-      "minimumReleaseAge: 1440",
-      "minimumReleaseAgeStrict: true",
-      "minimumReleaseAgeIgnoreMissingTime: false",
-      'minimumReleaseAgeExclude: ["@lupinum/ginko-content@1.0.0-beta.5"]',
-      "",
-      "allowBuilds:",
-      "  esbuild: true",
-      "  vue-demi: true",
-      "",
-    ].join("\n"),
-  );
+  const workspacePolicy = [
+    "minimumReleaseAge: 1440",
+    "minimumReleaseAgeStrict: true",
+    "minimumReleaseAgeIgnoreMissingTime: false",
+    "",
+    "allowBuilds:",
+    "  esbuild: true",
+    "  vue-demi: true",
+    "",
+  ].join("\n");
+  const policyFailures = checkDependencyPolicy(workspacePolicy);
+  if (policyFailures.length) throw new Error(policyFailures.join("\n"));
+  writeFileSync(resolve(directory, "pnpm-workspace.yaml"), workspacePolicy);
 }
 
 async function allocatePort() {
@@ -621,6 +621,14 @@ try {
         }
       }
     }
+    const installedNuxt = JSON.parse(
+      readFileSync(resolve(directory, "node_modules/nuxt/package.json"), "utf8"),
+    );
+    if (installedNuxt.version !== nuxtVersion) {
+      throw new Error(
+        `${variant.name} resolved Nuxt ${installedNuxt.version}, expected ${nuxtVersion}.`,
+      );
+    }
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
     const installedContent = JSON.parse(
       readFileSync(resolve(directory, "node_modules/@lupinum/ginko-content/package.json"), "utf8"),
@@ -664,6 +672,7 @@ writeFileSync(
       tarball: releaseArtifact.tarball,
       sha256: docsHash,
       contentVersion,
+      nuxtVersion,
       contentSource: contentArchive ? "tarball" : "registry",
       contentSha256: contentArchive ? sha256(contentArchive) : undefined,
       releaseEvidence: !contentArchive,

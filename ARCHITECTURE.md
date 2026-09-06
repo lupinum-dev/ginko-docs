@@ -22,7 +22,7 @@ Both files are published deliberately: the package export maps TypeScript toolin
 
 The `layer` directory is the npm package root. Its README, license, manifest, explicit file allowlist, and export map are part of the public contract. Release verification must inspect the package file list and execute public exports from an isolated packed installation rather than relying on workspace hoisting.
 
-The current repository is a personal development location. Documentation avoids coupling the API to that location so the repository can transfer to the Lupinum organization without a consumer migration.
+The repository lives in the Lupinum organization. Consumer documentation uses public package exports rather than repository paths.
 
 ## Static icon delivery
 

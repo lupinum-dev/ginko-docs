@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
@@ -158,6 +159,46 @@ const candidateUpload = ci.jobs?.validate?.steps?.find(
 assert(
   candidateUpload?.with?.["retention-days"] === 14,
   "The CI candidate must be retained for 14 days.",
+);
+
+assert(
+  Object.hasOwn(ci.on ?? {}, "pull_request") &&
+    ci.on.pull_request === null &&
+    !ci.on.push?.paths &&
+    !ci.on.push?.["paths-ignore"],
+  "CI must cover policy, license, documentation, and unknown paths.",
+);
+assert(
+  ci.jobs.validate.if === "github.event_name != 'schedule'" && !ci.jobs.validate.needs,
+  "Every PR and main commit must run release verification without path classification.",
+);
+const aggregate = ci.jobs["pr-verification"];
+assert(
+  aggregate.if === "always() && github.event_name == 'pull_request'" &&
+    JSON.stringify(aggregate.needs) === JSON.stringify(["validate"]),
+  "Every PR must report the aggregate even when validation fails or is skipped.",
+);
+const gate = aggregate.steps.find((step) => step.env?.VALIDATE_RESULT);
+assert(
+  gate?.env.VALIDATE_RESULT === "${{ needs.validate.result }}",
+  "PR verification must check validation's actual result.",
+);
+for (const result of ["success", "failure", "cancelled", "skipped", "", "unexpected"]) {
+  const execution = spawnSync("sh", ["-e", "-c", gate.run], {
+    env: { ...process.env, VALIDATE_RESULT: result },
+    encoding: "utf8",
+  });
+  assert(
+    (execution.status === 0) === (result === "success"),
+    `PR verification must reject every result except success: ${result}.`,
+  );
+}
+assert(
+  ci.on.schedule?.length > 0 &&
+    ci.jobs["dependency-policy"]?.if === "github.event_name == 'schedule'" &&
+    ci.jobs["dependency-policy"]?.steps.some((step) => step.run === "pnpm check:dependencies") &&
+    packageJson.scripts.verify.startsWith("pnpm check:dependencies && "),
+  "Quarantine policy must run on a schedule as well as ordinary verification.",
 );
 
 process.stdout.write("Release workflow policy verified.\n");

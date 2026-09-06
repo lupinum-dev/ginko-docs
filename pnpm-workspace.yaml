@@ -7,9 +7,6 @@ autoInstallPeers: false
 minimumReleaseAge: 1440
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
-minimumReleaseAgeExclude:
-  # First-party prerelease published 2026-08-26T11:35:36Z; remove after 2026-08-27T11:35:36Z.
-  - "@lupinum/ginko-content@1.0.0-beta.5"
 
 allowBuilds:
   "@parcel/watcher": true
