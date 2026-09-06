@@ -109,7 +109,7 @@ for (const required of [
   'version !== "5.0.0"',
   "verifyBundle ?? loadSigstoreVerifier()",
   "certificateIdentityURI",
-  '"1.3.6.1.4.1.57264.1.3": sourceSha',
+  "validateProvenanceStatement(statement, exactManifest, tarballSha512)",
   "subjects[0]?.digest?.sha512 !== tarballSha512",
 ]) {
   assert(recoverySource.includes(required), `Cryptographic recovery is missing ${required}.`);
@@ -134,7 +134,9 @@ assert(
     verifyJobSource.includes("listWorkflowRunArtifacts") &&
     verifyJobSource.includes("!artifact.expired") &&
     verifyJobSource.includes("incomplete.length > 1") &&
-    verifyJobSource.includes("steps.source.outputs.source-sha"),
+    verifyJobSource.includes("node scripts/verify-npm-recovery.mjs --resolve-source") &&
+    verifyJobSource.includes("steps.certified.outputs.source-sha") &&
+    verifyJobSource.includes("No retained successful CI artifact exists for the certified source."),
   "Candidate selection must bind exact automatic runs and reject ambiguous retained recovery candidates.",
 );
 assert(

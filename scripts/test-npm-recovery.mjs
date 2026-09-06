@@ -6,9 +6,13 @@ import { join } from "node:path";
 import {
   MAIN_REF,
   PROVENANCE_TYPE,
+  REGISTRY_URL,
   REPOSITORY_URL,
   WORKFLOW_PATH,
   createRegistryVerificationRecord,
+  fetchAttestations,
+  integritySha512,
+  resolveReleaseSource,
   sigstorePolicy,
   validateProvenanceStatement,
 } from "./verify-npm-recovery.mjs";
@@ -22,6 +26,8 @@ const manifest = {
 const tarballBytes = Buffer.from("certified tarball fixture");
 const sha1 = createHash("sha1").update(tarballBytes).digest("hex");
 const sha512 = createHash("sha512").update(tarballBytes).digest("hex");
+const integrity = `sha512-${Buffer.from(sha512, "hex").toString("base64")}`;
+const currentMainSha = "c".repeat(40);
 
 const statement = () => ({
   _type: "https://in-toto.io/Statement/v1",
@@ -65,6 +71,7 @@ const bundle = (value = statement()) => ({
 });
 
 validateProvenanceStatement(statement(), manifest, sha512);
+assert.equal(integritySha512(integrity), sha512);
 
 const mutations = [
   ["predicate type", (value) => (value.predicateType = "wrong")],
@@ -109,17 +116,13 @@ for (const [name, mutate] of mutations) {
   );
 }
 
-const policy = sigstorePolicy(manifest.commit);
+const policy = sigstorePolicy();
 assert.equal(policy.certificateIssuer, "https://token.actions.githubusercontent.com");
 assert.equal(
   policy.certificateIdentityURI,
   "^https://github\\.com/lupinum-dev/ginko-docs/\\.github/workflows/publish\\.yml@refs/heads/main$",
 );
-assert.deepEqual(policy.certificateOIDs, {
-  "1.3.6.1.4.1.57264.1.3": manifest.commit,
-  "1.3.6.1.4.1.57264.1.5": "lupinum-dev/ginko-docs",
-  "1.3.6.1.4.1.57264.1.6": MAIN_REF,
-});
+assert.equal(policy.certificateOIDs, undefined);
 
 let verifyArguments;
 const existingRecord = await createRegistryVerificationRecord({
@@ -150,6 +153,44 @@ const absentRecord = await createRegistryVerificationRecord({
 assert.equal(absentRecord.registryState, "absent");
 assert.equal(absentRecord.registryShasum, null);
 assert.equal(absentRecord.provenanceBundleSha256, null);
+
+const registryViews = new Map([
+  [`${manifest.packageName}@${manifest.packageVersion} version`, manifest.packageVersion],
+  [`${manifest.packageName}@${manifest.packageVersion} dist.shasum`, sha1],
+  [`${manifest.packageName}@${manifest.packageVersion} dist.integrity`, integrity],
+  [
+    `${manifest.packageName}@${manifest.packageVersion} dist.attestations`,
+    { url: `${REGISTRY_URL}/-/npm/v1/attestations/fixture` },
+  ],
+]);
+const existingSource = await resolveReleaseSource({
+  packageVersion: manifest.packageVersion,
+  currentMainSha,
+  view: (spec, field) => registryViews.get(`${spec} ${field}`),
+  fetchDocument: async () => ({
+    attestations: [{ predicateType: PROVENANCE_TYPE, bundle: bundle() }],
+  }),
+  verifyBundle: async () => {},
+});
+assert.deepEqual(existingSource, {
+  registryState: "verified-existing",
+  sourceSha: manifest.commit,
+});
+assert.notEqual(existingSource.sourceSha, currentMainSha);
+
+const absentSource = await resolveReleaseSource({
+  packageVersion: "1.2.4",
+  currentMainSha,
+  view: () => null,
+  fetchDocument: () => assert.fail("Absent versions have no provenance document."),
+  verifyBundle: () => assert.fail("Absent versions have no Sigstore bundle."),
+});
+assert.deepEqual(absentSource, { registryState: "absent", sourceSha: currentMainSha });
+
+await assert.rejects(
+  fetchAttestations({ url: "https://example.com/-/npm/v1/attestations/fixture" }),
+  /outside the registry attestation API/u,
+);
 
 const sigstorePrefix = (version) => {
   const prefix = mkdtempSync(join(tmpdir(), "ginko-docs-sigstore-"));
