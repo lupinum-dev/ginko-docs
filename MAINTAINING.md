@@ -108,9 +108,9 @@ affected desktop and mobile journeys before handoff.
 Update dependencies in one focused pull request:
 
 ```bash
-vp outdated
-vp update
-vp install
+pnpm outdated
+pnpm update
+pnpm install
 pnpm release:verify
 ```
 
@@ -132,7 +132,7 @@ The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` 
 2. Generate `CHANGELOG.md` and update `layer/package.json`:
 
    ```bash
-   vp run release:prepare -r 0.4.0-rc.2 --from v0.4.0-rc.1 --to HEAD
+   pnpm release:prepare -r 0.4.0-rc.2 --from v0.4.0-rc.1 --to HEAD
    ```
 
    Replace the example version and previous tag. The command does not commit,
