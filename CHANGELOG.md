@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.4.0-rc.9
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.8...v0.4.0-rc.9)
+
+### 🚀 Enhancements
+
+- **maintenance:** Make agent verification complete ([#54](https://github.com/lupinum-dev/ginko-docs/pull/54))
+
+### 🩹 Fixes
+
+- **deps:** Resolve vulnerable URI and query parsers ([#53](https://github.com/lupinum-dev/ginko-docs/pull/53))
+- **release:** Recover from the signed source commit ([#57](https://github.com/lupinum-dev/ginko-docs/pull/57))
+
+### ✅ Tests
+
+- **docs:** Replace fixed counts with bilingual invariants ([#56](https://github.com/lupinum-dev/ginko-docs/pull/56))
+- **compatibility:** Certify supported Nuxt and Vue ranges ([#58](https://github.com/lupinum-dev/ginko-docs/pull/58))
+
+### ❤️ Contributors
+
+- Matthias Amon
+
 ## v0.4.0-rc.8
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/f711591...v0.4.0-rc.8)
