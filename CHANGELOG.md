@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.0-rc.10
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.9...v0.4.0-rc.10)
+
+### 🚀 Enhancements
+
+- **localization:** Support German-only sites ([3c5a747](https://github.com/lupinum-dev/ginko-docs/commit/3c5a747))
+
+### 🩹 Fixes
+
+- **deps:** Resolve image and parser advisories ([#60](https://github.com/lupinum-dev/ginko-docs/pull/60))
+
+### ❤️ Contributors
+
+- Mat4m0
+- Matthias Amon
+
 ## v0.4.0-rc.9
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.8...v0.4.0-rc.9)
