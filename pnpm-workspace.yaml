@@ -15,6 +15,11 @@ allowBuilds:
   vue-demi: true
 
 overrides:
+  # Security floors for transitive build dependencies. Remove each override
+  # when its direct parent resolves a patched version without it.
+  "hono@<4.13.5": 4.13.7
+  "js-yaml@>=4.0.0 <4.3.2": 4.3.2
+  "svgo@>=4.0.0 <4.1.0": 4.1.0
   "@lupinum/ginko-content": 1.0.0-beta.5
   esbuild: 0.28.2
   vite: npm:@voidzero-dev/vite-plus-core@0.1.24
@@ -22,5 +27,8 @@ overrides:
 
 peerDependencyRules:
   allowedVersions:
+    # nuxt-og-image has not widened its optional Sharp peer range yet. Ginko
+    # already runs on Sharp 0.35, and 0.35.4 is the patched compatible release.
+    sharp: 0.35.4
     vite: 0.1.24
     vitest: 0.1.24
