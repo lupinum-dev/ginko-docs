@@ -54,8 +54,26 @@ const variants = [
     name: "single-tabs",
     switcher: "tabs",
     singleLocale: true,
-    usesLayerLocaleDefault: true,
+    locale: "en",
+    language: "en-US",
+    docsRoot: "docs",
+    firstDoc: "getting-started",
     blog: false,
+    disabledSitemapPaths: ["/blog", "/de"],
+    socialMode: "none",
+    nuxtVersion,
+    vueVersion,
+  },
+  {
+    name: "german-only-tabs",
+    switcher: "tabs",
+    singleLocale: true,
+    locale: "de",
+    language: "de-AT",
+    docsRoot: "dokumentation",
+    firstDoc: "erste-schritte",
+    blog: false,
+    disabledSitemapPaths: ["/blog", "/de", "/docs"],
     socialMode: "none",
     nuxtVersion,
     vueVersion,
@@ -142,16 +160,39 @@ function copyFixture(variant, directory) {
     cpSync(resolve(docsApp, entry), resolve(directory, entry), { recursive: true });
   }
   if (variant.singleLocale) {
-    cpSync(resolve(docsApp, "content/en/1.docs"), resolve(directory, "content/docs"), {
-      recursive: true,
-    });
+    const localizedDocsDirectory = variant.locale === "de" ? "1.dokumentation" : "1.docs";
+    if (variant.locale === "de") {
+      const sourceRoot = resolve(docsApp, `content/de/${localizedDocsDirectory}`);
+      const targetRoot = resolve(directory, `content/${variant.docsRoot}`);
+      for (const entry of [
+        ".navigation.yml",
+        "1.erste-schritte/.navigation.yml",
+        "1.erste-schritte/1.index.md",
+        "7.referenz/.navigation.yml",
+        "7.referenz/1.content-config.md",
+      ]) {
+        const destination = resolve(targetRoot, entry);
+        mkdirSync(dirname(destination), { recursive: true });
+        cpSync(resolve(sourceRoot, entry), destination);
+      }
+    } else {
+      cpSync(
+        resolve(docsApp, `content/${variant.locale}/${localizedDocsDirectory}`),
+        resolve(directory, `content/${variant.docsRoot}`),
+        { recursive: true },
+      );
+    }
     if (variant.blog !== false) {
-      cpSync(resolve(docsApp, "content/en/2.blog"), resolve(directory, "content/2.blog"), {
-        recursive: true,
-      });
-      cpSync(resolve(docsApp, "content/en/authors"), resolve(directory, "content/authors"), {
-        recursive: true,
-      });
+      cpSync(
+        resolve(docsApp, `content/${variant.locale}/2.blog`),
+        resolve(directory, "content/2.blog"),
+        { recursive: true },
+      );
+      cpSync(
+        resolve(docsApp, `content/${variant.locale}/authors`),
+        resolve(directory, "content/authors"),
+        { recursive: true },
+      );
     }
   } else {
     cpSync(resolve(docsApp, "content"), resolve(directory, "content"), { recursive: true });
@@ -188,6 +229,11 @@ function copyFixture(variant, directory) {
       `${variant.name} three-social configuration`,
     );
   }
+  if (variant.singleLocale && variant.locale === "de") {
+    appConfig = appConfig
+      .replaceAll("/de/dokumentation", "/dokumentation")
+      .replaceAll("/de/ueber-ginko-docs", "/about");
+  }
   writeFileSync(appConfigPath, appConfig);
 
   const nuxtConfigPath = resolve(directory, "nuxt.config.ts");
@@ -197,12 +243,21 @@ function copyFixture(variant, directory) {
     'extends: ["@lupinum/ginko-docs"]',
     `${variant.name} layer dependency`,
   );
-  if (variant.usesLayerLocaleDefault) {
+  if (variant.singleLocale && variant.locale === "de") {
+    nuxtConfig = replaceRequired(
+      nuxtConfig,
+      "  ginkoDocs: {\n",
+      '  ginkoDocs: {\n    primaryLocale: "de",\n',
+      `${variant.name} primary locale`,
+    );
+  }
+  if (variant.singleLocale) {
+    const localeName = variant.locale === "de" ? "Deutsch" : "English";
     nuxtConfig = replaceRequired(
       nuxtConfig,
       '  i18n: {\n    baseUrl: site.url,\n    locales: [\n      { code: "en", language: "en-US", name: "English" },\n      { code: "de", language: "de-AT", name: "Deutsch" },\n    ],\n    pages: {\n      about: { en: "/about", de: "/ueber-ginko-docs" },\n    },\n  },\n',
-      "",
-      `${variant.name} layer locale default`,
+      `  i18n: {\n    baseUrl: site.url,\n    defaultLocale: "${variant.locale}",\n    locales: [{ code: "${variant.locale}", language: "${variant.language}", name: "${localeName}" }],\n  },\n`,
+      `${variant.name} locale configuration`,
     );
   }
   if (variant.singleLocale) {
@@ -222,7 +277,7 @@ function copyFixture(variant, directory) {
     contentConfig = replaceRequired(
       contentConfig,
       'locales: ["en", "de"]',
-      'locales: ["en"]',
+      `locales: ["${variant.locale}"]`,
       `${variant.name} content locales`,
     );
   }
@@ -233,6 +288,13 @@ function copyFixture(variant, directory) {
       "blog: false",
       `${variant.name} blog configuration`,
     );
+  }
+  if (variant.singleLocale && variant.locale === "de") {
+    contentConfig = contentConfig
+      .replaceAll('de: "/de"', 'de: "/"')
+      .replaceAll("/de/dokumentation", "/dokumentation")
+      .replaceAll("/de/llms", "/llms")
+      .replaceAll("/de/ueber-ginko-docs", "/about");
   }
   writeFileSync(contentConfigPath, contentConfig);
 
@@ -399,7 +461,7 @@ async function certifyHeaderControls(
   await page.locator('header [role="switch"]').first().waitFor({ state: "attached" });
   await assertHeaderLayout(page, variant);
 
-  const searchTrigger = page.getByRole("button", { name: /search/i }).first();
+  const searchTrigger = page.getByRole("button", { name: /(search|suche)/i }).first();
   await searchTrigger.click();
   const commandCenter = page.getByRole("dialog");
   await commandCenter.waitFor({ state: "visible" });
@@ -469,6 +531,7 @@ async function certifyBrowser(variant, directory) {
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const failures = [];
+    let expectingMissingPage = false;
     if (variant.singleLocale) {
       await page.route(`https://plausible.io/js/pa-${plausibleScriptId}.js`, (route) =>
         route.fulfill({
@@ -480,6 +543,13 @@ async function certifyBrowser(variant, directory) {
     }
     page.on("pageerror", (error) => failures.push(`pageerror: ${error.message}`));
     page.on("console", (message) => {
+      if (
+        expectingMissingPage &&
+        message.type() === "error" &&
+        /^Failed to load resource:.*404/u.test(message.text())
+      ) {
+        return;
+      }
       if (message.type() === "error" || /hydration/i.test(message.text())) {
         failures.push(`console ${message.type()}: ${message.text()}`);
       }
@@ -492,14 +562,22 @@ async function certifyBrowser(variant, directory) {
       }
     });
     page.on("response", (response) => {
-      if (new URL(response.url()).origin === server.baseURL && response.status() >= 400) {
+      const responseUrl = new URL(response.url());
+      if (
+        responseUrl.origin === server.baseURL &&
+        response.status() >= 400 &&
+        responseUrl.pathname !== "/__missing-page__"
+      ) {
         failures.push(`response ${response.status()}: ${response.url()}`);
       }
     });
 
-    const startPath = variant.singleLocale ? "/docs" : "/docs/getting-started";
+    const firstDocPath = variant.singleLocale
+      ? `/${variant.docsRoot}/${variant.firstDoc}`
+      : "/docs/getting-started";
+    const startPath = variant.singleLocale ? `/${variant.docsRoot}` : firstDocPath;
     if (variant.singleLocale) {
-      const source = await fetch(`${server.baseURL}/docs/getting-started`).then((response) =>
+      const source = await fetch(`${server.baseURL}${firstDocPath}`).then((response) =>
         response.text(),
       );
       const scriptURL = `https://plausible.io/js/pa-${plausibleScriptId}.js`;
@@ -518,7 +596,7 @@ async function certifyBrowser(variant, directory) {
     await sidebar.locator(`[data-slot="docs-sidebar-${variant.switcher}"]`).waitFor({
       state: "visible",
     });
-    const links = sidebar.locator('a[href^="/docs/"]');
+    const links = sidebar.locator(`a[href^="/${variant.docsRoot ?? "docs"}/"]`);
     if ((await links.count()) === 0) throw new Error(`${variant.name} rendered no sidebar links.`);
     const destination = await links.evaluateAll((elements, currentPath) => {
       const link = elements.find((element) => element.getAttribute("href") !== currentPath);
@@ -533,7 +611,7 @@ async function certifyBrowser(variant, directory) {
         state: "visible",
       });
 
-    if (variant.singleLocale) {
+    if (variant.singleLocale && variant.locale === "en") {
       const plausibleScripts = page.locator(
         `script[src="https://plausible.io/js/pa-${plausibleScriptId}.js"]`,
       );
@@ -590,7 +668,28 @@ async function certifyBrowser(variant, directory) {
     }
     await certifyLocaleNavigation(page, variant, socialLabels);
 
-    const mobilePath = variant.singleLocale ? "/docs/getting-started" : startPath;
+    if (variant.singleLocale && variant.locale === "de") {
+      const missingPath = "/__missing-page__";
+      expectingMissingPage = true;
+      const response = await page.goto(`${server.baseURL}${missingPath}`, {
+        waitUntil: "networkidle",
+      });
+      expectingMissingPage = false;
+      if (response?.status() !== 404) {
+        throw new Error(
+          `${variant.name} missing page returned ${response?.status() ?? "no status"}.`,
+        );
+      }
+      const errorState = await page.evaluate(() => ({
+        heading: document.querySelector("h1")?.textContent?.trim(),
+        lang: document.documentElement.lang,
+      }));
+      if (errorState.lang !== "de" || errorState.heading !== "Seite nicht gefunden") {
+        throw new Error(`${variant.name} rendered an invalid German error page.`);
+      }
+    }
+
+    const mobilePath = variant.singleLocale ? firstDocPath : startPath;
     const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await mobile.goto(`${server.baseURL}${mobilePath}`, { waitUntil: "networkidle" });
     await certifyHeaderControls(mobile, variant, { socialLabels });
@@ -626,10 +725,10 @@ try {
     runWithoutNuxtDiagnostics("vp", ["exec", "nuxt", "build"], directory);
     if (variant.singleLocale) {
       const sitemap = readFileSync(
-        resolve(directory, ".output/public/__sitemap__/en-US.xml"),
+        resolve(directory, `.output/public/__sitemap__/${variant.language}.xml`),
         "utf8",
       );
-      for (const disabledPath of ["/blog", "/de"]) {
+      for (const disabledPath of variant.disabledSitemapPaths) {
         if (sitemap.includes(`https://ginko-docs.lupinum.com${disabledPath}`)) {
           throw new Error(`${variant.name} advertised disabled sitemap route ${disabledPath}.`);
         }

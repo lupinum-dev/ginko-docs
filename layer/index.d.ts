@@ -29,6 +29,7 @@ declare module "nuxt/schema" {
 
   interface PublicRuntimeConfig {
     ginkoDocs?: {
+      primaryLocale?: "en" | "de";
       syntaxHighlighting?: GinkoDocsSyntaxHighlightingConfig;
     };
   }

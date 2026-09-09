@@ -119,6 +119,7 @@ describe("syntax highlighting configuration", () => {
       ),
     ).toEqual({
       feedback: { enabled: true },
+      primaryLocale: "en",
       syntaxHighlighting: {
         themes: {
           light: "material-theme-lighter",

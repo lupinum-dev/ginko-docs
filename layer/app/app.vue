@@ -7,10 +7,9 @@ import { useCanonicalUrl } from "#ginko-docs/composables/useCanonicalUrl";
 import { useGinkoAnalytics } from "#ginko-docs/composables/useGinkoAnalytics";
 import { useGinkoOgImage } from "#ginko-docs/composables/useGinkoOgImage";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
-import { defaultLocale } from "../i18n/locales";
 
 const canonicalUrl = useCanonicalUrl();
-const { locale, locales } = useI18n();
+const { defaultLocale, locale, locales } = useI18n();
 const route = useRoute();
 const { switchPathname } = useLocalizedRouteSwitch();
 const docsConfig = useAppConfig().ginkoDocs;

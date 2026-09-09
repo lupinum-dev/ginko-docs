@@ -27,7 +27,7 @@ export interface GinkoDocsContentOptions {
     whenNotToUse?: string | { en: string; de: string };
   };
   agent?: GinkoDocsAgentOptions;
-  locales?: readonly ["en"] | readonly ["en", "de"];
+  locales?: readonly ["en"] | readonly ["de"] | readonly ["en", "de"];
   blog?: boolean;
 }
 
@@ -52,12 +52,11 @@ export function defineGinkoDocsConfig(
   const locales = options.locales ?? ["en"];
   const validLocales =
     locales.length === 1
-      ? locales[0] === "en"
+      ? locales[0] === "en" || locales[0] === "de"
       : locales.length === 2 && locales[0] === "en" && locales[1] === "de";
   if (!validLocales) {
-    throw new TypeError('locales must be exactly ["en"] or ["en", "de"]');
+    throw new TypeError('locales must be exactly ["en"], ["de"], or ["en", "de"]');
   }
-  const i18n = locales.length === 2;
   const metadata = defineAgentMetadataFields([
     "title",
     "description",
@@ -69,7 +68,7 @@ export function defineGinkoDocsConfig(
     "source",
     "updated",
   ]);
-  const { docs, blog, authors } = createGinkoDocsCollections(i18n, options.agent?.documentation);
+  const { docs, blog, authors } = createGinkoDocsCollections(locales, options.agent?.documentation);
   const config = {
     agent: {
       site: {

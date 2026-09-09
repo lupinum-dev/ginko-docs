@@ -1,4 +1,4 @@
-import { localeCodes, localizedPath } from "../../i18n/locales";
+import { defaultLocale, localeCodes, localizedPath, type LocaleCode } from "../../i18n/locales";
 import { routeSlugs } from "../../shared/route-slugs";
 
 export interface RedirectSourceDocument {
@@ -13,11 +13,11 @@ export function normalizeRedirectPath(path: string): string {
 }
 
 /** Routes the theme itself owns; a redirect must never shadow one of them. */
-export function themeStaticRoutes(): string[] {
+export function themeStaticRoutes(primaryLocale: LocaleCode = defaultLocale): string[] {
   return localeCodes.flatMap((locale) => [
-    localizedPath(locale, routeSlugs.home[locale]),
-    localizedPath(locale, routeSlugs.docs[locale]),
-    localizedPath(locale, routeSlugs.blog[locale]),
+    localizedPath(locale, routeSlugs.home[locale], primaryLocale),
+    localizedPath(locale, routeSlugs.docs[locale], primaryLocale),
+    localizedPath(locale, routeSlugs.blog[locale], primaryLocale),
   ]);
 }
 
@@ -26,11 +26,14 @@ export function themeStaticRoutes(): string[] {
  * Conflicts throw so `failOnError` stops the build instead of shipping a
  * redirect that shadows a live page.
  */
-export function buildRedirectMap(documents: RedirectSourceDocument[]): Map<string, string> {
+export function buildRedirectMap(
+  documents: RedirectSourceDocument[],
+  primaryLocale: LocaleCode = defaultLocale,
+): Map<string, string> {
   const livePaths = new Set(
     documents.map((document) => normalizeRedirectPath(document.route.resolvedPath)),
   );
-  const reserved = new Set(themeStaticRoutes().map(normalizeRedirectPath));
+  const reserved = new Set(themeStaticRoutes(primaryLocale).map(normalizeRedirectPath));
   const map = new Map<string, string>();
   const problems: string[] = [];
 

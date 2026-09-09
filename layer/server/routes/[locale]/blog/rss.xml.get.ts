@@ -6,7 +6,12 @@ import { serveBlogFeed } from "../../../utils/blog-feed";
 // /de/... node would shadow ginko-content's /:locale/llms.txt routes.
 export default defineEventHandler(async (event) => {
   const locale = getRouterParam(event, "locale");
-  if (!locale || !isLocaleCode(locale) || locale === defaultLocale) {
+  const configuredPrimaryLocale = useRuntimeConfig(event).public.ginkoDocs?.primaryLocale;
+  const primaryLocale =
+    typeof configuredPrimaryLocale === "string" && isLocaleCode(configuredPrimaryLocale)
+      ? configuredPrimaryLocale
+      : defaultLocale;
+  if (!locale || !isLocaleCode(locale) || locale === primaryLocale) {
     throw createError({ statusCode: 404, statusMessage: "Page not found" });
   }
   return serveBlogFeed(event, locale);

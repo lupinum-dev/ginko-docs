@@ -20,6 +20,17 @@ describe("themeStaticRoutes", () => {
       expect.arrayContaining(["/", "/docs", "/blog", "/de", "/de/dokumentation", "/de/blog"]),
     );
   });
+
+  it("moves the locale prefix when German is primary", () => {
+    expect(themeStaticRoutes("de")).toEqual([
+      "/en",
+      "/en/docs",
+      "/en/blog",
+      "/",
+      "/dokumentation",
+      "/blog",
+    ]);
+  });
 });
 
 describe("buildRedirectMap", () => {

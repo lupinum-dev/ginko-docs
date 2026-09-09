@@ -7,7 +7,7 @@ import darkPlus from "shiki/dist/themes/dark-plus.mjs";
 import lightPlus from "shiki/dist/themes/light-plus.mjs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
 import { i18nPages } from "./i18n/routes";
-import { defaultLocale, localeCodes, locales, localizedPath } from "./i18n/locales";
+import { localeCodes, localizedPath } from "./i18n/locales";
 import { routeSlugs } from "./shared/route-slugs";
 import { layerIconCollections, layerIconNames } from "./icon-bundle";
 import packageMetadata from "./package.json" with { type: "json" };
@@ -130,9 +130,6 @@ export default defineNuxtConfig({
     customRoutes: "config",
     defaultLocale: "en",
     detectBrowserLanguage: false,
-    locales: locales
-      .filter((locale) => locale.code === defaultLocale)
-      .map(({ code, language, name }) => ({ code, language, name })),
     pages: i18nPages,
     strategy: "prefix_except_default",
     vueI18n: join(root, "i18n/i18n.config.ts"),
@@ -170,7 +167,9 @@ export default defineNuxtConfig({
     excludeAppSources: ["nuxt:prerender"],
     // The docs roots prerender as redirects to the first docs page; a sitemap
     // must not list redirecting URLs.
-    exclude: localeCodes.map((locale) => localizedPath(locale, routeSlugs.docs[locale])),
+    exclude: localeCodes.flatMap((primaryLocale) =>
+      localeCodes.map((locale) => localizedPath(locale, routeSlugs.docs[locale], primaryLocale)),
+    ),
   },
   app: {
     head: {

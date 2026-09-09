@@ -6,7 +6,7 @@
 
     <div class="mx-auto flex w-full max-w-screen-2xl min-w-0 flex-1">
       <div
-        class="pointer-events-none sticky top-[var(--site-header-height)] z-20 hidden h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-sidebar-width)] shrink-0 overflow-hidden *:pointer-events-auto md:block"
+        class="docs-sidebar-shell pointer-events-none sticky top-[var(--site-header-height)] z-20 h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-sidebar-width)] shrink-0 overflow-hidden *:pointer-events-auto"
       >
         <DocsSidebar />
       </div>
