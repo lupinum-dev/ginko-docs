@@ -81,14 +81,18 @@ const authorsSchema = z.object({
     )
     .optional(),
 });
-function createGinkoDocsCollections(i18n, docsMarkdown = true) {
+function createGinkoDocsCollections(locales = ["en"], docsMarkdown = true) {
+  const i18n = locales.length === 2;
+  const primaryLocale = locales[0];
   return defineContentConfig({
     collections: {
       docs: defineCollection({
         type: "page",
-        source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
+        source: i18n
+          ? "{1.docs,1.dokumentation}/**/*.md"
+          : `${routeSlugs.docs[primaryLocale].slice(1)}/**/*.md`,
         i18n: i18n ? true : void 0,
-        route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
+        route: i18n ? routeSlugs.docs : routeSlugs.docs[primaryLocale],
         agent: {
           section: "optional",
           markdown: docsMarkdown,
@@ -100,7 +104,7 @@ function createGinkoDocsCollections(i18n, docsMarkdown = true) {
         type: "page",
         source: "2.blog/*.md",
         i18n: i18n ? true : void 0,
-        route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
+        route: i18n ? routeSlugs.blog : routeSlugs.blog[primaryLocale],
         agent: {
           section: "blog",
           markdown: true,
@@ -125,11 +129,10 @@ function defineGinkoDocsConfig(options) {
   const locales = options.locales ?? ["en"];
   if (
     !(locales.length === 1
-      ? locales[0] === "en"
+      ? locales[0] === "en" || locales[0] === "de"
       : locales.length === 2 && locales[0] === "en" && locales[1] === "de")
   )
-    throw new TypeError('locales must be exactly ["en"] or ["en", "de"]');
-  const i18n = locales.length === 2;
+    throw new TypeError('locales must be exactly ["en"], ["de"], or ["en", "de"]');
   const metadata = defineAgentMetadataFields([
     "title",
     "description",
@@ -141,7 +144,7 @@ function defineGinkoDocsConfig(options) {
     "source",
     "updated",
   ]);
-  const { docs, blog, authors } = createGinkoDocsCollections(i18n, options.agent?.documentation);
+  const { docs, blog, authors } = createGinkoDocsCollections(locales, options.agent?.documentation);
   const config = {
     agent: {
       site: {

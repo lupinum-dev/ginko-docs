@@ -1,4 +1,4 @@
-import { localeCodes, localizedPath } from "../../i18n/locales";
+import { defaultLocale, localeCodes, localizedPath, type LocaleCode } from "../../i18n/locales";
 import { routeSlugs } from "../../shared/route-slugs";
 
 interface SitemapAlternative {
@@ -13,6 +13,7 @@ export interface SitemapEntry {
 interface SitemapContentPolicy {
   locales: readonly string[];
   blogEnabled: boolean;
+  primaryLocale?: LocaleCode;
 }
 
 const pathname = (url: string) => new URL(url, "https://ginko.invalid").pathname;
@@ -21,12 +22,16 @@ export function filterSitemapEntries<Entry extends SitemapEntry>(
   entries: Entry[],
   policy: SitemapContentPolicy,
 ): Entry[] {
+  const requestedPrimaryLocale = policy.primaryLocale ?? defaultLocale;
+  const primaryLocale = policy.locales.includes(requestedPrimaryLocale)
+    ? requestedPrimaryLocale
+    : (localeCodes.find((locale) => policy.locales.includes(locale)) ?? defaultLocale);
   const disabledLocaleRoots = localeCodes
     .filter((locale) => !policy.locales.includes(locale))
-    .map((locale) => `/${locale}`);
+    .map((locale) => (locale === primaryLocale ? "/" : `/${locale}`));
   const disabledBlogRoots = policy.blogEnabled
     ? []
-    : localeCodes.map((locale) => localizedPath(locale, routeSlugs.blog[locale]));
+    : localeCodes.map((locale) => localizedPath(locale, routeSlugs.blog[locale], primaryLocale));
   const excludedRoots = [...disabledLocaleRoots, ...disabledBlogRoots];
   const isExcluded = (url: string) => {
     const path = pathname(url);

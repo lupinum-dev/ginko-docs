@@ -8,7 +8,7 @@ overrides:
   hono@<4.13.5: 4.13.7
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   svgo@>=4.0.0 <4.1.0: 4.1.0
-  '@lupinum/ginko-content': 1.0.0-beta.5
+  '@lupinum/ginko-content': 1.0.0-beta.7
   esbuild: 0.28.2
   vite: npm:@voidzero-dev/vite-plus-core@0.1.24
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
@@ -24,8 +24,8 @@ importers:
         specifier: ^1.2.123
         version: 1.2.123
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.5
-        version: 1.0.0-beta.5(8421891870c64c63847051bf55ef7f72)
+        specifier: 1.0.0-beta.7
+        version: 1.0.0-beta.7(61dc0856525159f4c30ba81709e64eaa)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
@@ -93,8 +93,8 @@ importers:
   docs:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.5
-        version: 1.0.0-beta.5(3a4c14509705333f69f7a8d48835e543)
+        specifier: 1.0.0-beta.7
+        version: 1.0.0-beta.7(3a4c14509705333f69f7a8d48835e543)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -921,8 +921,8 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@1.0.0-beta.5':
-    resolution: {integrity: sha512-+wSTzrWDM9BzRlcepH3LI7vTtpLH9FTfiNLiMmzg0LbNSYRRRy9NJf5ywfM70gndueQRePdkq4YFKTSfBrz0mQ==}
+  '@lupinum/ginko-content@1.0.0-beta.7':
+    resolution: {integrity: sha512-N23Ln1s4+x70DY7Vb76C5HISUOqjDmlERHK0uO4x0CL3jwGHBRR9EwLUjYk5I7uYS9We4jjLSeBcNIxT10Ki9A==}
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
@@ -931,7 +931,7 @@ packages:
       nuxt: '>=4.5.1 <5'
       pagefind: ^1.5.2
       vitest: '>=4.1.6 <5'
-      vue: ^3.5.35
+      vue: ^3.5.40
     peerDependenciesMeta:
       beautiful-mermaid:
         optional: true
@@ -7024,7 +7024,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@1.0.0-beta.5(3a4c14509705333f69f7a8d48835e543)':
+  '@lupinum/ginko-content@1.0.0-beta.7(3a4c14509705333f69f7a8d48835e543)':
     dependencies:
       '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
       '@nuxt/kit': 4.5.2(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)
@@ -7121,7 +7121,7 @@ snapshots:
       - xml2js
       - yaml
 
-  '@lupinum/ginko-content@1.0.0-beta.5(8421891870c64c63847051bf55ef7f72)':
+  '@lupinum/ginko-content@1.0.0-beta.7(61dc0856525159f4c30ba81709e64eaa)':
     dependencies:
       '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
       '@nuxt/kit': 4.5.2(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)
@@ -7146,7 +7146,7 @@ snapshots:
       ufo: 1.6.4
       unstorage: 1.17.5(@vercel/functions@3.9.5(ws@8.21.3))(db0@0.3.4)(ioredis@5.11.1(supports-color@10.2.2))
       vue: 3.5.42(typescript@5.9.3)
-      vue-router: 5.3.0(@types/node@25.9.5)(@vue/compiler-sfc@3.5.41)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(vue@3.5.42(typescript@5.9.3))(yaml@2.9.0)
+      vue-router: 5.3.0(@types/node@25.9.5)(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(vue@3.5.42(typescript@5.9.3))(yaml@2.9.0)
       zod: 4.4.3
     optionalDependencies:
       vitest: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)'

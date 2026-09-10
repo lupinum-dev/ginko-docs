@@ -35,4 +35,39 @@ describe("sitemap content policy", () => {
       entries,
     );
   });
+
+  it("treats German as the unprefixed locale when configured", () => {
+    const germanEntries = [
+      { loc: "https://docs.example.com/" },
+      { loc: "https://docs.example.com/dokumentation/einstieg" },
+      { loc: "https://docs.example.com/blog" },
+      { loc: "https://docs.example.com/en/docs/getting-started" },
+      { loc: "https://docs.example.com/en/blog" },
+    ];
+
+    expect(
+      filterSitemapEntries(germanEntries, {
+        locales: ["de"],
+        blogEnabled: false,
+        primaryLocale: "de",
+      }).map((entry) => entry.loc),
+    ).toEqual(["https://docs.example.com/", "https://docs.example.com/dokumentation/einstieg"]);
+  });
+
+  it("keeps configured routes when the requested primary locale is inactive", () => {
+    const mismatchedEntries = [
+      { loc: "https://docs.example.com/" },
+      { loc: "https://docs.example.com/docs/getting-started" },
+      { loc: "https://docs.example.com/de" },
+      { loc: "https://docs.example.com/de/dokumentation/einstieg" },
+    ];
+
+    expect(
+      filterSitemapEntries(mismatchedEntries, {
+        locales: ["en"],
+        blogEnabled: true,
+        primaryLocale: "de",
+      }).map((entry) => entry.loc),
+    ).toEqual(["https://docs.example.com/", "https://docs.example.com/docs/getting-started"]);
+  });
 });

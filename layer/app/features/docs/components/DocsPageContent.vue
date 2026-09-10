@@ -165,7 +165,7 @@ function scrollToTop() {
         <article v-if="page">
           <div class="flex items-start justify-between gap-4 sm:gap-6">
             <div class="min-w-0">
-              <DocsBreadcrumb class="mb-2" :items="visibleTrail" />
+              <DocsBreadcrumb v-if="visibleTrail.length > 1" class="mb-2" :items="visibleTrail" />
               <h1
                 class="font-heading text-[27px] leading-[1.15] font-semibold tracking-[-0.02em] text-balance text-foreground"
               >
@@ -208,7 +208,7 @@ function scrollToTop() {
 
     <aside
       ref="tocAside"
-      class="sticky top-[var(--site-header-height)] hidden h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-toc-width)] shrink-0 flex-col overflow-y-auto pt-10 pr-4 pb-6 xl:flex"
+      class="docs-toc-shell sticky top-[var(--site-header-height)] h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-toc-width)] shrink-0 flex-col overflow-y-auto pt-10 pr-4 pb-6"
       :aria-label="t('docs.toc')"
     >
       <DocsToc class="mb-6" :items="tocItems" :active-ids="activeIds" />

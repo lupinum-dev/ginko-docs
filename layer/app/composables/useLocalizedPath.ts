@@ -3,10 +3,11 @@ import { isLocaleCode, localizedPath } from "../../i18n/locales";
 import type { LocalizedRouteKey } from "../../i18n/routes";
 
 export function useLocalizedPath() {
-  const { locale, t } = useI18n();
+  const { defaultLocale, locale, t } = useI18n();
 
   return (key: LocalizedRouteKey) => {
     const path = t(`routes.${key}`);
-    return isLocaleCode(locale.value) ? localizedPath(locale.value, path) : path;
+    const primaryLocale = isLocaleCode(defaultLocale) ? defaultLocale : undefined;
+    return isLocaleCode(locale.value) ? localizedPath(locale.value, path, primaryLocale) : path;
   };
 }

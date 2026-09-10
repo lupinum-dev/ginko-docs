@@ -19,6 +19,16 @@ describe("defineGinkoDocsConfig", () => {
     expect(config.agent?.pages).toBeUndefined();
   });
 
+  it("builds the supported German-only layout", () => {
+    const config = defineGinkoDocsConfig({ site, locales: ["de"] });
+
+    expect(config.collections.docs).toMatchObject({
+      source: "dokumentation/**/*.md",
+      route: "/dokumentation",
+    });
+    expect(config.collections.docs.i18n).toBeUndefined();
+  });
+
   it("builds the supported bilingual layout", () => {
     const config = defineGinkoDocsConfig({
       site: {
@@ -81,7 +91,6 @@ describe("defineGinkoDocsConfig", () => {
 
   it.each([
     { locales: [] },
-    { locales: ["de"] },
     { locales: ["en", "en"] },
     { locales: ["de", "en"] },
     { locales: ["en", "de", "en"] },
@@ -92,6 +101,6 @@ describe("defineGinkoDocsConfig", () => {
         // Exercise the runtime boundary used by JavaScript consumers.
         locales,
       } as never),
-    ).toThrow('locales must be exactly ["en"] or ["en", "de"]');
+    ).toThrow('locales must be exactly ["en"], ["de"], or ["en", "de"]');
   });
 });

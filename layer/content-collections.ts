@@ -53,16 +53,20 @@ const authorsSchema = z.object({
 });
 
 export function createGinkoDocsCollections(
-  i18n: boolean,
+  locales: readonly ["en"] | readonly ["de"] | readonly ["en", "de"] = ["en"],
   docsMarkdown: ContentAgentCollectionConfig["markdown"] = true,
 ) {
+  const i18n = locales.length === 2;
+  const primaryLocale = locales[0];
   return defineContentConfig({
     collections: {
       docs: defineCollection({
         type: "page",
-        source: i18n ? "{1.docs,1.dokumentation}/**/*.md" : "docs/**/*.md",
+        source: i18n
+          ? "{1.docs,1.dokumentation}/**/*.md"
+          : `${routeSlugs.docs[primaryLocale].slice(1)}/**/*.md`,
         i18n: i18n ? true : undefined,
-        route: i18n ? routeSlugs.docs : routeSlugs.docs.en,
+        route: i18n ? routeSlugs.docs : routeSlugs.docs[primaryLocale],
         agent: { section: "optional", markdown: docsMarkdown },
         strict: true,
         schema: docsSchemaWithLastmod,
@@ -71,7 +75,7 @@ export function createGinkoDocsCollections(
         type: "page",
         source: "2.blog/*.md",
         i18n: i18n ? true : undefined,
-        route: i18n ? routeSlugs.blog : routeSlugs.blog.en,
+        route: i18n ? routeSlugs.blog : routeSlugs.blog[primaryLocale],
         agent: { section: "blog", markdown: true },
         strict: true,
         schema: blogSchemaWithLastmod,

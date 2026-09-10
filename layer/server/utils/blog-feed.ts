@@ -3,21 +3,34 @@ import { createError, setHeader } from "h3";
 import { many } from "@lupinum/ginko-content/server";
 import { useAppConfig, useRuntimeConfig } from "#imports";
 import { blog } from "../../i18n/messages/global/blog";
-import { locales, localizedPath, type LocaleCode } from "../../i18n/locales";
+import {
+  defaultLocale,
+  isLocaleCode,
+  locales,
+  localizedPath,
+  type LocaleCode,
+} from "../../i18n/locales";
 import { routeSlugs } from "../../shared/route-slugs";
 import { getLocalizedSiteText } from "../../app/config/site.utils";
 import { createGinkoDocsCollections } from "../../content-collections";
 import { buildRssFeed } from "./feed";
 
 export const MAX_FEED_POSTS = 50;
-const { blog: blogCollection, authors: authorsCollection } = createGinkoDocsCollections(true);
+const { blog: blogCollection, authors: authorsCollection } = createGinkoDocsCollections([
+  "en",
+  "de",
+]);
 
-export function blogFeedPath(locale: LocaleCode): string {
-  return `${localizedPath(locale, routeSlugs.blog[locale])}/rss.xml`;
+export function blogFeedPath(
+  locale: LocaleCode,
+  primaryLocale: LocaleCode = defaultLocale,
+): string {
+  return `${localizedPath(locale, routeSlugs.blog[locale], primaryLocale)}/rss.xml`;
 }
 
 export async function serveBlogFeed(event: H3Event, locale: LocaleCode) {
-  const contentRuntime = useRuntimeConfig(event).public.content as
+  const publicRuntime = useRuntimeConfig(event).public;
+  const contentRuntime = publicRuntime.content as
     | { collections?: Record<string, unknown> }
     | undefined;
   if (!contentRuntime?.collections?.blog) {
@@ -25,6 +38,11 @@ export async function serveBlogFeed(event: H3Event, locale: LocaleCode) {
   }
 
   const site = useAppConfig().ginkoDocs.site;
+  const configuredPrimaryLocale = publicRuntime.ginkoDocs?.primaryLocale;
+  const primaryLocale =
+    typeof configuredPrimaryLocale === "string" && isLocaleCode(configuredPrimaryLocale)
+      ? configuredPrimaryLocale
+      : defaultLocale;
   const posts = await many(event, blogCollection, {
     locale,
     fallback: true,
@@ -38,7 +56,7 @@ export async function serveBlogFeed(event: H3Event, locale: LocaleCode) {
     title: `${blog.title[locale]} - ${getLocalizedSiteText(site.name, locale)}`,
     description: blog.description[locale],
     siteUrl: site.url,
-    feedPath: blogFeedPath(locale),
+    feedPath: blogFeedPath(locale, primaryLocale),
     language: locales.find((entry) => entry.code === locale)?.language ?? locale,
     items: posts.map((post) => ({
       title: post.title,

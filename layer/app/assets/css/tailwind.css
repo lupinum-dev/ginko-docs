@@ -6,6 +6,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.docs-sidebar-shell,
+.docs-toc-shell {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .docs-sidebar-shell {
+    display: block;
+  }
+}
+
+@media (min-width: 80rem) {
+  .docs-toc-shell {
+    display: flex;
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-body);
   --font-serif: var(--font-heading);

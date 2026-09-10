@@ -5,6 +5,8 @@ import type {
   GinkoDocsSyntaxHighlightingConfig,
   GinkoDocsNuxtConfig,
 } from "../shared/types/nuxt-config";
+import type { LocaleCode } from "../i18n/locales";
+import { defaultLocale } from "../i18n/locales";
 
 export const DEFAULT_SYNTAX_THEMES = {
   light: "light-plus",
@@ -77,9 +79,11 @@ export async function patchShikiThemes(
 export function mergeSyntaxRuntimeConfig(
   current: Record<string, unknown> | undefined,
   themes: GinkoDocsSyntaxHighlightingConfig["themes"],
+  primaryLocale: LocaleCode = defaultLocale,
 ) {
   return {
     ...current,
+    primaryLocale,
     syntaxHighlighting: {
       themes: {
         light: themes.light,
@@ -100,6 +104,7 @@ export default defineNuxtModule<GinkoDocsNuxtConfig>({
     nuxt.options.runtimeConfig.public.ginkoDocs = mergeSyntaxRuntimeConfig(
       nuxt.options.runtimeConfig.public.ginkoDocs,
       themes,
+      options.primaryLocale,
     );
 
     if (!options.syntaxHighlighting) return;

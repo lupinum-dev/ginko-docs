@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { defaultLocale, localeFromPath, localizedPath } from "./i18n/locales";
 import { i18nPages, localizedRoutes } from "./i18n/routes";
-import { removeBlogPages } from "./modules/feature-routing";
+import { blogFeedRoutes, removeBlogPages } from "./modules/feature-routing";
 import { isNuxtScriptsComponentDirectory } from "./modules/analytics-boundary";
 import { routeSlugs } from "./shared/route-slugs";
 import { contentComponentPolicy, contentComponentTags } from "./tags";
@@ -138,6 +138,15 @@ describe("ginko docs release guardrails", () => {
     });
   });
 
+  it("only prerenders blog feeds for active locales", () => {
+    expect(blogFeedRoutes("en", new Set(["en"]))).toEqual(["/blog/rss.xml"]);
+    expect(blogFeedRoutes("de", new Set(["de"]))).toEqual(["/blog/rss.xml"]);
+    expect(blogFeedRoutes("en", new Set(["en", "de"]))).toEqual([
+      "/blog/rss.xml",
+      "/de/blog/rss.xml",
+    ]);
+  });
+
   it("publishes source layer and typed consumer entrypoints", async () => {
     const manifest = JSON.parse(read("layer/package.json"));
     expect(manifest.name).toBe("@lupinum/ginko-docs");
@@ -152,7 +161,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain("version: packageMetadata.version");
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.5 <2.0.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.7 <2.0.0");
     expect(manifest.dependencies.zod).toBe("4.4.3");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();

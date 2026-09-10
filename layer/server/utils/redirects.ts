@@ -1,7 +1,7 @@
 import type { H3Event } from "h3";
 import { many } from "@lupinum/ginko-content/server";
 import { useRuntimeConfig } from "#imports";
-import { localeCodes } from "../../i18n/locales";
+import { defaultLocale, isLocaleCode, localeCodes } from "../../i18n/locales";
 import { buildRedirectMap, type RedirectSourceDocument } from "./redirects.utils";
 
 async function queryRedirectDocuments(event: H3Event): Promise<RedirectSourceDocument[]> {
@@ -25,11 +25,18 @@ async function queryRedirectDocuments(event: H3Event): Promise<RedirectSourceDoc
 let cachedMap: Promise<Map<string, string>> | undefined;
 
 export function loadRedirectMap(event: H3Event): Promise<Map<string, string>> {
+  const configuredPrimaryLocale = useRuntimeConfig(event).public.ginkoDocs?.primaryLocale;
+  const primaryLocale =
+    typeof configuredPrimaryLocale === "string" && isLocaleCode(configuredPrimaryLocale)
+      ? configuredPrimaryLocale
+      : defaultLocale;
   if (import.meta.dev) {
-    return queryRedirectDocuments(event).then(buildRedirectMap);
+    return queryRedirectDocuments(event).then((documents) =>
+      buildRedirectMap(documents, primaryLocale),
+    );
   }
   cachedMap ??= queryRedirectDocuments(event)
-    .then(buildRedirectMap)
+    .then((documents) => buildRedirectMap(documents, primaryLocale))
     .catch((error) => {
       cachedMap = undefined;
       throw error;

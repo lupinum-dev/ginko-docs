@@ -3,8 +3,8 @@ import { localizedRoutes } from "../i18n/routes";
 import { messages } from "../i18n/messages/index";
 import { normalizeAppError } from "./lib/errors";
 import { computed } from "vue";
-import { clearError, useHead } from "#imports";
-import { localeFromPath, localizedPath } from "../i18n/locales";
+import { clearError, useHead, useRequestURL, useRuntimeConfig } from "#imports";
+import { defaultLocale, isLocaleCode, localeFromPath, localizedPath } from "../i18n/locales";
 
 type NuxtErrorLike = {
   message?: string;
@@ -19,17 +19,26 @@ const props = defineProps<{
   error: NuxtErrorLike;
 }>();
 
+const configuredPrimaryLocale = useRuntimeConfig().public.ginkoDocs?.primaryLocale;
+const primaryLocale =
+  typeof configuredPrimaryLocale === "string" && isLocaleCode(configuredPrimaryLocale)
+    ? configuredPrimaryLocale
+    : defaultLocale;
+
 const normalized = computed(() => normalizeAppError(props.error));
-const requestPath = computed(
-  () => props.error?.url || (import.meta.client ? window.location.pathname : "/"),
-);
-const locale = computed(() => localeFromPath(requestPath.value));
+const requestUrl = useRequestURL();
+const requestPath = computed(() => props.error?.url || requestUrl.pathname);
+const locale = computed(() => localeFromPath(requestPath.value, primaryLocale));
 const copy = computed(() => {
   const catalog = messages[locale.value].errors;
   return catalog[normalized.value.kind] ?? catalog.unavailable;
 });
-const homePath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].home));
-const docsPath = computed(() => localizedPath(locale.value, localizedRoutes[locale.value].docs));
+const homePath = computed(() =>
+  localizedPath(locale.value, localizedRoutes[locale.value].home, primaryLocale),
+);
+const docsPath = computed(() =>
+  localizedPath(locale.value, localizedRoutes[locale.value].docs, primaryLocale),
+);
 const title = computed(() => `${normalized.value.statusCode} - ${copy.value.title}`);
 // Keep the full site chrome for content-level errors (404 and friends); hard
 // server failures fall back to the bare page so the error screen cannot crash.
@@ -37,6 +46,7 @@ const showChrome = computed(() => normalized.value.kind !== "server");
 
 useHead(() => ({
   title: title.value,
+  htmlAttrs: { lang: locale.value },
   meta: [{ name: "robots", content: "noindex, nofollow" }],
 }));
 
