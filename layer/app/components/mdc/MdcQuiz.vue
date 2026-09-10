@@ -45,6 +45,8 @@ function markAnswered(index: number, correct: boolean) {
 
 function reset() {
   state.answers.clear();
+  // Leaving results remounts the questions, which register their indexes again.
+  state.totalQuestions = 0;
   activeIndex.value = 0;
   showResults.value = false;
   resetKey.value++;
