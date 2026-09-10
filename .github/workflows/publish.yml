@@ -74,6 +74,7 @@ jobs:
             let sourceSha
             let runId
             if (context.eventName === 'workflow_dispatch') {
+              const currentIntent = await readJson('layer/package.json', currentMain.object.sha)
               const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
                 ...context.repo,
                 workflow_id: 'ci.yml',
@@ -100,6 +101,7 @@ jobs:
                   if (error.status === 404) continue
                   throw error
                 }
+                if (manifest.name !== currentIntent.name || manifest.version !== currentIntent.version) continue
                 const tag = `v${manifest.version}`
                 if (!changelog.split('\n').some(line => line === `## ${tag}` || line.startsWith(`## ${tag} `))) continue
                 const registry = await fetch(`https://registry.npmjs.org/${manifest.name.replace('/', '%2f')}/${manifest.version}`)
