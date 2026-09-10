@@ -91,8 +91,15 @@ jobs:
                   per_page: 100,
                 })
                 if (!artifacts.some(artifact => artifact.name === 'ginko-docs-release' && !artifact.expired)) continue
-                const manifest = await readJson('layer/package.json', run.head_sha)
-                const changelog = await readText('CHANGELOG.md', run.head_sha)
+                let manifest
+                let changelog
+                try {
+                  manifest = await readJson('layer/package.json', run.head_sha)
+                  changelog = await readText('CHANGELOG.md', run.head_sha)
+                } catch (error) {
+                  if (error.status === 404) continue
+                  throw error
+                }
                 const tag = `v${manifest.version}`
                 if (!changelog.split('\n').some(line => line === `## ${tag}` || line.startsWith(`## ${tag} `))) continue
                 const registry = await fetch(`https://registry.npmjs.org/${manifest.name.replace('/', '%2f')}/${manifest.version}`)
