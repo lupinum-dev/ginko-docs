@@ -22,6 +22,11 @@ import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const docsApp = resolve(root, "docs");
+const workspaceManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+const rolldownVersion = workspaceManifest.devDependencies.rolldown;
+if (!/^\d+\.\d+\.\d+$/.test(rolldownVersion)) {
+  throw new Error("The workspace must pin an exact Rolldown version for certification.");
+}
 const layerManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"), "utf8"));
 const contentVersion =
   layerManifest.peerDependencies["@lupinum/ginko-content"].match(/>=([^ ]+)/)?.[1];
@@ -327,6 +332,11 @@ function copyFixture(variant, directory) {
     "minimumReleaseAge: 1440",
     "minimumReleaseAgeStrict: true",
     "minimumReleaseAgeIgnoreMissingTime: false",
+    "",
+    // Rolldown and its native bindings publish at different times. Reuse the
+    // workspace's reviewed version so fresh bindings cannot break certification.
+    "overrides:",
+    `  rolldown: ${rolldownVersion}`,
     "",
     "allowBuilds:",
     "  esbuild: true",
@@ -756,6 +766,12 @@ try {
       );
     }
     const lock = readFileSync(resolve(directory, "pnpm-lock.yaml"), "utf8");
+    const rolldownVersions = new Set(
+      [...lock.matchAll(/\brolldown@([^:'()\s]+)[(:]/g)].map((match) => match[1]),
+    );
+    if (rolldownVersions.size !== 1 || !rolldownVersions.has(rolldownVersion)) {
+      throw new Error(`${variant.name} must resolve only workspace Rolldown ${rolldownVersion}.`);
+    }
     const installedContent = JSON.parse(
       readFileSync(resolve(directory, "node_modules/@lupinum/ginko-content/package.json"), "utf8"),
     );

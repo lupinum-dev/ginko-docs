@@ -199,30 +199,33 @@ function renderQuiz() {
 
   if (!items.length) return null;
 
-  const children: VNode[] = [renderHeader()];
+  // Keep questions mounted while showing results so their registered indexes
+  // stay stable. The existing resetKey clears their answers for another attempt.
+  const children: VNode[] = [
+    renderHeader(),
+    h(
+      "div",
+      {
+        class: "content-quiz-body",
+        style: showResults.value ? { display: "none" } : undefined,
+      },
+      items.map((node, i) =>
+        h(
+          "div",
+          {
+            key: i,
+            style: i === activeIndex.value ? undefined : { display: "none" },
+          },
+          [cloneVNode(node)],
+        ),
+      ),
+    ),
+  ];
 
   if (showResults.value) {
     children.push(h("div", { class: "content-quiz-body" }, [renderResults()]));
-  } else {
-    children.push(
-      h(
-        "div",
-        { class: "content-quiz-body" },
-        items.map((node, i) =>
-          h(
-            "div",
-            {
-              key: i,
-              style: i === activeIndex.value ? undefined : { display: "none" },
-            },
-            [cloneVNode(node)],
-          ),
-        ),
-      ),
-    );
-    if (state.totalQuestions > 1) {
-      children.push(renderFooter());
-    }
+  } else if (state.totalQuestions > 1) {
+    children.push(renderFooter());
   }
 
   return h(

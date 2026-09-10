@@ -126,6 +126,11 @@ Lupinum OSS shared asset; update it from that source, including its review evide
 
 The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` does so directly. Review this override after 2026-09-01. Remove it when the resolved dependency graph remains secure without it.
 
+Packed fixtures use the exact Rolldown version from the root manifest. This keeps
+Rolldown and its native bindings on the reviewed workspace version when their
+registry publication times differ. Update that pin with normal dependency updates;
+the fixtures keep the same 24-hour quarantine and check the installed version.
+
 ## Release preparation
 
 1. Choose the version.

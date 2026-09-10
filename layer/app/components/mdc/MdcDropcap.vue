@@ -32,7 +32,7 @@ const dropcapStyle = computed(
   <div
     :class="
       cn(
-        'mdc-dropcap content-prose content-prose-trim not-prose my-6 text-pretty [&>p]:text-muted-foreground',
+        'mdc-dropcap content-prose content-prose-trim not-prose my-6 flow-root text-pretty [&>p]:text-muted-foreground',
         '[&>p:not(:first-of-type)]:mt-4',
         '[&>p:first-of-type]:flow-root',
         props.class,
@@ -49,6 +49,8 @@ const dropcapStyle = computed(
   --mdc-dropcap-lines: 2;
 }
 
+/* A single Markdown paragraph can arrive as text without a paragraph element. */
+.mdc-dropcap:not(:has(p))::first-letter,
 .mdc-dropcap :deep(p:first-of-type)::first-letter {
   font-weight: 600;
   color: var(--foreground);
@@ -57,6 +59,7 @@ const dropcapStyle = computed(
 
 /* CSS Inline Layout 3: typographic alignment vs float hacks (Chrome 110+, Safari + webkit prefix). */
 @supports (-webkit-initial-letter: 2) or (initial-letter: 1 1) {
+  .mdc-dropcap:not(:has(p))::first-letter,
   .mdc-dropcap :deep(p:first-of-type)::first-letter {
     -webkit-initial-letter: var(--mdc-dropcap-lines);
     initial-letter: var(--mdc-dropcap-lines);
@@ -65,6 +68,7 @@ const dropcapStyle = computed(
 
 /* Firefox and legacy: float plus glyph height approximates N line boxes (`lh` ties to paragraph leading). */
 @supports (not ((-webkit-initial-letter: 2) or (initial-letter: 1 1))) {
+  .mdc-dropcap:not(:has(p))::first-letter,
   .mdc-dropcap :deep(p:first-of-type)::first-letter {
     float: left;
     line-height: 1;
@@ -74,6 +78,7 @@ const dropcapStyle = computed(
   }
 
   @supports (font-size: 1lh) {
+    .mdc-dropcap:not(:has(p))::first-letter,
     .mdc-dropcap :deep(p:first-of-type)::first-letter {
       font-size: calc(var(--mdc-dropcap-lines) * 1lh);
       margin-top: 0.05em;

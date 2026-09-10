@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseMarkdown } from "comark";
 import { describe, expect, it } from "vite-plus/test";
+import { contentComponentPolicy, contentComponentTags } from "../layer/tags";
 
 // Comark hoists unmatched component fence closers (`::`, `:::`, …) into the
 // rendered output as literal text. Parse every content document and fail on
@@ -81,6 +82,38 @@ function authoredComponentOpenings(source: string): ComponentOpening[] {
 }
 
 describe("content fence integrity", () => {
+  it("documents and renders every public component in both author references", async () => {
+    for (const file of [
+      "en/1.docs/8.components/1.mdc-components.md",
+      "de/1.dokumentation/8.komponenten/1.mdc-komponenten.md",
+    ]) {
+      const source = readFileSync(join(contentRoot, file), "utf8");
+      const ast = await parseMarkdown(source);
+      const sections = source.split(/^## /m).slice(1);
+
+      for (const tag of Object.keys(contentComponentTags)) {
+        expect(
+          (ast.nodes as ComarkNode[]).some((node) => containsTag(node, tag)),
+          `${file} must include a live ${tag} example`,
+        ).toBe(true);
+        const section = sections.find((part) =>
+          new RegExp(`\\b${tag}\\b`).test(part.split("\n")[0]!),
+        );
+        expect(section, `${file} must explain ${tag}`).toBeDefined();
+
+        const policy = Object.entries(contentComponentPolicy.components).find(
+          ([name]) => name === tag,
+        )?.[1];
+        for (const prop of Object.keys(policy?.props ?? {})) {
+          expect(
+            section?.includes(`\`${prop}\``) || section?.includes(`\`${tag}.${prop}\``),
+            `${file} must document ${tag}.${prop} in its component section`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
   it("renders no unmatched component fences in any content document", async () => {
     const files = markdownFiles(contentRoot);
     expect(files.length).toBeGreaterThan(0);
