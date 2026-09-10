@@ -147,6 +147,7 @@ assert(
     verifyJobSource.includes("listWorkflowRuns") &&
     verifyJobSource.includes("listWorkflowRunArtifacts") &&
     verifyJobSource.includes("!artifact.expired") &&
+    verifyJobSource.includes("if (error.status === 404) continue") &&
     verifyJobSource.includes("incomplete.length > 1") &&
     verifyJobSource.includes("node scripts/verify-npm-recovery.mjs --resolve-source") &&
     verifyJobSource.includes("steps.certified.outputs.source-sha") &&
