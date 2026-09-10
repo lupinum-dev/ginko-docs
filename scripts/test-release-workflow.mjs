@@ -7,6 +7,10 @@ const root = resolve(import.meta.dirname, "..");
 const publishSource = readFileSync(resolve(root, ".github/workflows/publish.yml"), "utf8");
 const ciSource = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
 const recoverySource = readFileSync(resolve(root, "scripts/verify-npm-recovery.mjs"), "utf8");
+const certificationSource = readFileSync(
+  resolve(root, "scripts/certify-packed-fixtures.mjs"),
+  "utf8",
+);
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const lockSource = readFileSync(resolve(root, "pnpm-lock.yaml"), "utf8");
 const sigstoreManifest = JSON.parse(
@@ -33,6 +37,16 @@ const publishJobSource =
   /^  publish:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
 const verifyJobSource =
   /^  verify:\n([\s\S]*?)(?=^  [a-z][a-z-]*:\n)/m.exec(publishSource)?.[1] ?? "";
+const variantSource = /const variants = \[([\s\S]*?)\n\];/.exec(certificationSource)?.[1] ?? "";
+const certifiedLanes = [...variantSource.matchAll(/name: "([^"]+)"/g)]
+  .map((match) => match[1])
+  .sort()
+  .join(",");
+assert(certifiedLanes.length > 0, "Packed certification must define at least one release lane.");
+assert(
+  verifyJobSource.includes(`lanes!=='${certifiedLanes}'`),
+  "Publishing must require every packed-consumer certification lane.",
+);
 assert(
   verifyJobSource.includes("ref: ${{ github.sha }}") &&
     !verifyJobSource.includes("ref: ${{ steps.source.outputs.source-sha }}") &&

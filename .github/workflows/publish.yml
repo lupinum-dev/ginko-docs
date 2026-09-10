@@ -249,7 +249,7 @@ jobs:
           const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join('.release',tarball))).digest('hex');
           const lanes=[...(c.lanes||[])].sort().join(',');
           const contentVersion=p.peerDependencies['@lupinum/ginko-content'].match(/>=([^ ]+)/)?.[1];
-          if(m.packageName!=='@lupinum/ginko-docs'||m.packageVersion!==process.env.RELEASE_VERSION||m.commit!==process.env.SOURCE_SHA||!m.sourceClean||m.tarball!==tarball||m.sha256!==digest||c.packageName!==m.packageName||c.packageVersion!==m.packageVersion||c.commit!==m.commit||c.tarball!==tarball||c.sha256!==digest||c.contentVersion!==contentVersion||c.contentSource!=='registry'||!c.releaseEvidence||lanes!=='i18n-dropdown,i18n-list,single-tabs')throw new Error('Artifact failed exact-SHA release validation')"
+          if(m.packageName!=='@lupinum/ginko-docs'||m.packageVersion!==process.env.RELEASE_VERSION||m.commit!==process.env.SOURCE_SHA||!m.sourceClean||m.tarball!==tarball||m.sha256!==digest||c.packageName!==m.packageName||c.packageVersion!==m.packageVersion||c.commit!==m.commit||c.tarball!==tarball||c.sha256!==digest||c.contentVersion!==contentVersion||c.contentSource!=='registry'||!c.releaseEvidence||lanes!=='german-only-tabs,i18n-dropdown,i18n-list,single-tabs')throw new Error('Artifact failed exact-SHA release validation')"
 
       - name: Verify registry recovery state
         env:
