@@ -34,6 +34,9 @@
     "content-collections.ts",
     "content.js",
     "content.ts",
+    "authoring.generated.ts",
+    "authoring.ts",
+    "component-kit.ts",
     "components.ts",
     "icon-bundle.ts",
     "index.d.ts",
@@ -50,6 +53,8 @@
       "import": "./content.js",
       "default": "./content.js"
     },
+    "./authoring": "./authoring.ts",
+    "./component-kit": "./component-kit.ts",
     "./app-config": "./shared/types/app-config.ts",
     "./components": "./components.ts",
     "./nuxt-config": "./shared/types/nuxt-config.ts"

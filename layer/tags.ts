@@ -1,4 +1,4 @@
-import type { PortableComponentPolicyV1 } from "@lupinum/ginko-content/cms-contract";
+import type { PortableComponentPolicyV2 } from "@lupinum/ginko-content/cms-contract";
 
 export const contentComponentTags = {
   accordion: "MdcAccordion",
@@ -36,20 +36,41 @@ export const contentComponentTags = {
   warning: "MdcWarning",
 } as const;
 
-type ComponentDefinition = PortableComponentPolicyV1["components"][string];
+type ComponentDefinition = PortableComponentPolicyV2["components"][string];
 type ComponentProps = ComponentDefinition["props"];
 
-const optional = (type: ComponentProps[string]["type"]) => ({ type, required: false });
-const required = (type: ComponentProps[string]["type"]) => ({ type, required: true });
+const valueTypes = (type: "string" | "number" | "boolean" | "json" | "asset") =>
+  type === "json" ? (["string", "number", "boolean", "json"] as const) : ([type] as const);
+const optional = (type: "string" | "number" | "boolean" | "json" | "asset") => ({
+  types: valueTypes(type),
+  required: false,
+  allowedValues: null,
+});
+const required = (type: "string" | "number" | "boolean" | "json" | "asset") => ({
+  types: valueTypes(type),
+  required: true,
+  allowedValues: null,
+});
+const choice = <const Values extends readonly [string, ...string[]]>(...allowedValues: Values) => ({
+  types: ["string"] as const,
+  required: false,
+  allowedValues: [...allowedValues],
+});
 const block = (
   props: ComponentProps = {},
   slots: string[] = ["default"],
   media: ComponentDefinition["media"] = null,
-): ComponentDefinition => ({ kind: "block", props, slots, media });
+  nesting: Pick<ComponentDefinition, "allowedParents" | "allowedChildren"> = {
+    allowedParents: null,
+    allowedChildren: null,
+  },
+): ComponentDefinition => ({ kind: "block", props, slots, media, ...nesting });
 const inline = (props: ComponentProps = {}): ComponentDefinition => ({
   kind: "inline",
   props,
   slots: ["default"],
+  allowedParents: null,
+  allowedChildren: null,
   media: null,
 });
 
@@ -111,7 +132,10 @@ export const contentComponentPolicy = {
       expandAll: optional("boolean"),
     }),
     collapse: block(appearance),
-    column: block({ size: optional("string") }),
+    column: block({ size: choice("sm", "md", "lg") }, ["default"], null, {
+      allowedParents: ["layout"],
+      allowedChildren: null,
+    }),
     dropcap: block({ lines: optional("json") }),
     error: notice,
     excerpt: block({ label: optional("string"), source: optional("string"), ...appearance }),
@@ -133,9 +157,18 @@ export const contentComponentPolicy = {
     ),
     files: block({ active: optional("string"), annotations: optional("json"), ...appearance }),
     idea: notice,
-    info: notice,
+    info: block({
+      title: optional("string"),
+      icon: optional("string"),
+      appearance: choice("quiet", "tint"),
+    }),
     kbd: inline(),
-    layout: block({ type: optional("string") }),
+    layout: block(
+      { type: choice("default", "card", "border", "border-dashed", "outline", "outline-dashed") },
+      ["default"],
+      null,
+      { allowedParents: null, allowedChildren: ["column"] },
+    ),
     note: notice,
     quiz: block({
       ...appearance,
@@ -184,7 +217,8 @@ export const contentComponentPolicy = {
     ),
     warning: notice,
   },
-} satisfies PortableComponentPolicyV1;
+  version: 2,
+} satisfies PortableComponentPolicyV2;
 
 export const contentComponentNames = Array.from(new Set(Object.values(contentComponentTags)));
 

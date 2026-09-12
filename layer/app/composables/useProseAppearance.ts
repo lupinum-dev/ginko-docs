@@ -17,8 +17,8 @@ export function useProseAppearance(
   return computed<GinkoDocsProseAppearance>(
     () =>
       normalizeAppearance(toValue(appearance)) ??
-      normalizeAppearance(config.prose?.components?.[family]) ??
-      normalizeAppearance(config.prose?.appearance) ??
+      normalizeAppearance(config?.prose?.components?.[family]) ??
+      normalizeAppearance(config?.prose?.appearance) ??
       DEFAULT_APPEARANCE,
   );
 }
