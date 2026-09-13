@@ -32,14 +32,14 @@ Ginko Docs is not suitable for a general website builder or a visual page editor
 - Node.js 22.18, 24.11, or 26 and later maintenance releases
 - Nuxt 4.5.1 or later in the Nuxt 4 line
 - Vue 3.5.40 or later
-- Ginko Content 0.4 prerelease or later in the 0.4 line
+- Ginko Content 1.0.0-beta.9 or later in the 1.x line
 
 ## Installation
 
 Install the layer and its content peer:
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.4.0-rc.10 @lupinum/ginko-content@1.0.0-beta.7
+pnpm add -D @lupinum/ginko-docs@0.4.0-rc.10 @lupinum/ginko-content@1.0.0-beta.9
 ```
 
 Extend the layer:
@@ -51,6 +51,27 @@ export default defineNuxtConfig({
   i18n: { baseUrl: "https://docs.example.com" },
 });
 ```
+
+<!-- BEGIN:consumer-onboarding -->
+
+## Use a coding agent
+
+Copy this task prompt into your application agent:
+
+```text
+Use the installed @lupinum/ginko-docs package to implement my requested feature.
+Read the application's instructions first. Resolve @lupinum/ginko-docs/agent-docs
+from this application directory and read the relevant local pages.
+Preserve the existing AGENTS.md. If it has no equivalent guidance, append
+one short note to resolve installed package docs before integration work
+and after dependency changes. Do not install a consumer skill.
+Check the completed feature using this project's normal commands.
+```
+
+The installed documentation matches the package version. If an older version
+has no documentation export, use its README, types and matching release docs.
+
+<!-- END:consumer-onboarding -->
 
 ## Quick start
 

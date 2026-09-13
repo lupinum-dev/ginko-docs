@@ -1,11 +1,38 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createServer } from "node:net";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
+import { verifyPackageAgentDocs } from "./package-agent-docs.mjs";
 
 const root = resolve(import.meta.dirname, "..");
+const workspaceManifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+const docsManifest = JSON.parse(readFileSync(resolve(root, "docs/package.json"), "utf8"));
+const layerManifest = JSON.parse(readFileSync(resolve(root, "layer/package.json"), "utf8"));
+const contentVersion =
+  layerManifest.peerDependencies["@lupinum/ginko-content"].match(/>=([^ ]+)/)?.[1];
+const rolldownVersion = workspaceManifest.devDependencies.rolldown;
+if (!contentVersion || !/^\d+\.\d+\.\d+$/.test(rolldownVersion)) {
+  throw new Error(
+    "Certification requires a minimum Content peer and exact reviewed Rolldown version.",
+  );
+}
+const contentArchive = process.env.GINKO_CONTENT_TARBALL
+  ? resolve(process.env.GINKO_CONTENT_TARBALL)
+  : null;
+if (contentArchive && !existsSync(contentArchive))
+  throw new Error(`Configured Content tarball does not exist: ${contentArchive}`);
 const archive = readdirSync(resolve(root, "layer/.pack"))
   .filter((name) => name.endsWith(".tgz"))
   .map((name) => resolve(root, "layer/.pack", name));
@@ -43,15 +70,29 @@ try {
     JSON.stringify({
       private: true,
       type: "module",
-      packageManager: "pnpm@11.21.0",
+      packageManager: workspaceManifest.packageManager,
       dependencies: {
-        "@lupinum/ginko-content": "1.0.0-beta.7",
+        "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
         "@lupinum/ginko-docs": `file:${archive[0]}`,
-        nuxt: "4.5.2",
-        vue: "3.5.42",
+        nuxt: docsManifest.dependencies.nuxt,
+        vue: docsManifest.dependencies.vue,
       },
     }),
   );
+  const workspacePolicy = [
+    "minimumReleaseAge: 1440",
+    "minimumReleaseAgeStrict: true",
+    "minimumReleaseAgeIgnoreMissingTime: false",
+    "overrides:",
+    `  rolldown: ${rolldownVersion}`,
+    "allowBuilds:",
+    "  esbuild: true",
+    "  vue-demi: true",
+    "",
+  ].join("\n");
+  const policyFailures = checkDependencyPolicy(workspacePolicy);
+  if (policyFailures.length) throw new Error(policyFailures.join("\n"));
+  write(resolve(fixture, "pnpm-workspace.yaml"), workspacePolicy);
   write(
     resolve(fixture, "nuxt.config.ts"),
     'export default defineNuxtConfig({ modules: ["@lupinum/ginko-docs/component-kit"] })\n',
@@ -69,6 +110,10 @@ try {
     '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
   );
   run("pnpm", ["install", "--ignore-scripts"], fixture);
+  const entry = createRequire(resolve(fixture, "package.json")).resolve(
+    "@lupinum/ginko-docs/agent-docs",
+  );
+  await verifyPackageAgentDocs(resolve(dirname(entry), "../.."));
   run("pnpm", ["exec", "nuxt", "build"], fixture);
 
   const publicAssets = resolve(fixture, ".output/public/_nuxt");

@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
 import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
+import { verifyPackageAgentDocs } from "./package-agent-docs.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const docsApp = resolve(root, "docs");
@@ -731,6 +732,10 @@ try {
     const directory = resolve(temporaryRoot, variant.name);
     copyFixture(variant, directory);
     run("vp", ["install"], directory);
+    const entry = createRequire(resolve(directory, "package.json")).resolve(
+      "@lupinum/ginko-docs/agent-docs",
+    );
+    await verifyPackageAgentDocs(resolve(dirname(entry), "../.."));
     run("vp", ["exec", "nuxi", "typecheck"], directory);
     runWithoutNuxtDiagnostics("vp", ["exec", "nuxt", "build"], directory);
     if (variant.singleLocale) {

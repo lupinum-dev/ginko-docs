@@ -8,7 +8,7 @@
     "build": "vp run build:content-entry && vp run build:authoring",
     "docs:build": "vp run ginko-docs-site#build",
     "audit:all": "pnpm audit",
-    "check": "node scripts/generate-authoring-metadata.mjs --check && vp check && vp run lint:vue-template && vp run typecheck",
+    "check": "node scripts/sync-consumer-onboarding.mjs && node scripts/generate-authoring-metadata.mjs --check && vp check && vp run lint:vue-template && vp run typecheck",
     "check:release-workflow": "node scripts/test-release-workflow.mjs && node scripts/test-release-plan.mjs && node scripts/test-release-recovery.mjs && node scripts/test-npm-recovery.mjs",
     "dev": "vp run ginko-docs-site#dev",
     "lint:vue-template": "eslint --max-warnings=0 \"layer/**/*.vue\"",
@@ -20,14 +20,16 @@
     "test": "vp test",
     "typecheck": "vp run ginko-docs-site#typecheck",
     "check:vercel": "node scripts/check-vercel-config.mjs",
-    "verify": "pnpm check:dependencies && pnpm audit:all && pnpm check:vercel && pnpm check:release-workflow && vp run check && vp test && pnpm docs:build",
+    "verify": "pnpm check:dependencies && pnpm audit:all && pnpm check:vercel && pnpm check:release-workflow && vp run check && vp test && pnpm docs:build && pnpm docs:package",
     "postinstall": "vp run ginko-docs-site#prepare",
-    "check:dependencies": "node scripts/check-dependency-policy.mjs"
+    "check:dependencies": "node scripts/check-dependency-policy.mjs",
+    "docs:package": "node scripts/build-agent-docs.mjs",
+    "docs:onboarding": "node scripts/sync-consumer-onboarding.mjs --write"
   },
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.123",
-    "@lupinum/ginko-content": "1.0.0-beta.7",
+    "@lupinum/ginko-content": "1.0.0-beta.9",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/icon": "^2.5.0",
     "@types/node": "^25.9.5",

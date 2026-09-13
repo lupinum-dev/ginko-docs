@@ -156,8 +156,8 @@
   line-height: inherit;
 }
 
-p.content-aside-label,
-p.content-excerpt-label {
+.content-aside p.content-aside-label,
+.content-excerpt p.content-excerpt-label {
   display: flex;
   align-items: center;
   gap: 0.4rem;
