@@ -1290,8 +1290,6 @@ html[data-code-blocks="dark"] .content-codeblock.shiki span {
 /* The p-based selectors match the specificity of `.content-prose p`
    (0,1,1) so the eyebrow scale survives inside prose containers. */
 .content-eyebrow,
-p.content-aside-label,
-p.content-excerpt-label,
 p.content-read-more-title {
   display: flex;
   align-items: center;
@@ -1308,8 +1306,7 @@ p.content-read-more-title {
 .content-meta,
 .content-timeline-date,
 .content-files-annotation,
-.content-quiz-progress,
-.content-excerpt-source {
+.content-quiz-progress {
   color: var(--muted-foreground);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -1331,74 +1328,6 @@ p.content-read-more-title {
 /* --- Callout (voice) -------------------------------------------------------
    Both appearances keep the canonical 2px semantic rail. Quiet changes only
    the surface treatment, so intent remains visible without a tinted fill. */
-
-/* --- Aside + excerpt (voice) --- */
-
-.content-aside,
-.content-excerpt {
-  position: relative;
-  margin-block: 1.25rem;
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  line-height: 1.625;
-}
-
-.content-aside[data-appearance="quiet"],
-.content-excerpt[data-appearance="quiet"] {
-  border: 1px solid var(--border);
-  background-color: var(--card);
-  box-shadow: var(--shadow-xs);
-  padding: 0.75rem 1rem;
-}
-
-.content-aside[data-appearance="tint"],
-.content-excerpt[data-appearance="tint"] {
-  background-color: var(--secondary);
-  padding: 0.75rem 1rem 0.75rem 1.15rem;
-}
-
-/* The voice rail: an inset 2px bar, muted for asides, accent for excerpts. */
-.content-aside[data-appearance="tint"]::before,
-.content-excerpt[data-appearance="tint"]::before {
-  content: "";
-  position: absolute;
-  inset-block: 0.75rem;
-  inset-inline-start: 0.45rem;
-  width: 2px;
-  border-radius: 999px;
-  background-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
-}
-
-.content-excerpt[data-appearance="tint"]::before {
-  background-color: color-mix(in oklab, var(--info) 70%, transparent);
-}
-
-.content-excerpt .content-excerpt-label {
-  color: var(--info);
-}
-
-.content-aside-body,
-.content-excerpt-body {
-  color: var(--muted-foreground);
-}
-
-.content-excerpt-body {
-  margin: 0;
-  border: 0;
-  padding: 0;
-  font-size: 0.875rem;
-  font-style: normal;
-  line-height: 1.625;
-}
-
-.content-excerpt-source {
-  display: block;
-  margin: 0.5rem 0 0;
-}
-
-.content-excerpt-source::before {
-  content: "— ";
-}
 
 /* --- Cards (object) --- */
 

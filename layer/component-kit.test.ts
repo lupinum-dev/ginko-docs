@@ -1,3 +1,4 @@
+import { ginkoDocsAuthoringKitSource } from "./authoring";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const registrations: Array<Record<string, unknown>> = [];
@@ -17,12 +18,14 @@ describe("component-only module", () => {
     const nuxt = { options: { css: [] as string[] } };
     module.setup({}, nuxt);
 
-    expect(registrations.map(({ name }) => name)).toEqual([
-      "MdcColumn",
-      "MdcInfo",
-      "MdcLayout",
-      "MdcCallout",
-    ]);
+    expect(registrations.map(({ name }) => name).sort()).toEqual(
+      [
+        ...Object.values(ginkoDocsAuthoringKitSource.implementation).map(
+          ({ componentName }) => componentName,
+        ),
+        "MdcCallout",
+      ].sort(),
+    );
     expect(nuxt.options).toEqual({ css: ["/package/app/assets/css/component-kit.css"] });
     expect(Object.keys(nuxt.options)).toEqual(["css"]);
   });

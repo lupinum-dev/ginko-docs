@@ -1,16 +1,14 @@
 import { addComponent, createResolver, defineNuxtModule } from "@nuxt/kit";
-import { contentComponentTags } from "./tags";
-
-const authoredTags = ["column", "info", "layout"] as const;
+import { ginkoDocsAuthoringKitSource } from "./authoring";
 
 export default defineNuxtModule({
   meta: { name: "@lupinum/ginko-docs/component-kit" },
   setup(_options, nuxt) {
     const resolver = createResolver(import.meta.url);
-    for (const tag of authoredTags) {
+    for (const { componentName } of Object.values(ginkoDocsAuthoringKitSource.implementation)) {
       addComponent({
-        name: contentComponentTags[tag],
-        filePath: resolver.resolve(`./app/components/mdc/${contentComponentTags[tag]}.vue`),
+        name: componentName,
+        filePath: resolver.resolve(`./app/components/mdc/${componentName}.vue`),
         global: true,
       });
     }

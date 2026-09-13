@@ -8,6 +8,13 @@ import ts from "typescript";
 const root = resolve(import.meta.dirname, "..");
 const outputPath = resolve(root, "layer/authoring.generated.ts");
 const components = {
+  MdcAside: "MdcAside.vue",
+  MdcError: "MdcError.vue",
+  MdcExcerpt: "MdcExcerpt.vue",
+  MdcIdea: "MdcIdea.vue",
+  MdcNote: "MdcNote.vue",
+  MdcSuccess: "MdcSuccess.vue",
+  MdcWarning: "MdcWarning.vue",
   MdcColumn: "MdcColumn.vue",
   MdcInfo: "MdcInfo.vue",
   MdcLayout: "MdcLayout.vue",

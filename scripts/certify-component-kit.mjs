@@ -66,7 +66,7 @@ try {
   );
   write(
     resolve(fixture, "app/pages/index.vue"),
-    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
+    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
   );
   run("pnpm", ["install", "--ignore-scripts"], fixture);
   run("pnpm", ["exec", "nuxt", "build"], fixture);
@@ -76,7 +76,12 @@ try {
     .filter((name) => name.endsWith(".css"))
     .map((name) => readFileSync(resolve(publicAssets, name), "utf8"))
     .join("\n");
-  if (!css.includes(".content-layout-row") || !css.includes(".content-callout")) {
+  if (
+    !css.includes(".content-layout-row") ||
+    !css.includes(".content-callout") ||
+    !css.includes(".content-aside") ||
+    !css.includes(".content-excerpt")
+  ) {
     throw new Error("The component-only production build dropped its styles.");
   }
   if (css.includes("Public Sans"))
@@ -100,12 +105,22 @@ try {
   if (!home?.ok) throw new Error("The component-only fixture did not start.");
   const html = await home.text();
   for (const text of [
+    'data-authoring-tags="aside,column,error,excerpt,idea,info,layout,note,success,warning"',
     "Real Docs info",
     "First",
     "Second",
     "Host renderer",
     "Named tip",
-    'data-authoring-tags="column,info,layout"',
+    "Note title",
+    "Warning title",
+    "Error title",
+    "Success title",
+    "Idea title",
+    "Aside title",
+    "Excerpt title",
+    "Source name",
+    'class="content-excerpt',
+    'class="content-aside',
   ]) {
     if (!html.includes(text)) throw new Error(`Rendered fixture is missing "${text}".`);
   }
