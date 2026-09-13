@@ -46,7 +46,7 @@ export default defineNuxtConfig({
 
 Copy this task prompt into your application agent:
 
-```text
+```text [Agent task]
 Use the installed @lupinum/ginko-docs package to implement my requested feature.
 Read the application's instructions first. Resolve @lupinum/ginko-docs/agent-docs
 from this application directory and read the relevant local pages.
