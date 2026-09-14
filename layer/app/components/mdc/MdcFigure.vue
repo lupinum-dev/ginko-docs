@@ -18,6 +18,9 @@ const props = withDefaults(
     bleed?: boolean | string;
     aspect?: "auto" | "video" | "wide" | "square" | "portrait";
     fit?: "cover" | "contain";
+    placement?: "inline" | "start" | "end";
+    frame?: "default" | "none";
+    focus?: "center" | "top" | "bottom" | "left" | "right";
     zoom?: boolean | string;
     class?: HTMLAttributes["class"];
     appearance?: "quiet" | "tint";
@@ -60,8 +63,11 @@ const imageClass = computed(() =>
     :class="cn('content-media not-prose', props.class)"
     :data-bleed="shouldBleed ? 'true' : undefined"
     :data-appearance="appearance"
+    :data-placement="placement ?? 'inline'"
+    :data-frame="frame ?? 'default'"
+    :data-focus="focus ?? 'center'"
   >
-    <template v-if="src">
+    <div v-if="src" class="content-media-visual">
       <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">
         <template #trigger="{ layoutId, transition }">
           <button
@@ -76,7 +82,7 @@ const imageClass = computed(() =>
         </template>
       </ImageZoomDialog>
       <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
-    </template>
+    </div>
     <slot />
     <figcaption v-if="caption || alt">
       {{ caption || alt }}

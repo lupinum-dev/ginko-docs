@@ -6,6 +6,7 @@ import { cn } from "../../utils";
 const props = defineProps<{
   label?: string;
   source?: string;
+  size?: "body" | "display";
   appearance?: "quiet" | "tint";
   class?: HTMLAttributes["class"];
 }>();
@@ -14,7 +15,11 @@ const appearance = useProseAppearance("excerpt", () => props.appearance);
 </script>
 
 <template>
-  <figure :class="cn('content-excerpt not-prose', props.class)" :data-appearance="appearance">
+  <figure
+    :class="cn('content-excerpt not-prose', props.class)"
+    :data-appearance="appearance"
+    :data-size="size ?? 'body'"
+  >
     <p v-if="label" class="content-excerpt-label">
       {{ label }}
     </p>

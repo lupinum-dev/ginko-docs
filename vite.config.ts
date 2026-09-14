@@ -8,6 +8,7 @@ export default defineConfig({
       "docs/content/**/*.md",
       // Preserve the reviewed Lupinum OSS shared asset byte-for-byte.
       "scripts/check-dependency-policy.mjs",
+      "scripts/package-agent-docs.mjs",
     ],
   },
   test: {

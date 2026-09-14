@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.4.0-rc.11
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.10...v0.4.0-rc.11)
+
+### Features
+
+- Add editorial reading flows, wrapped and wide figures, display excerpts, and
+  six bilingual magazine compositions.
+- Make layouts stack at their available container width, with vertical alignment,
+  weighted columns, controlled gaps, themed surfaces, and caption-safe image fitting.
+- Use angle component tags throughout documentation, copyable examples, and editor
+  recipes. Existing colon-authored content remains supported by Ginko Content.
+- Export component authoring metadata, inline editing recipes, and paired layouts.
+- Provide a component-only Nuxt module with scoped styles. The application owns
+  its icons and custom renderers.
+- Ship versioned local documentation through `./agent-docs` and a copyable prompt
+  that preserves project instructions.
+
+### Fixes
+
+- Preserve aside and excerpt label typography in the full documentation layer.
+- Apply the dependency quarantine to the isolated component-kit consumer.
+
+### Requirements
+
+This release requires Ginko Content 1.0.0-beta.9 or later in the 1.x line. The V2
+component policy supplies typed unions, allowed values, and nesting constraints.
+Install both packages together. Existing project instructions remain authoritative.
+
 ## v0.4.0-rc.10
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.9...v0.4.0-rc.10)

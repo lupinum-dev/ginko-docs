@@ -1,13 +1,10 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { parseMarkdown } from "comark";
+import { parseMdcDocument } from "@lupinum/ginko-content/cms-contract";
 import { describe, expect, it } from "vite-plus/test";
 import { contentComponentPolicy, contentComponentTags } from "../layer/tags";
 
-// Comark hoists unmatched component fence closers (`::`, `:::`, …) into the
-// rendered output as literal text. Parse every content document and fail on
-// any text node that is nothing but colons, so fence mismatches break CI
-// instead of shipping as visible "::" artifacts on the page.
+// Use the same Comark integration as production, including angle components.
 
 const contentRoot = join(process.cwd(), "docs/content");
 
@@ -55,40 +52,29 @@ function componentContainsTag(node: ComarkNode, component: string, tag: string):
 
 type ComponentOpening = { appearance?: string; tag: string };
 
-function authoredComponentOpenings(source: string): ComponentOpening[] {
-  const openings: ComponentOpening[] = [];
-  let closingFence: string | undefined;
-
-  for (const line of source.split("\n")) {
-    const trimmed = line.trim();
-    if (closingFence) {
-      if (trimmed === closingFence) closingFence = undefined;
-      continue;
-    }
-
-    const codeFence = trimmed.match(/^(`{3,}|~{3,})/);
-    if (codeFence) {
-      closingFence = codeFence[1];
-      continue;
-    }
-
-    const component = trimmed.match(/^:{2,}([a-z][a-z0-9-]*)(?:\{([^}]*)\})?$/i);
-    if (!component?.[1]) continue;
-    const appearance = component[2]?.match(/\bappearance="(quiet|tint)"/)?.[1];
-    openings.push({ tag: component[1], ...(appearance && { appearance }) });
+async function authoredComponentOpenings(source: string): Promise<ComponentOpening[]> {
+  const document = await parseMdcDocument(source, { autoClose: false });
+  function walk(nodes: ComarkNode[]): ComponentOpening[] {
+    return nodes.flatMap((node) => {
+      if (typeof node === "string") return [];
+      const [tag, props, ...children] = node;
+      const own = props.$
+        ? [{ tag, ...(typeof props.appearance === "string" && { appearance: props.appearance }) }]
+        : [];
+      return [...own, ...walk(children)];
+    });
   }
-
-  return openings;
+  return walk(document.nodes as ComarkNode[]);
 }
 
-describe("content fence integrity", () => {
+describe("content component integrity", () => {
   it("documents and renders every public component in both author references", async () => {
     for (const file of [
       "en/1.docs/8.components/1.mdc-components.md",
       "de/1.dokumentation/8.komponenten/1.mdc-komponenten.md",
     ]) {
       const source = readFileSync(join(contentRoot, file), "utf8");
-      const ast = await parseMarkdown(source);
+      const ast = await parseMdcDocument(source);
       const sections = source.split(/^## /m).slice(1);
 
       for (const tag of Object.keys(contentComponentTags)) {
@@ -120,7 +106,7 @@ describe("content fence integrity", () => {
 
     const leaks: string[] = [];
     for (const file of files) {
-      const ast = await parseMarkdown(readFileSync(file, "utf8"));
+      const ast = await parseMdcDocument(readFileSync(file, "utf8"));
       for (const leak of fenceLeaks(ast.nodes as ComarkNode[])) {
         leaks.push(`${relative(contentRoot, file)}: ${JSON.stringify(leak)}`);
       }
@@ -129,10 +115,10 @@ describe("content fence integrity", () => {
     expect(leaks).toEqual([]);
   });
 
-  it("authors API data as typed component YAML instead of a code-fence slot", async () => {
+  it("authors API data as typed JSON props instead of a code-fence slot", async () => {
     const issues: string[] = [];
     for (const file of markdownFiles(contentRoot)) {
-      const ast = await parseMarkdown(readFileSync(file, "utf8"));
+      const ast = await parseMdcDocument(readFileSync(file, "utf8"));
       for (const issue of apiDataIssues(ast.nodes as ComarkNode[])) {
         issues.push(`${relative(contentRoot, file)}: ${issue}`);
       }
@@ -141,7 +127,7 @@ describe("content fence integrity", () => {
     expect(issues).toEqual([]);
   });
 
-  it("keeps the bilingual component laboratory structurally equivalent", () => {
+  it("keeps the bilingual component laboratory structurally equivalent", async () => {
     const english = readFileSync(
       join(contentRoot, "en/1.docs/8.components/3.component-showcase.md"),
       "utf8",
@@ -151,7 +137,9 @@ describe("content fence integrity", () => {
       "utf8",
     );
 
-    expect(authoredComponentOpenings(german)).toEqual(authoredComponentOpenings(english));
+    expect(await authoredComponentOpenings(german)).toEqual(
+      await authoredComponentOpenings(english),
+    );
   });
 
   it("keeps Markdown images inside heading-based steps", async () => {
@@ -159,7 +147,7 @@ describe("content fence integrity", () => {
       "en/1.docs/8.components/3.component-showcase.md",
       "de/1.dokumentation/8.komponenten/3.komponenten-showcase.md",
     ]) {
-      const ast = await parseMarkdown(readFileSync(join(contentRoot, file), "utf8"));
+      const ast = await parseMdcDocument(readFileSync(join(contentRoot, file), "utf8"));
       expect(
         (ast.nodes as ComarkNode[]).some((node) => componentContainsTag(node, "steps", "img")),
         `${file} must render a Markdown image inside a step`,
@@ -167,12 +155,12 @@ describe("content fence integrity", () => {
     }
   });
 
-  it("shows both appearances with controlled fixtures for every surface family", () => {
+  it("shows both appearances with controlled fixtures for every surface family", async () => {
     const showcase = readFileSync(
       join(contentRoot, "en/1.docs/8.components/3.component-showcase.md"),
       "utf8",
     );
-    const openings = authoredComponentOpenings(showcase);
+    const openings = await authoredComponentOpenings(showcase);
     const pairedFamilies = [
       "note",
       "aside",

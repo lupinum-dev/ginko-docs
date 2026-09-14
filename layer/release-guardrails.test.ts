@@ -161,7 +161,7 @@ describe("ginko docs release guardrails", () => {
     expect(manifest.main).toBe("./nuxt.config.ts");
     expect(read("layer/nuxt.config.ts")).toContain("version: packageMetadata.version");
     expect(manifest.dependencies["@lupinum/ginko-content"]).toBeUndefined();
-    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.7 <2.0.0");
+    expect(manifest.peerDependencies["@lupinum/ginko-content"]).toBe(">=1.0.0-beta.9 <2.0.0");
     expect(manifest.dependencies.zod).toBe("4.4.3");
     expect(manifest.dependencies.vue).toBeUndefined();
     expect(manifest.dependencies["vue-router"]).toBeUndefined();
@@ -297,7 +297,8 @@ describe("ginko docs release guardrails", () => {
       "step",
       "shortcut",
     ];
-    expect(Object.keys(contentComponentTags)).toHaveLength(33);
+    expect(Object.keys(contentComponentTags)).toHaveLength(34);
+    expect(contentComponentTags.flow).toBe("MdcFlow");
     expect(removed.every((tag) => !(tag in contentComponentTags))).toBe(true);
   });
 
@@ -524,6 +525,7 @@ describe("ginko docs release guardrails", () => {
           "When to use it",
           "Requirements",
           "Installation",
+          "Use a coding agent",
           "Quick start",
           "Core concepts",
           "Documentation",
@@ -538,6 +540,7 @@ describe("ginko docs release guardrails", () => {
           "Purpose",
           "Requirements",
           "Installation",
+          "Use a coding agent",
           "Quick start",
           "Exports",
           "Documentation",
