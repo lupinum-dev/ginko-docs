@@ -6,6 +6,12 @@
 
 ### Features
 
+- Add editorial reading flows, wrapped and wide figures, display excerpts, and
+  six bilingual magazine compositions.
+- Make layouts stack at their available container width, with vertical alignment,
+  weighted columns, controlled gaps, themed surfaces, and caption-safe image fitting.
+- Use angle component tags throughout documentation, copyable examples, and editor
+  recipes. Existing colon-authored content remains supported by Ginko Content.
 - Export component authoring metadata, inline editing recipes, and paired layouts.
 - Provide a component-only Nuxt module with scoped styles. The application owns
   its icons and custom renderers.

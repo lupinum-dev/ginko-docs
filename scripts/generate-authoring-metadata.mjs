@@ -9,6 +9,8 @@ const root = resolve(import.meta.dirname, "..");
 const outputPath = resolve(root, "layer/authoring.generated.ts");
 const components = {
   MdcAside: "MdcAside.vue",
+  MdcFlow: "MdcFlow.vue",
+  MdcFigure: "MdcFigure.vue",
   MdcError: "MdcError.vue",
   MdcExcerpt: "MdcExcerpt.vue",
   MdcIdea: "MdcIdea.vue",

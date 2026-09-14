@@ -26,7 +26,7 @@ describe("Docs authoring kit", () => {
 
   it("uses Content policy for literal choices and layout nesting", async () => {
     const { body } = await parseMdcBody(
-      '<layout type="border"><info appearance="invalid">Wrong child.</info></layout>',
+      '<Layout type="border"><Info appearance="invalid">Wrong child.</Info></Layout>',
       { autoClose: false },
     );
     expect(validatePublicMarkdownAst(body, ginkoDocsAuthoringKitSource.policy)).toMatchObject({
@@ -38,14 +38,38 @@ describe("Docs authoring kit", () => {
     });
   });
 
+  it("accepts editorial layouts and rejects unsupported controls", async () => {
+    const source = `<Layout align="center" gap="lg" surface="tint" stack="lg">
+<Column size="xl">
+Text.
+</Column>
+<Column size="xs" media="contain">
+Image.
+</Column>
+</Layout>`;
+    const valid = await parseMdcBody(source, { autoClose: false });
+    expect(validatePublicMarkdownAst(valid.body, ginkoDocsAuthoringKitSource.policy).ok).toBe(true);
+    const invalid = await parseMdcBody(
+      source
+        .replace('align="center"', 'align="middle"')
+        .replace('media="contain"', 'media="stretch"'),
+      { autoClose: false },
+    );
+    const result = validatePublicMarkdownAst(invalid.body, ginkoDocsAuthoringKitSource.policy);
+    expect(result.ok).toBe(false);
+    expect(result.issues.filter(({ code }) => code === "invalid_prop_value")).toHaveLength(2);
+  });
+
   it("keeps each layout preset complementary and consistent with rendered proportions", () => {
     const columns = ginkoDocsAuthoringKitSource.authoring.layout.canvas.columns;
-    const sizes = { sm: 1 / 3, md: 1 / 2, lg: 2 / 3 };
+    const sizes = { xs: 1 / 4, sm: 1 / 3, md: 1 / 2, lg: 2 / 3, xl: 3 / 4 };
     for (const preset of columns.presets) {
       expect(sizes[preset.values[0]] + sizes[preset.values[1]]).toBeCloseTo(1);
       expect(preset.ratio).toBeCloseTo(sizes[preset.values[0]]);
     }
     expect(columns.presets.map(({ values }) => values.join("/"))).toEqual([
+      "xs/xl",
+      "xl/xs",
       "sm/lg",
       "md/md",
       "lg/sm",
@@ -59,7 +83,7 @@ describe("Docs authoring kit", () => {
       const recipe = ginkoDocsAuthoringKitSource.recipes.find(
         ({ id }) => id === (tag === "info" ? "information" : tag),
       );
-      expect(recipe?.source).toContain(`<${tag} `);
+      expect(recipe?.source).toContain(`<${tag[0].toUpperCase()}${tag.slice(1)} `);
     }
     expect(ginkoDocsAuthoringKitSource.authoring.aside.canvas.titleProp).toBe("label");
     expect(ginkoDocsAuthoringKitSource.authoring.excerpt.canvas.titleProp).toBe("label");

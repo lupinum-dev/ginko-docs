@@ -297,7 +297,8 @@ describe("ginko docs release guardrails", () => {
       "step",
       "shortcut",
     ];
-    expect(Object.keys(contentComponentTags)).toHaveLength(33);
+    expect(Object.keys(contentComponentTags)).toHaveLength(34);
+    expect(contentComponentTags.flow).toBe("MdcFlow");
     expect(removed.every((tag) => !(tag in contentComponentTags))).toBe(true);
   });
 

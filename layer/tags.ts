@@ -17,6 +17,7 @@ export const contentComponentTags = {
   excerpt: "MdcExcerpt",
   figure: "MdcFigure",
   files: "MdcFiles",
+  flow: "MdcFlow",
   idea: "MdcIdea",
   img: "ProseImg",
   info: "MdcInfo",
@@ -132,13 +133,27 @@ export const contentComponentPolicy = {
       expandAll: optional("boolean"),
     }),
     collapse: block(appearance),
-    column: block({ size: choice("sm", "md", "lg") }, ["default"], null, {
-      allowedParents: ["layout"],
-      allowedChildren: null,
-    }),
+    column: block(
+      {
+        size: choice("xs", "sm", "md", "lg", "xl"),
+        align: choice("start", "center", "end"),
+        media: choice("natural", "cover", "contain"),
+      },
+      ["default"],
+      null,
+      {
+        allowedParents: ["layout"],
+        allowedChildren: null,
+      },
+    ),
     dropcap: block({ lines: optional("json") }),
     error: notice,
-    excerpt: block({ label: optional("string"), source: optional("string"), ...appearance }),
+    excerpt: block({
+      label: optional("string"),
+      source: optional("string"),
+      size: choice("body", "display"),
+      ...appearance,
+    }),
     figure: block(
       {
         ...appearance,
@@ -150,11 +165,18 @@ export const contentComponentPolicy = {
         bleed: optional("string"),
         aspect: optional("string"),
         fit: optional("string"),
+        placement: choice("inline", "start", "end"),
+        frame: choice("default", "none"),
+        focus: choice("center", "top", "bottom", "left", "right"),
         zoom: optional("json"),
       },
       ["default"],
       { sourceProp: "src", altProp: "alt", titleProp: null, filenameProp: null },
     ),
+    flow: block({
+      width: choice("reading", "wide"),
+      surface: choice("default", "muted", "tint"),
+    }),
     files: block({ active: optional("string"), annotations: optional("json"), ...appearance }),
     idea: notice,
     info: block({
@@ -164,7 +186,13 @@ export const contentComponentPolicy = {
     }),
     kbd: inline(),
     layout: block(
-      { type: choice("default", "card", "border", "border-dashed", "outline", "outline-dashed") },
+      {
+        type: choice("default", "card", "border", "border-dashed", "outline", "outline-dashed"),
+        align: choice("start", "center", "end"),
+        gap: choice("none", "sm", "md", "lg"),
+        stack: choice("sm", "md", "lg"),
+        surface: choice("default", "muted", "tint"),
+      },
       ["default"],
       null,
       { allowedParents: null, allowedChildren: ["column"] },

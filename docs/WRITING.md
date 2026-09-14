@@ -115,3 +115,7 @@ Use these files as the public contract:
 - `layer/nuxt.config.ts` for built-in modules, search, SEO, and agent behavior.
 
 When documentation and source disagree, correct the documentation or the public contract in the same change. Do not preserve both descriptions.
+
+## Component source syntax
+
+Author components with PascalCase angle tags: `<Layout>`, `<Column>`, and `<Figure />`. Use the same syntax in live content, fenced Markdown examples, and insertion recipes. Nest Markdown inside paired tags; use `<template #name>` for named slots. Quote strings and use literal JSON bindings for typed values. Ginko Content supplies the Comark parser integration; do not add a second parser. Keep existing colon-syntax compatibility tests for consumers, but do not introduce new colon-authored documentation.

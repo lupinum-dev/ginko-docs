@@ -14,6 +14,8 @@ export const ginkoDocsAuthoringKitSource = {
     column: componentImplementationByName[ginkoDocsComponentTags.column],
     info: componentImplementationByName[ginkoDocsComponentTags.info],
     layout: componentImplementationByName[ginkoDocsComponentTags.layout],
+    flow: componentImplementationByName[ginkoDocsComponentTags.flow],
+    figure: componentImplementationByName[ginkoDocsComponentTags.figure],
   },
   policy: {
     version: 2,
@@ -28,6 +30,8 @@ export const ginkoDocsAuthoringKitSource = {
       column: ginkoDocsComponentPolicy.components.column,
       info: ginkoDocsComponentPolicy.components.info,
       layout: ginkoDocsComponentPolicy.components.layout,
+      flow: ginkoDocsComponentPolicy.components.flow,
+      figure: ginkoDocsComponentPolicy.components.figure,
     },
   },
   authoring: {
@@ -95,13 +99,43 @@ export const ginkoDocsAuthoringKitSource = {
       props: {
         label: { control: "text", label: "Label" },
         source: { control: "text", label: "Source" },
+        size: { control: "select", label: "Text size" },
       },
       slots: { default: { label: "Quotation" } },
+    },
+    flow: {
+      label: "Reading flow",
+      description: "Readable prose with wider figures and optional wrapped images.",
+      props: {
+        width: { control: "select", label: "Text width" },
+        surface: { control: "select", label: "Background" },
+      },
+      slots: { default: { label: "Article content" } },
+    },
+    figure: {
+      label: "Figure",
+      description: "An image with a caption and controlled framing.",
+      props: {
+        src: { control: "text", label: "Image source" },
+        alt: { control: "text", label: "Image description" },
+        caption: { control: "text", label: "Caption" },
+        aspect: { control: "text", label: "Aspect ratio" },
+        fit: { control: "text", label: "Image fit" },
+        focus: { control: "select", label: "Crop focus" },
+        placement: { control: "select", label: "Text wrapping" },
+        frame: { control: "select", label: "Frame" },
+        bleed: { control: "text", label: "Wider image" },
+      },
+      slots: { default: { label: "Description" } },
     },
     column: {
       label: "Column",
       description: "A responsive column inside a layout.",
-      props: { size: { control: "select", label: "Width" } },
+      props: {
+        size: { control: "select", label: "Width" },
+        align: { control: "select", label: "Vertical alignment" },
+        media: { control: "select", label: "Image sizing" },
+      },
       slots: { default: { label: "Content" } },
     },
     info: {
@@ -123,24 +157,46 @@ export const ginkoDocsAuthoringKitSource = {
           childTag: "column",
           sizeProp: "size",
           presets: [
+            { label: "Quarter / Three quarters", values: ["xs", "xl"], ratio: 1 / 4 },
+            { label: "Three quarters / Quarter", values: ["xl", "xs"], ratio: 3 / 4 },
             { label: "Small / Large", values: ["sm", "lg"], ratio: 1 / 3 },
             { label: "Medium / Medium", values: ["md", "md"], ratio: 1 / 2 },
             { label: "Large / Small", values: ["lg", "sm"], ratio: 2 / 3 },
           ],
         },
       },
-      props: { type: { control: "select", label: "Style" } },
+      props: {
+        type: { control: "select", label: "Style" },
+        align: { control: "select", label: "Vertical alignment" },
+        gap: { control: "select", label: "Gap" },
+        stack: { control: "select", label: "Stack below" },
+        surface: { control: "select", label: "Background" },
+      },
       slots: { default: { label: "Columns" } },
     },
   },
   recipes: [
+    {
+      id: "reading-flow",
+      label: "Magazine article",
+      description: "A reading column interrupted by a wider photograph.",
+      source:
+        '<Flow>\nIntroduce the story.\n<Figure src="/images/editorial/honeycomb.webp" alt="Bees on a honeycomb" caption="A closer look at the hive." bleed="outside" frame="none">\n</Figure>\nContinue the story.\n</Flow>',
+    },
+    {
+      id: "wrapped-figure",
+      label: "Wrapped photograph",
+      description: "Text beside a small photograph, continuing below it.",
+      source:
+        '<Flow width="wide">\n<Figure src="/images/editorial/bee.webp" alt="Bee on a blossom" placement="end" frame="none">\n</Figure>\nWrite the passage here. Add enough text to continue below the image.\n</Flow>',
+    },
     {
       id: "note",
       label: "Note",
       description: "Useful context alongside the main text.",
       keywords: ["callout"],
       source:
-        '<note title="Keep in mind" appearance="tint">\nWrite the important context here.\n</note>',
+        '<Note title="Keep in mind" appearance="tint">\nWrite the important context here.\n</Note>',
     },
     {
       id: "warning",
@@ -148,7 +204,7 @@ export const ginkoDocsAuthoringKitSource = {
       description: "A condition readers should check before continuing.",
       keywords: ["callout"],
       source:
-        '<warning title="Before you continue" appearance="tint">\nWrite the important context here.\n</warning>',
+        '<Warning title="Before you continue" appearance="tint">\nWrite the important context here.\n</Warning>',
     },
     {
       id: "error",
@@ -156,7 +212,7 @@ export const ginkoDocsAuthoringKitSource = {
       description: "Explain a failure and how to recover.",
       keywords: ["callout"],
       source:
-        '<error title="Something needs attention" appearance="tint">\nWrite the important context here.\n</error>',
+        '<Error title="Something needs attention" appearance="tint">\nWrite the important context here.\n</Error>',
     },
     {
       id: "success",
@@ -164,7 +220,7 @@ export const ginkoDocsAuthoringKitSource = {
       description: "Confirm an outcome or a completed step.",
       keywords: ["callout"],
       source:
-        '<success title="You are ready" appearance="tint">\nWrite the important context here.\n</success>',
+        '<Success title="You are ready" appearance="tint">\nWrite the important context here.\n</Success>',
     },
     {
       id: "idea",
@@ -172,7 +228,7 @@ export const ginkoDocsAuthoringKitSource = {
       description: "A suggestion worth exploring.",
       keywords: ["callout"],
       source:
-        '<idea title="Try a different approach" appearance="tint">\nWrite the important context here.\n</idea>',
+        '<Idea title="Try a different approach" appearance="tint">\nWrite the important context here.\n</Idea>',
     },
     {
       id: "aside",
@@ -186,20 +242,20 @@ export const ginkoDocsAuthoringKitSource = {
       description: "Quote a passage and name its source.",
       keywords: ["quotation", "citation"],
       source:
-        '<excerpt label="In their words" source="Source">\nWrite the quoted passage here.\n</excerpt>',
+        '<Excerpt label="In their words" source="Source">\nWrite the quoted passage here.\n</Excerpt>',
     },
     {
       id: "information",
       keywords: ["callout", "info"],
       label: "Information",
       source:
-        '<info title="Keep it focused" appearance="tint">\nState the important context.\n</info>',
+        '<Info title="Keep it focused" appearance="tint">\nState the important context.\n</Info>',
     },
     {
       id: "two-columns",
       label: "Two columns",
       source:
-        '<layout type="border">\n<column size="sm">\nFirst column.\n</column>\n<column size="lg">\nSecond column.\n</column>\n</layout>',
+        '<Layout type="border">\n<Column size="sm">\nFirst column.\n</Column>\n<Column size="lg">\nSecond column.\n</Column>\n</Layout>',
     },
   ],
 } as const;
