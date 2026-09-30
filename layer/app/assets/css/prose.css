@@ -182,89 +182,6 @@
   line-height: 1.5rem;
 }
 
-.content-layout-row {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.content-layout-row-border,
-.content-layout-row-border-dashed {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.5rem;
-}
-
-.content-layout-row-border-dashed {
-  border-style: dashed;
-}
-
-.content-layout-row-outline,
-.content-layout-row-outline-dashed {
-  border-radius: var(--radius);
-  padding: 0.5rem;
-  outline: 1px solid var(--border);
-  outline-offset: 2px;
-}
-
-.content-layout-row-outline-dashed {
-  outline-style: dashed;
-}
-
-.content-layout-column {
-  width: 100%;
-  min-width: 0;
-}
-
-.content-layout-column-inner {
-  height: 100%;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.content-layout-column-divider {
-  border-bottom: 1px solid var(--border);
-}
-
-.content-layout-column-divider-dashed {
-  border-bottom-style: dashed;
-}
-
-@media (min-width: 640px) {
-  .content-layout-row {
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .content-layout-row {
-    flex-direction: row;
-  }
-
-  .content-layout-column-sm {
-    width: 33.333333%;
-  }
-
-  .content-layout-column-md {
-    width: 50%;
-  }
-
-  .content-layout-column-lg {
-    width: 66.666667%;
-  }
-
-  .content-layout-column-divider {
-    border-right: 1px solid var(--border);
-    border-bottom: 0;
-  }
-
-  .content-layout-column-divider-dashed {
-    border-right-style: dashed;
-  }
-}
-
 .content-prose :where(a) {
   color: var(--foreground);
   font-weight: 500;
@@ -985,99 +902,6 @@ html[data-code-blocks="dark"] .content-codeblock.shiki span {
   text-decoration-line: none;
 }
 
-.content-alert-title {
-  margin: 0;
-}
-
-.content-callout {
-  --content-callout-accent: var(--muted-foreground);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-  width: 100%;
-  display: flex;
-  gap: 0.5rem;
-  border-radius: var(--radius);
-  background-color: var(--secondary);
-  padding: 0.75rem 0.75rem 0.75rem 0.4rem;
-  color: var(--foreground);
-  font-size: 0.875rem;
-  line-height: 1.625;
-}
-
-.content-callout-note {
-  --content-callout-accent: var(--muted-foreground);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout-info {
-  --content-callout-accent: var(--info);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout-warning {
-  --content-callout-accent: var(--warning);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout-error {
-  --content-callout-accent: var(--destructive);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout-success {
-  --content-callout-accent: var(--success);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout-idea {
-  --content-callout-accent: var(--primary);
-  --content-callout-surface: color-mix(in oklab, var(--secondary) 90%, transparent);
-}
-
-.content-callout > .content-callout-bar {
-  width: 0.125rem;
-  flex-shrink: 0;
-  border-radius: var(--radius);
-  background-color: color-mix(in oklab, var(--content-callout-accent) 70%, transparent);
-  color: var(--content-callout-accent);
-}
-
-.content-callout > .content-callout-icon {
-  display: inline-flex;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-top: 0.25rem;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 0;
-  border-radius: 0;
-  background-color: transparent;
-  color: var(--content-callout-accent);
-}
-
-.content-callout > .content-callout-icon > :where(svg, span, .iconify) {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-
-.content-callout-body {
-  min-width: 0;
-  flex: 1;
-}
-
-.content-callout .content-prose {
-  font-size: 0.875rem;
-  line-height: inherit;
-}
-
-.content-callout .content-alert-title {
-  margin-bottom: 0.125rem;
-  color: var(--foreground);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: inherit;
-}
-
 .content-media {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1466,8 +1290,6 @@ html[data-code-blocks="dark"] .content-codeblock.shiki span {
 /* The p-based selectors match the specificity of `.content-prose p`
    (0,1,1) so the eyebrow scale survives inside prose containers. */
 .content-eyebrow,
-p.content-aside-label,
-p.content-excerpt-label,
 p.content-read-more-title {
   display: flex;
   align-items: center;
@@ -1484,8 +1306,7 @@ p.content-read-more-title {
 .content-meta,
 .content-timeline-date,
 .content-files-annotation,
-.content-quiz-progress,
-.content-excerpt-source {
+.content-quiz-progress {
   color: var(--muted-foreground);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -1507,85 +1328,6 @@ p.content-read-more-title {
 /* --- Callout (voice) -------------------------------------------------------
    Both appearances keep the canonical 2px semantic rail. Quiet changes only
    the surface treatment, so intent remains visible without a tinted fill. */
-
-.content-callout {
-  margin-block: 1.25rem;
-}
-
-.content-callout[data-appearance="quiet"] {
-  border: 1px solid var(--border);
-  background-color: var(--card);
-  box-shadow: var(--shadow-xs);
-  padding: 0.75rem 0.9rem 0.75rem 0.4rem;
-}
-
-/* --- Aside + excerpt (voice) --- */
-
-.content-aside,
-.content-excerpt {
-  position: relative;
-  margin-block: 1.25rem;
-  border-radius: var(--radius);
-  font-size: 0.875rem;
-  line-height: 1.625;
-}
-
-.content-aside[data-appearance="quiet"],
-.content-excerpt[data-appearance="quiet"] {
-  border: 1px solid var(--border);
-  background-color: var(--card);
-  box-shadow: var(--shadow-xs);
-  padding: 0.75rem 1rem;
-}
-
-.content-aside[data-appearance="tint"],
-.content-excerpt[data-appearance="tint"] {
-  background-color: var(--secondary);
-  padding: 0.75rem 1rem 0.75rem 1.15rem;
-}
-
-/* The voice rail: an inset 2px bar, muted for asides, accent for excerpts. */
-.content-aside[data-appearance="tint"]::before,
-.content-excerpt[data-appearance="tint"]::before {
-  content: "";
-  position: absolute;
-  inset-block: 0.75rem;
-  inset-inline-start: 0.45rem;
-  width: 2px;
-  border-radius: 999px;
-  background-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
-}
-
-.content-excerpt[data-appearance="tint"]::before {
-  background-color: color-mix(in oklab, var(--info) 70%, transparent);
-}
-
-.content-excerpt .content-excerpt-label {
-  color: var(--info);
-}
-
-.content-aside-body,
-.content-excerpt-body {
-  color: var(--muted-foreground);
-}
-
-.content-excerpt-body {
-  margin: 0;
-  border: 0;
-  padding: 0;
-  font-size: 0.875rem;
-  font-style: normal;
-  line-height: 1.625;
-}
-
-.content-excerpt-source {
-  display: block;
-  margin: 0.5rem 0 0;
-}
-
-.content-excerpt-source::before {
-  content: "— ";
-}
 
 /* --- Cards (object) --- */
 

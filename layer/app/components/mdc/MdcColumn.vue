@@ -1,67 +1,29 @@
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, ref, type HTMLAttributes } from "vue";
+import { computed, type HTMLAttributes } from "vue";
 import { cn } from "../../utils";
 
-type ValueProp<T extends string> = T | { value?: T | string };
-type ColumnSize = "sm" | "md" | "lg";
-
+type ColumnSize = "xs" | "sm" | "md" | "lg" | "xl";
 const props = withDefaults(
   defineProps<{
-    size?: ValueProp<ColumnSize>;
+    size?: ColumnSize | { value?: ColumnSize | string };
+    align?: "start" | "center" | "end";
+    media?: "natural" | "cover" | "contain";
     class?: HTMLAttributes["class"];
   }>(),
-  {
-    size: "md",
-  },
+  { size: "md", media: "natural" },
 );
 
-const parentLayoutType = inject(
-  "mdc-layout-type",
-  computed(() => "default"),
-);
-
-const sizeValue = computed<ColumnSize>(() => {
-  if (typeof props.size === "string") return props.size;
-  return (props.size?.value as ColumnSize | undefined) ?? "md";
-});
-
-const columnSizeClass = {
-  sm: "content-layout-column-sm",
-  md: "content-layout-column-md",
-  lg: "content-layout-column-lg",
-} as const;
-
-const isLastColumn = ref(false);
-const columnRef = ref<HTMLElement | null>(null);
-
-onMounted(() => {
-  nextTick(() => {
-    if (columnRef.value?.parentElement) {
-      const siblings = Array.from(columnRef.value.parentElement.children);
-      isLastColumn.value = siblings.indexOf(columnRef.value) === siblings.length - 1;
-    }
-  });
-});
-
-const showDivider = computed(
-  () => !isLastColumn.value && ["border", "border-dashed"].includes(parentLayoutType.value),
+const sizeValue = computed(() =>
+  typeof props.size === "string" ? props.size : (props.size?.value ?? "md"),
 );
 </script>
 
 <template>
   <div
-    ref="columnRef"
-    :class="
-      cn(
-        'content-layout-column',
-        columnSizeClass[sizeValue],
-        showDivider && 'content-layout-column-divider',
-        showDivider &&
-          parentLayoutType === 'border-dashed' &&
-          'content-layout-column-divider-dashed',
-        props.class,
-      )
-    "
+    :class="cn('content-layout-column', props.class)"
+    :data-size="sizeValue"
+    :data-align="align"
+    :data-media="media"
   >
     <div class="content-layout-column-inner">
       <slot />

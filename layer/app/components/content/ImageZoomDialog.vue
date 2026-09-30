@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "reka-ui";
-import { useI18n } from "#imports";
+import { useDocsText } from "../../composables/useDocsText";
 import { useImageZoomMotion } from "./imageZoom";
 
 defineProps<{
@@ -20,7 +20,7 @@ defineProps<{
   description?: string;
 }>();
 
-const { t } = useI18n();
+const { t } = useDocsText();
 const open = ref(false);
 const layoutId = `ginko-image-${useId()}`;
 const { imageTransition, fadeTransition } = useImageZoomMotion();

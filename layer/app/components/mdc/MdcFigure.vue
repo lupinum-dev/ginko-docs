@@ -2,9 +2,9 @@
 import type { HTMLAttributes } from "vue";
 import { Motion } from "motion-v";
 import { computed } from "vue";
-import { useI18n } from "#imports";
-import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
-import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
+import { useAppConfig } from "#imports";
+import ImageZoomDialog from "../content/ImageZoomDialog.vue";
+import { useDocsText } from "../../composables/useDocsText";
 import { cn } from "../../utils";
 import { useProseAppearance } from "../../composables/useProseAppearance";
 
@@ -18,6 +18,9 @@ const props = withDefaults(
     bleed?: boolean | string;
     aspect?: "auto" | "video" | "wide" | "square" | "portrait";
     fit?: "cover" | "contain";
+    placement?: "inline" | "start" | "end";
+    frame?: "default" | "none";
+    focus?: "center" | "top" | "bottom" | "left" | "right";
     zoom?: boolean | string;
     class?: HTMLAttributes["class"];
     appearance?: "quiet" | "tint";
@@ -30,10 +33,11 @@ const props = withDefaults(
 );
 const appearance = useProseAppearance("figure", () => props.appearance);
 
-const { t } = useI18n();
-const config = useGinkoDocsConfig();
+const { t } = useDocsText();
+// The component kit runs without the layer, so ginkoDocs app config may be absent.
+const imagesConfig: { zoom?: boolean } | undefined = useAppConfig().ginkoDocs?.images;
 const zoomEnabled = computed(() => {
-  if (props.zoom === "auto") return config.images?.zoom !== false;
+  if (props.zoom === "auto") return imagesConfig?.zoom !== false;
   return props.zoom === true || props.zoom === "true";
 });
 const shouldBleed = computed(
@@ -60,8 +64,11 @@ const imageClass = computed(() =>
     :class="cn('content-media not-prose', props.class)"
     :data-bleed="shouldBleed ? 'true' : undefined"
     :data-appearance="appearance"
+    :data-placement="placement ?? 'inline'"
+    :data-frame="frame ?? 'default'"
+    :data-focus="focus ?? 'center'"
   >
-    <template v-if="src">
+    <div v-if="src" class="content-media-visual">
       <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">
         <template #trigger="{ layoutId, transition }">
           <button
@@ -76,7 +83,7 @@ const imageClass = computed(() =>
         </template>
       </ImageZoomDialog>
       <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
-    </template>
+    </div>
     <slot />
     <figcaption v-if="caption || alt">
       {{ caption || alt }}
