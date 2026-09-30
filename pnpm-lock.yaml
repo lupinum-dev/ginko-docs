@@ -8,7 +8,7 @@ overrides:
   hono@<4.13.5: 4.13.7
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   svgo@>=4.0.0 <4.1.0: 4.1.0
-  '@lupinum/ginko-content': 1.0.0-beta.7
+  '@lupinum/ginko-content': 1.0.0-beta.9
   esbuild: 0.28.2
   vite: npm:@voidzero-dev/vite-plus-core@0.1.24
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
@@ -24,8 +24,8 @@ importers:
         specifier: ^1.2.123
         version: 1.2.123
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(61dc0856525159f4c30ba81709e64eaa)
+        specifier: 1.0.0-beta.9
+        version: 1.0.0-beta.9(61dc0856525159f4c30ba81709e64eaa)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
@@ -96,8 +96,8 @@ importers:
   docs:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(3a4c14509705333f69f7a8d48835e543)
+        specifier: 1.0.0-beta.9
+        version: 1.0.0-beta.9(3a4c14509705333f69f7a8d48835e543)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -924,8 +924,8 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@1.0.0-beta.7':
-    resolution: {integrity: sha512-N23Ln1s4+x70DY7Vb76C5HISUOqjDmlERHK0uO4x0CL3jwGHBRR9EwLUjYk5I7uYS9We4jjLSeBcNIxT10Ki9A==}
+  '@lupinum/ginko-content@1.0.0-beta.9':
+    resolution: {integrity: sha512-hnmrgqCv87BghCbrwzolBqASYzBkMgP9PbsTI2kkAZLTsaer6MFgw1yadVqdGcMdx8vWt/dn1+TaKkH21+M23g==}
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
@@ -7021,7 +7021,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@1.0.0-beta.7(3a4c14509705333f69f7a8d48835e543)':
+  '@lupinum/ginko-content@1.0.0-beta.9(3a4c14509705333f69f7a8d48835e543)':
     dependencies:
       '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
       '@nuxt/kit': 4.5.2(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)
@@ -7029,6 +7029,7 @@ snapshots:
       comark: 0.6.2(shiki@4.4.3)
       defu: 6.1.7
       destr: 2.0.5
+      entities: 7.0.1
       globby: 16.2.3
       h3: 1.15.11
       jiti: 2.7.0
@@ -7118,7 +7119,7 @@ snapshots:
       - xml2js
       - yaml
 
-  '@lupinum/ginko-content@1.0.0-beta.7(61dc0856525159f4c30ba81709e64eaa)':
+  '@lupinum/ginko-content@1.0.0-beta.9(61dc0856525159f4c30ba81709e64eaa)':
     dependencies:
       '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
       '@nuxt/kit': 4.5.2(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)
@@ -7126,6 +7127,7 @@ snapshots:
       comark: 0.6.2(shiki@4.4.3)
       defu: 6.1.7
       destr: 2.0.5
+      entities: 7.0.1
       globby: 16.2.3
       h3: 1.15.11
       jiti: 2.7.0
