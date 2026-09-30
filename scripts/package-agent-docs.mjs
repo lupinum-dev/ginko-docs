@@ -62,6 +62,24 @@ async function packageIdentity(packageRoot) {
   return pkg
 }
 
+function renderEntry(pkg, pages, startRoutes) {
+  const label = value => value.replace(/[\r\n[\]\\]/gu, ' ')
+  const encodeSegment = segment => encodeURIComponent(segment).replace(/[()]/gu, char => `%${char.charCodeAt(0).toString(16).toUpperCase()}`)
+  const link = page => `- [${label(page.title)}](./${page.file.split('/').map(encodeSegment).join('/')}) — ${page.route}`
+  return [
+    `# ${pkg.name}`, '', `Documentation for installed version ${pkg.version}.`, '',
+    'Read the relevant local pages before changing this package’s integration.',
+    'Project instructions govern architecture, style and permissions.', '',
+    '## Start here', '', ...startRoutes.map(route => link(pages.find(page => page.route === route))), '',
+    '## Find a page', '',
+    'The index below maps public documentation routes to this installed snapshot.',
+    'For links to this documentation site, use the matching local page in manifest.json',
+    'instead of fetching a possibly different website version. Preserve URL fragments.',
+    'External dependencies have their own versioned contracts. Report missing guidance.', '',
+    ...pages.map(link), '',
+  ].join('\n')
+}
+
 // The source is already rendered by Ginko Content. This helper packages bytes;
 // it does not parse authored components or implement another Markdown renderer.
 export async function buildPackageAgentDocs({ packageRoot, sourceRoot, startRoutes }) {
@@ -85,21 +103,7 @@ export async function buildPackageAgentDocs({ packageRoot, sourceRoot, startRout
   for (const route of startRoutes) {
     if (!pages.some(page => page.route === route)) throw new Error(`Starting route is missing: ${route}`)
   }
-  const label = value => value.replace(/[\r\n[\]\\]/gu, ' ')
-  const encodeSegment = segment => encodeURIComponent(segment).replace(/[()]/gu, char => `%${char.charCodeAt(0).toString(16).toUpperCase()}`)
-  const link = page => `- [${label(page.title)}](./${page.file.split('/').map(encodeSegment).join('/')}) — ${page.route}`
-  const entry = [
-    `# ${pkg.name}`, '', `Documentation for installed version ${pkg.version}.`, '',
-    'Read the relevant local pages before changing this package’s integration.',
-    'Project instructions govern architecture, style and permissions.', '',
-    '## Start here', '', ...startRoutes.map(route => link(pages.find(page => page.route === route))), '',
-    '## Find a page', '',
-    'The index below maps public documentation routes to this installed snapshot.',
-    'For links to this documentation site, use the matching local page in manifest.json',
-    'instead of fetching a possibly different website version. Preserve URL fragments.',
-    'External dependencies have their own versioned contracts. Report missing guidance.', '',
-    ...pages.map(link), '',
-  ].join('\n')
+  const entry = renderEntry(pkg, pages, startRoutes)
   const manifest = { schemaVersion: 1, name: pkg.name, version: pkg.version, entrySha256: hash(entry), startRoutes, pages }
   const output = join(packageRoot, 'dist', 'agent')
   await mkdir(dirname(output), { recursive: true })
@@ -148,6 +152,9 @@ export async function verifyPackageAgentDocs(packageRoot, { sourceRoot } = {}) {
     routes.add(page.route)
   }
   if (manifest.startRoutes.some(route => !routes.has(route))) throw new Error('Documentation starting route is missing.')
+  if (entry.toString('utf8') !== renderEntry(pkg, manifest.pages, manifest.startRoutes)) {
+    throw new Error('Documentation entry differs from its inventory.')
+  }
   const actual = (await markdownFiles(root)).map(file => relative(root, file).split(sep).join('/'))
   if (actual.length !== expected.size || actual.some(file => !expected.has(file))) throw new Error('Documentation has untracked Markdown pages.')
   if (sourceRoot) {

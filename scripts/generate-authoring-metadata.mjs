@@ -133,10 +133,11 @@ export function sourcePropOptions(script) {
     if (
       ts.isCallExpression(node) &&
       ts.isIdentifier(node.expression) &&
-      node.expression.text === "defineProps" &&
-      node.typeArguments?.length === 1 &&
-      ts.isTypeLiteralNode(node.typeArguments[0])
+      node.expression.text === "defineProps"
     ) {
+      if (node.typeArguments?.length !== 1 || !ts.isTypeLiteralNode(node.typeArguments[0])) {
+        throw new Error("defineProps must use a single inline type literal.");
+      }
       for (const member of node.typeArguments[0].members) {
         if (!ts.isPropertySignature(member) || !member.type) continue;
         const name = propertyName(member.name);
