@@ -10,6 +10,7 @@ const { t } = useI18n();
 
 <template>
   <nav
+    data-docs-pager
     v-if="prev || next"
     class="grid grid-cols-1 gap-3 sm:grid-cols-2"
     :aria-label="t('docs.pageNavigation')"

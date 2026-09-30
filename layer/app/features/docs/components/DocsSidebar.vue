@@ -100,7 +100,7 @@ const asideClass = computed(() =>
 </script>
 
 <template>
-  <aside :data-variant="variant" :aria-label="t('docs.label')" :class="asideClass">
+  <aside :data-docs-sidebar="variant" :aria-label="t('docs.label')" :class="asideClass">
     <div v-if="switcherSections.length > 1" class="flex flex-col gap-3 p-4 pb-2">
       <DocsSidebarTabs
         v-if="sidebarSwitcher === 'tabs'"

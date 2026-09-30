@@ -89,7 +89,7 @@ watch(tocItems, () => {
 // Keep the active TOC region visible when a long TOC overflows the sticky
 // aside.
 const tocAside = ref<HTMLElement | null>(null);
-const { reveal: revealActiveTocLink } = useRevealActive(tocAside, "[data-toc-active]", {
+const { reveal: revealActiveTocLink } = useRevealActive(tocAside, "[data-docs-active]", {
   topPad: 16,
   bottomPad: 44,
 });
@@ -160,6 +160,7 @@ function scrollToTop() {
 
       <main
         id="main-content"
+        data-docs-article
         class="order-2 mx-auto w-full max-w-[72ch] flex-1 px-4 py-8 md:px-6 xl:py-14"
       >
         <article v-if="page">
@@ -208,6 +209,7 @@ function scrollToTop() {
 
     <aside
       ref="tocAside"
+      data-docs-toc="desktop"
       class="docs-toc-shell sticky top-[var(--site-header-height)] h-[calc(100dvh-var(--site-header-height)-var(--site-banner-height,0px))] w-[var(--docs-toc-width)] shrink-0 flex-col overflow-y-auto pt-10 pr-4 pb-6"
       :aria-label="t('docs.toc')"
     >
