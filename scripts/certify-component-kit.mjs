@@ -107,7 +107,7 @@ try {
   );
   write(
     resolve(fixture, "app/pages/index.vue"),
-    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
+    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><MdcFlow><p>Flow text</p><MdcFigure src="/kit-figure.png" alt="Kit figure" caption="Figure caption" /></MdcFlow><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
   );
   run("pnpm", ["install", "--ignore-scripts"], fixture);
   const entry = createRequire(resolve(fixture, "package.json")).resolve(
@@ -150,7 +150,12 @@ try {
   if (!home?.ok) throw new Error("The component-only fixture did not start.");
   const html = await home.text();
   for (const text of [
-    'data-authoring-tags="aside,column,error,excerpt,idea,info,layout,note,success,warning"',
+    'data-authoring-tags="aside,column,error,excerpt,figure,flow,idea,info,layout,note,success,warning"',
+    "Flow text",
+    "Figure caption",
+    // English fallback from useDocsText: the fixture has no @nuxtjs/i18n.
+    'aria-label="Zoom image: Kit figure"',
+    'class="content-flow',
     "Real Docs info",
     "First",
     "Second",

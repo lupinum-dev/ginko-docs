@@ -2,9 +2,9 @@
 import type { HTMLAttributes } from "vue";
 import { Motion } from "motion-v";
 import { computed } from "vue";
-import { useI18n } from "#imports";
-import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
-import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
+import { useAppConfig } from "#imports";
+import ImageZoomDialog from "../content/ImageZoomDialog.vue";
+import { useDocsText } from "../../composables/useDocsText";
 import { cn } from "../../utils";
 import { useProseAppearance } from "../../composables/useProseAppearance";
 
@@ -33,10 +33,11 @@ const props = withDefaults(
 );
 const appearance = useProseAppearance("figure", () => props.appearance);
 
-const { t } = useI18n();
-const config = useGinkoDocsConfig();
+const { t } = useDocsText();
+// The component kit runs without the layer, so ginkoDocs app config may be absent.
+const imagesConfig: { zoom?: boolean } | undefined = useAppConfig().ginkoDocs?.images;
 const zoomEnabled = computed(() => {
-  if (props.zoom === "auto") return config.images?.zoom !== false;
+  if (props.zoom === "auto") return imagesConfig?.zoom !== false;
   return props.zoom === true || props.zoom === "true";
 });
 const shouldBleed = computed(
