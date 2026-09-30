@@ -140,6 +140,7 @@
      and prose.css consumes this via var(). */
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
 
+  /* Public layout variables: see docs "Theming and overrides". Hosts may override them. */
   /* Docs layout (Fumadocs-style shell) */
   --site-header-height: 3.5rem;
   /* Currently visible banner height; SiteBanner is the single writer. */
