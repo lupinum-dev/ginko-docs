@@ -17,6 +17,7 @@ allowBuilds:
 overrides:
   # Security floors for transitive build dependencies. Remove each override
   # when its direct parent resolves a patched version without it.
+  "fflate@>=0.7.0 <0.7.5": 0.7.5
   "hono@<4.13.5": 4.13.7
   "js-yaml@>=4.0.0 <4.3.2": 4.3.2
   "svgo@>=4.0.0 <4.1.0": 4.1.0
