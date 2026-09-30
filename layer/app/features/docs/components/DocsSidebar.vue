@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cn } from "#ginko-docs/utils";
-import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
+import { useDocsNavigation } from "#ginko-docs/composables/useDocsNavigation";
 import {
   docsNavigationSectionContainsPath,
   getDocsNavigationGroups,

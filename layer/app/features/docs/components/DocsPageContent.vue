@@ -31,7 +31,7 @@ import { Separator } from "#ginko-docs/components/ui/separator";
 import { getLocalizedSiteText } from "#ginko-docs/config/site.utils";
 import { useSchemaJsonLd } from "#ginko-docs/composables/useSchemaJsonLd";
 import { useLocalizedPath } from "#ginko-docs/composables/useLocalizedPath";
-import { useDocsNavigation } from "#ginko-docs/features/docs/composables/useDocsNavigation";
+import { useDocsNavigation } from "#ginko-docs/composables/useDocsNavigation";
 import { useContentRouteAlternates } from "#ginko-docs/composables/useContentRouteAlternates";
 
 type DocsNavLink = {
@@ -56,7 +56,7 @@ const contentPageResult = useContentPage("docs", {
   surround: true,
 });
 const docsNavigationResult = useDocsNavigation();
-const [{ page, previous, next: nextContent, error }, { trail }] = await Promise.all([
+const [{ page, previous, next: nextContent, error }, { breadcrumbs }] = await Promise.all([
   contentPageResult,
   docsNavigationResult,
 ]);
@@ -72,10 +72,10 @@ const tocItems = computed(() =>
 );
 const prev = computed(() => toDocsNavLink(previous.value));
 const next = computed(() => toDocsNavLink(nextContent.value));
-const visibleTrail = computed(() => trail.value.slice(0, -1));
+const visibleTrail = computed(() => breadcrumbs.value.slice(0, -1));
 const schemaBreadcrumbs = computed(() => [
   { name: siteName.value, path: localizedPath("home") },
-  ...trail.value
+  ...breadcrumbs.value
     .filter((item) => item.path)
     .map((item) => ({ name: item.title, path: item.path! })),
 ]);
