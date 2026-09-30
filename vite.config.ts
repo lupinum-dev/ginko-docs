@@ -6,6 +6,8 @@ export default defineConfig({
     // and rewrites valid component syntax. Content has parser/build checks.
     ignorePatterns: [
       "docs/content/**/*.md",
+      // Preserve the approved one-shell spec and prototype byte-for-byte.
+      "plans/one-shell/**",
       // Preserve the reviewed Lupinum OSS shared asset byte-for-byte.
       "scripts/check-dependency-policy.mjs",
       "scripts/package-agent-docs.mjs",
