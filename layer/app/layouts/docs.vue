@@ -1,5 +1,8 @@
 <template>
-  <div class="flex min-h-dvh flex-col bg-background text-foreground selection:bg-primary/15">
+  <div
+    data-docs-shell="standalone"
+    class="flex min-h-dvh flex-col bg-background text-foreground selection:bg-primary/15"
+  >
     <SiteSkipLink />
     <SiteBanner />
     <SiteHeader />

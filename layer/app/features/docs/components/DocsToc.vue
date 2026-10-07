@@ -29,7 +29,7 @@ const indicatorStyle = ref({ opacity: "0", top: "0px", height: "0px" });
 function measureIndicator() {
   const list = listRef.value;
   if (!list) return;
-  const active = list.querySelectorAll<HTMLElement>("[data-toc-active]");
+  const active = list.querySelectorAll<HTMLElement>("[data-docs-active]");
   const first = active[0];
   const last = active[active.length - 1];
   if (!first || !last) {
@@ -85,7 +85,7 @@ function scrollToHeading(id: string) {
           <a
             :href="`#${item.id}`"
             :title="item.label"
-            :data-toc-active="activeIds.includes(item.id) ? 'true' : undefined"
+            :data-docs-active="activeIds.includes(item.id) ? 'true' : undefined"
             class="block truncate rounded-sm py-0.5 text-[13px] leading-5 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             :class="
               cn(

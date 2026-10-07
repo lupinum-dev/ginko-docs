@@ -221,6 +221,7 @@ try {
     const figure = page.locator("figure.content-media");
     const image = figure.getByRole("img", { name: "A green canopy" });
     await image.waitFor({ state: "visible" });
+    // Evidence is written before the checks so a failure still leaves a screenshot.
     await page.screenshot({
       path: resolve(root, "layer/.pack", `component-kit-${width}.png`),
       fullPage: true,
@@ -248,10 +249,6 @@ try {
       throw new Error(
         `Component-only fixture overflows the viewport: ${JSON.stringify(await page.locator("body *").evaluateAll((nodes) => nodes.filter((node) => node.getBoundingClientRect().right > window.innerWidth + 1).map((node) => ({ tag: node.tagName, class: node.className, right: node.getBoundingClientRect().right }))))}`,
       );
-    await page.screenshot({
-      path: resolve(root, "layer/.pack", `component-kit-${width}.png`),
-      fullPage: true,
-    });
   }
   if (errors.length) throw new Error(`Component-only browser errors: ${errors.join("; ")}`);
 } finally {

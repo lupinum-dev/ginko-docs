@@ -13,6 +13,7 @@ const { t } = useI18n();
 
 <template>
   <nav
+    data-docs-breadcrumb
     v-if="items.length"
     :class="cn('flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground', props.class)"
     :aria-label="t('docs.breadcrumbs')"

@@ -42,6 +42,7 @@ watch(
 
 <template>
   <div
+    data-docs-toc="mobile"
     :class="
       cn(
         'sticky top-[var(--site-header-height)] z-30 flex h-11 shrink-0 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-md md:px-6 xl:hidden',

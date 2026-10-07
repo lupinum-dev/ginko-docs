@@ -449,7 +449,7 @@ async function certifyLocaleNavigation(page, variant, socialLabels = []) {
   await language.click();
   await page.locator('a[lang="de"]').first().click();
   await page.waitForURL((url) => url.pathname.startsWith("/de/"));
-  await page.locator('aside[data-variant="desktop"]').waitFor({ state: "visible" });
+  await page.locator('aside[data-docs-sidebar="desktop"]').waitFor({ state: "visible" });
   await assertHeaderLayout(page, variant);
 
   if (socialLabels.length) {
@@ -597,8 +597,35 @@ async function certifyBrowser(variant, directory) {
       }
     }
     await page.goto(`${server.baseURL}${startPath}`, { waitUntil: "networkidle" });
-    const sidebar = page.locator('aside[data-variant="desktop"]');
+    const sidebar = page.locator('aside[data-docs-sidebar="desktop"]');
     await sidebar.waitFor({ state: "visible" });
+    // Catch hooks or layout variables disappearing from the packed public contract.
+    for (const hook of [
+      "[data-docs-shell]",
+      'aside[data-docs-sidebar="desktop"]',
+      "[data-docs-article]",
+      '[data-docs-toc="desktop"]',
+      "[data-docs-pager]",
+      'aside[data-docs-sidebar="desktop"] a[aria-current="page"]',
+    ]) {
+      if ((await page.locator(hook).count()) === 0) {
+        throw new Error(`${variant.name} is missing public styling hook ${hook}.`);
+      }
+    }
+    const missingVariables = await page.evaluate(() => {
+      const style = getComputedStyle(document.documentElement);
+      return ["--site-header-height", "--docs-sidebar-width", "--docs-toc-width"].filter(
+        (variable) => !style.getPropertyValue(variable).trim(),
+      );
+    });
+    if (missingVariables.length) {
+      throw new Error(
+        `${variant.name} is missing public layout variables: ${missingVariables.join(", ")}.`,
+      );
+    }
+    // These fixtures have at most one navigation ancestor per page. The existing
+    // layout renders breadcrumbs only for two or more ancestors, so no fixture
+    // page renders [data-docs-breadcrumb]; skip that hook as the brief permits.
     await certifyHeaderControls(page, variant, {
       socialLabels,
       includeLocaleNavigation: false,
@@ -667,7 +694,7 @@ async function certifyBrowser(variant, directory) {
       await sidebar.waitFor({ state: "visible" });
       await page
         .waitForFunction((before) => {
-          const sidebarElement = document.querySelector('aside[data-variant="desktop"]');
+          const sidebarElement = document.querySelector('aside[data-docs-sidebar="desktop"]');
           const hrefs = [...(sidebarElement?.querySelectorAll('a[href^="/docs/"]') ?? [])].map(
             (element) => element.getAttribute("href"),
           );
