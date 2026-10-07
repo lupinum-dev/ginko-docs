@@ -15,7 +15,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
+import { checkDependencyPolicy, ownScopeExclusion } from "./check-dependency-policy.mjs";
 import { verifyPackageAgentDocs } from "./package-agent-docs.mjs";
 
 const root = resolve(import.meta.dirname, "..");
@@ -30,11 +30,6 @@ if (!contentVersion || !/^\d+\.\d+\.\d+$/.test(rolldownVersion)) {
     "Certification requires a minimum Content peer and exact reviewed Rolldown version.",
   );
 }
-const contentArchive = process.env.GINKO_CONTENT_TARBALL
-  ? resolve(process.env.GINKO_CONTENT_TARBALL)
-  : null;
-if (contentArchive && !existsSync(contentArchive))
-  throw new Error(`Configured Content tarball does not exist: ${contentArchive}`);
 const archive = readdirSync(resolve(root, "layer/.pack"))
   .filter((name) => name.endsWith(".tgz"))
   .map((name) => resolve(root, "layer/.pack", name));
@@ -75,7 +70,7 @@ try {
       type: "module",
       packageManager: workspaceManifest.packageManager,
       dependencies: {
-        "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
+        "@lupinum/ginko-content": contentVersion,
         "@lupinum/ginko-docs": `file:${archive[0]}`,
         nuxt: docsManifest.dependencies.nuxt,
         vue: docsManifest.dependencies.vue,
@@ -86,6 +81,8 @@ try {
     "minimumReleaseAge: 1440",
     "minimumReleaseAgeStrict: true",
     "minimumReleaseAgeIgnoreMissingTime: false",
+    "minimumReleaseAgeExclude:",
+    `  - "${ownScopeExclusion}"`,
     "overrides:",
     `  rolldown: ${rolldownVersion}`,
     "allowBuilds:",

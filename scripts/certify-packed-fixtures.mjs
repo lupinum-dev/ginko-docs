@@ -18,7 +18,7 @@ import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
-import { checkDependencyPolicy } from "./check-dependency-policy.mjs";
+import { checkDependencyPolicy, ownScopeExclusion } from "./check-dependency-policy.mjs";
 import { verifyPackageAgentDocs } from "./package-agent-docs.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,12 +41,6 @@ const currentNuxtVersion = docsManifest.dependencies.nuxt;
 const currentVueVersion = docsManifest.dependencies.vue;
 if (!/^\d+\.\d+\.\d+$/.test(currentNuxtVersion) || !/^\d+\.\d+\.\d+$/.test(currentVueVersion)) {
   throw new Error("The docs app must pin exact current Nuxt and Vue versions for certification.");
-}
-const contentArchive = process.env.GINKO_CONTENT_TARBALL
-  ? resolve(process.env.GINKO_CONTENT_TARBALL)
-  : null;
-if (contentArchive && !existsSync(contentArchive)) {
-  throw new Error(`Configured Ginko Content tarball does not exist: ${contentArchive}`);
 }
 const archive = readdirSync(resolve(root, "layer/.pack"))
   .filter((entry) => entry.endsWith(".tgz"))
@@ -312,7 +306,7 @@ function copyFixture(variant, directory) {
         private: true,
         type: "module",
         dependencies: {
-          "@lupinum/ginko-content": contentArchive ? `file:${contentArchive}` : contentVersion,
+          "@lupinum/ginko-content": contentVersion,
           "@lupinum/ginko-docs": `file:${archive[0]}`,
           nuxt: variant.nuxtVersion,
           vue: variant.vueVersion,
@@ -333,6 +327,8 @@ function copyFixture(variant, directory) {
     "minimumReleaseAge: 1440",
     "minimumReleaseAgeStrict: true",
     "minimumReleaseAgeIgnoreMissingTime: false",
+    "minimumReleaseAgeExclude:",
+    `  - "${ownScopeExclusion}"`,
     "",
     // Rolldown and its native bindings publish at different times. Reuse the
     // workspace's reviewed version so fresh bindings cannot break certification.
@@ -812,7 +808,8 @@ try {
     );
     if (
       installedContent.version !== contentVersion ||
-      (!contentArchive && (contentVersions.size !== 1 || !contentVersions.has(contentVersion)))
+      contentVersions.size !== 1 ||
+      !contentVersions.has(contentVersion)
     ) {
       throw new Error(
         `${variant.name} did not resolve exactly one Ginko Content ${contentVersion} installation.`,
@@ -850,9 +847,9 @@ writeFileSync(
       vueVersion,
       currentNuxtVersion,
       currentVueVersion,
-      contentSource: contentArchive ? "tarball" : "registry",
-      contentSha256: contentArchive ? sha256(contentArchive) : undefined,
-      releaseEvidence: !contentArchive,
+      // The publish workflow requires registry-sourced Content evidence.
+      contentSource: "registry",
+      releaseEvidence: true,
       lanes: variants.map((variant) => variant.name),
     },
     null,
