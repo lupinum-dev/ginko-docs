@@ -94,7 +94,8 @@
 }
 .content-media-trigger:focus-visible {
   outline: 2px solid var(--ring, currentColor);
-  outline-offset: 2px;
+  /* Inset: .content-media clips overflow, so an outer ring would be cut off. */
+  outline-offset: -2px;
 }
 
 /* Reading flow owns its measure; figures can use the available track without

@@ -89,7 +89,6 @@
     "clsx": "^2.1.1",
     "h3": "1.15.11",
     "motion-v": "^2.3.0",
-    "nitropack": "^2.13.4",
     "nuxt-og-image": "^6.10.0",
     "reka-ui": "^2.10.3",
     "satori": "^0.33.5",
@@ -102,6 +101,7 @@
   },
   "peerDependencies": {
     "@lupinum/ginko-content": ">=1.0.0-beta.9 <2.0.0",
+    "nitropack": "^2.13.4",
     "nuxt": ">=4.5.1 <5",
     "vue": "^3.5.40",
     "vue-router": "^5.1.0"

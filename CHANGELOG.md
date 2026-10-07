@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- `nitropack` is a peer dependency; Nuxt installs it.
+
 ### Features
 
 - Add stable `data-docs-*` styling hooks and documented layout variables for the
