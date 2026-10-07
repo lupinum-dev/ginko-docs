@@ -226,7 +226,12 @@ try {
       fullPage: true,
     });
     const [frame, media] = await Promise.all([figure.boundingBox(), image.boundingBox()]);
-    if (!frame || !media || media.width > frame.width + 1 || media.x < frame.x - 1)
+    if (
+      !frame ||
+      !media ||
+      media.x < frame.x - 1 ||
+      media.x + media.width > frame.x + frame.width + 1
+    )
       throw new Error("Standalone figure escapes its frame.");
     const trigger = page.getByRole("button", { name: "Zoom image: A green canopy" });
     await trigger.focus();
