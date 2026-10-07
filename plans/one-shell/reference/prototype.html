@@ -1475,6 +1475,9 @@ ${code("app/assets/css/brand.css", "css", `:root {
   }
 
   /* ---------- Page ---------- */
+  const escapeHtml = (value) =>
+    String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
   function renderPage() {
     const entry = byId[state.page];
     const data = PAGES[state.page];
@@ -1486,7 +1489,7 @@ ${code("app/assets/css/brand.css", "css", `:root {
     prose.innerHTML = data ? data.body() : `<p>${SUMMARY[entry.id] ?? ""}</p>${callout("note", "<p><strong>Summary page.</strong> This prototype fills the Gallery, Quickstart, Code blocks, and Tokens. Open one of them to see full content.</p>")}${cards(2, [{ to: "gallery", icon: "blocks", title: "Component gallery", desc: "Every component in one style." }, { to: "quickstart", icon: "rocket", title: "Quickstart", desc: "Real guide content." }])}`;
     prose.querySelectorAll(":scope > h2[id], :scope > h3[id], .steps h3").forEach((h) => {
       if (!h.id) return;
-      h.insertAdjacentHTML("beforeend", `<a class="anchor" href="#${h.id}" aria-label="Link to ${h.textContent}"><i data-lucide="link"></i></a>`);
+      h.insertAdjacentHTML("beforeend", `<a class="anchor" href="#${escapeHtml(h.id)}" aria-label="Link to ${escapeHtml(h.textContent)}"><i data-lucide="link"></i></a>`);
     });
     document.getElementById("readtime").textContent = Math.max(1, Math.round(prose.textContent.split(/\s+/).length / 200)) + " min read";
 
@@ -1498,9 +1501,10 @@ ${code("app/assets/css/brand.css", "css", `:root {
       (next ? `<a class="next" href="#${next.id}"><span>Next</span><b>${next.title}<i data-lucide="arrow-right"></i></b></a>` : "");
 
     const heads = [...prose.querySelectorAll(":scope > h2[id], :scope > h3[id]")];
-    const text = (h) => h.childNodes[0].textContent;
-    document.getElementById("toc").innerHTML = heads.map((h) => `<li><a href="#${h.id}" data-toc="${h.id}" class="${h.tagName === "H3" ? "l3" : ""}">${text(h)}</a></li>`).join("") + '<span class="toc-thumb" id="thumb"></span>';
-    document.getElementById("mtoc").innerHTML = heads.length ? `<details><summary><i data-lucide="align-left"></i>On this page<i data-lucide="chevron-down" class="chev"></i></summary><ul>${heads.map((h) => `<li><a href="#${h.id}" class="${h.tagName === "H3" ? "l3" : ""}">${text(h)}</a></li>`).join("")}</ul></details>` : "";
+    // Heading text comes back from the DOM; escape it before rebuilding HTML.
+    const text = (h) => escapeHtml(h.childNodes[0].textContent);
+    document.getElementById("toc").innerHTML = heads.map((h) => `<li><a href="#${escapeHtml(h.id)}" data-toc="${escapeHtml(h.id)}" class="${h.tagName === "H3" ? "l3" : ""}">${text(h)}</a></li>`).join("") + '<span class="toc-thumb" id="thumb"></span>';
+    document.getElementById("mtoc").innerHTML = heads.length ? `<details><summary><i data-lucide="align-left"></i>On this page<i data-lucide="chevron-down" class="chev"></i></summary><ul>${heads.map((h) => `<li><a href="#${escapeHtml(h.id)}" class="${h.tagName === "H3" ? "l3" : ""}">${text(h)}</a></li>`).join("")}</ul></details>` : "";
     document.title = `${entry.title} · Ginko Docs Shell`;
     icons();
     spy();
