@@ -42,7 +42,7 @@ const imageAttrs = computed(() => ({
       <!-- A button is phrasing content, so a bare markdown image stays valid inside its paragraph. -->
       <button
         type="button"
-        class="block max-w-full cursor-zoom-in rounded-[var(--radius)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        class="block w-full max-w-full cursor-zoom-in rounded-[var(--radius)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
       >
         <Motion as-child :layout-id="layoutId" :transition="transition">

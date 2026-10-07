@@ -164,11 +164,11 @@ export default defineAppConfig({
         },
       },
       install: {
-        command: "pnpm add -D @lupinum/ginko-docs@0.4.0-rc.10 @lupinum/ginko-content@1.0.0-beta.7",
+        command: "pnpm add -D @lupinum/ginko-docs@0.4.0-rc.11 @lupinum/ginko-content@1.0.0-beta.9",
       },
       features: [
         {
-          title: { en: "33 canonical tags", de: "33 kanonische Tags" },
+          title: { en: "34 canonical tags", de: "34 kanonische Tags" },
           description: {
             en: "Use callouts, steps, tabs, code groups, file trees, timelines, quizzes, and media in Markdown.",
             de: "Nutze Callouts, Schritte, Tabs, Code-Gruppen, Dateibäume, Timelines, Quizze und Medien in Markdown.",

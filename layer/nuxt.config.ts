@@ -33,7 +33,11 @@ export default defineNuxtConfig({
   $meta: { name: "ginko-docs" },
   compatibilityDate: "2025-07-15",
   alias: { "#ginko-docs": app },
-  css: [join(app, "assets/css/tailwind.css"), join(app, "assets/css/prose.css")],
+  css: [
+    join(app, "assets/css/tailwind.css"),
+    join(app, "assets/css/component-kit.css"),
+    join(app, "assets/css/prose.css"),
+  ],
   modules: [
     join(root, "modules/syntax-highlighting"),
     join(root, "modules/feature-routing"),

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, type HTMLAttributes } from "vue";
+import { computed, type HTMLAttributes } from "vue";
 import { cn } from "../../utils";
 
 type ValueProp<T extends string> = T | { value?: T | string };
@@ -8,48 +8,29 @@ type LayoutType = "default" | "card" | "border" | "border-dashed" | "outline" | 
 const props = withDefaults(
   defineProps<{
     type?: ValueProp<LayoutType>;
+    align?: "start" | "center" | "end";
+    gap?: "none" | "sm" | "md" | "lg";
+    stack?: "sm" | "md" | "lg";
+    surface?: "default" | "muted" | "tint";
     class?: HTMLAttributes["class"];
   }>(),
-  {
-    type: "default",
-  },
+  { type: "default", align: "start", gap: "md", stack: "md", surface: "default" },
 );
 
-const layoutTypeValue = computed<LayoutType>(() => {
-  if (typeof props.type === "string") return props.type;
-  return (props.type?.value as LayoutType | undefined) ?? "default";
-});
-
-const layoutRowClass = "content-layout-row";
-
-provide(
-  "mdc-layout-type",
-  computed(() => layoutTypeValue.value),
+const layoutType = computed(() =>
+  typeof props.type === "string" ? props.type : (props.type?.value ?? "default"),
 );
-provide("mdc-inside-layout", true);
 </script>
 
 <template>
-  <div :class="cn('content-layout h-full', props.class)">
-    <div v-if="layoutTypeValue === 'card'" class="w-full">
-      <div class="h-full">
-        <div :class="layoutRowClass">
-          <slot />
-        </div>
-      </div>
-    </div>
+  <div :class="cn('content-layout', props.class)">
     <div
-      v-else
-      :class="
-        cn(
-          layoutRowClass,
-          'h-full',
-          layoutTypeValue === 'border' && 'content-layout-row-border',
-          layoutTypeValue === 'border-dashed' && 'content-layout-row-border-dashed',
-          layoutTypeValue === 'outline' && 'content-layout-row-outline',
-          layoutTypeValue === 'outline-dashed' && 'content-layout-row-outline-dashed',
-        )
-      "
+      class="content-layout-row"
+      :data-type="layoutType"
+      :data-align="align"
+      :data-gap="gap"
+      :data-stack="stack"
+      :data-surface="surface"
     >
       <slot />
     </div>
