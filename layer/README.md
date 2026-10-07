@@ -24,12 +24,12 @@ Use this package when a Nuxt application needs documentation routes, navigation,
 - Node.js 22.18, 24.11, or 26 and later maintenance releases
 - Nuxt 4.5.1 or later in the Nuxt 4 line
 - Vue 3.5.40 or later
-- Ginko Content 1.0.0-beta.9 or later in the 1.x line
+- Ginko Content 1.0.0-beta.11 or later in the 1.x line
 
 ## Installation
 
 ```bash
-pnpm add -D @lupinum/ginko-docs@0.4.0-rc.11 @lupinum/ginko-content@1.0.0-beta.9
+pnpm add -D @lupinum/ginko-docs@0.4.0-rc.12 @lupinum/ginko-content@1.0.0-beta.11
 ```
 
 ```ts
