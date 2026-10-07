@@ -7,6 +7,9 @@ autoInstallPeers: false
 minimumReleaseAge: 1440
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+# Our own scope skips it: only our protected release workflows publish it (D14).
+minimumReleaseAgeExclude:
+  - "@lupinum/*"
 
 allowBuilds:
   "@parcel/watcher": true
