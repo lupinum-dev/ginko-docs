@@ -15,7 +15,7 @@ Prototype reference: the "Gallery" page, both surfaces. CSS: `.icon-sq`, `.cards
 
 ## Scope
 
-Allowed: the files above; `layer/tags.ts` and docs pages in `docs/content/**` (only for the tabs `layout` removal). Markup changes are allowed where a row below says so; keep every prop (except tabs `layout`, removed below), slot, emitted event, ARIA attribute, and keyboard behavior.
+Allowed: the files above; `layer/tags.ts` and docs pages in `docs/content/**` (only for the tabs `layout` removal); `layer/app/assets/css/docs-shell.css` (only for the shared search-dialog rule in step 1). Markup changes are allowed where a row below says so; keep every prop (except tabs `layout`, removed below), slot, emitted event, ARIA attribute, and keyboard behavior.
 
 Forbidden: the API panel and quiz (brief 04d); layout, column, flow, center (brief 04e).
 

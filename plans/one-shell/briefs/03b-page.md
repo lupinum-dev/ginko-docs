@@ -489,7 +489,7 @@ No new strings. Existing keys only.
 ## Done when
 
 - At 1440 px: the article column is 720 px wide (measure `.docs-article-inner` in the browser), centered between sidebar and TOC; the TOC shows, wraps long entries, and its active line moves with scrolling.
-- The TOC shows when the stage is at least 57.5rem (920 px) wide: with the 272 px sidebar that is a viewport of 1192 px or more. At 1180 px the TOC hides and the mobile bar shows only the TOC button; at 860 px and below the sidebar hides and the bar shows both buttons.
+- The TOC shows when the stage is at least 57.5rem (920 px) wide: with the 272 px sidebar that is a viewport of 1192 px or more. At 1180 px the TOC hides and the mobile bar shows only the TOC button; at 860 px and below the sidebar hides and the bar shows both buttons. In inset mode the 8 px gap narrows the stage, so the TOC shows from a 1200 px viewport; check 1192 and 1200 px there.
 - Inset: with `theme.shell: "inset"` set locally (do not commit), the stage is a rounded card with an 8 px gap to the right and bottom edge, the sidebar has no background or border, and the ground is tinted, in both schemes.
 - Standalone and inset screenshots at 375 and 1440, both schemes, in the pull request, next to the prototype at the same widths.
 - `pnpm verify` and `pnpm release:verify` pass; `shots.mjs` exits 0.

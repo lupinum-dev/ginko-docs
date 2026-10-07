@@ -16,7 +16,7 @@ Prototype reference: page "Gallery", sections "API" and "Quiz" (both surfaces). 
 
 ## Scope
 
-Allowed: the files above, `layer/i18n/messages/global/api.ts` (new) and `index.ts`, `layer/app/assets/css/tailwind.css` (only to delete `--accent-*` and `--chart-*` once unused).
+Allowed: the files above, `layer/i18n/messages/global/api.ts` (new) and `index.ts`, `layer/app/assets/css/tailwind.css` and `layer/app/assets/css/theme-presets.css` (only to delete `--accent-*` and `--chart-*` once unused, step 3).
 
 Forbidden: API data parsing and validation (`normalizeApiGroups`), anchor ids (`apiEntryId`), quiz scoring and state logic.
 

@@ -56,7 +56,7 @@ Rules:
 
 ## Tests
 
-`layer/section/content.test.ts`, one table test over inputs and expected collection fields (`type`, `source`, `route`, `i18n`) and one test per validation error. Wrong behaviors: a per-locale route is passed as a string (German pages mount at the English path); a missing locale route silently produces an unmounted locale; `defineGinkoDocsConfig` output changes. For the last one, compare `defineGinkoDocsConfig({...same options as docs/content.config.ts})` before and after with a snapshot of the collection options (not of Zod internals).
+`layer/section/content.test.ts`, one table test over inputs and expected collection fields (`type`, `source`, `route`, `i18n`) and one test per validation error. Wrong behaviors: a per-locale route is passed as a string (German pages mount at the English path); a missing locale route silently produces an unmounted locale; `defineGinkoDocsConfig` output changes. For the last one, compare `defineGinkoDocsConfig({...same options as docs/content.config.ts})` before and after with snapshots of the collection options and the agent-section metadata (section IDs, localized titles, order), not of Zod internals.
 
 ## Done when
 

@@ -67,7 +67,10 @@ Delete `MdcInlineToc.vue`, the `toc` entry in `contentComponentTags` and `conten
 Create `layer/component-sets.ts`:
 
 ```ts
-import { ginkoDocsComponentTags, type GinkoDocsComponentTag } from "./components";
+import {
+  contentComponentTags as ginkoDocsComponentTags,
+  type ContentComponentTag as GinkoDocsComponentTag,
+} from "./tags";
 
 /** Components for client websites: text blocks, media, layout, and a few objects. */
 export const editorialComponentTags = [
@@ -99,7 +102,7 @@ export const ginkoDocsComponentSets = {
 export type GinkoDocsComponentSet = keyof typeof ginkoDocsComponentSets;
 ```
 
-Export it from `layer/components.ts`.
+Export it from `layer/components.ts`. Avoid the component-barrel import cycle: `component-sets.ts` must import the tag map and its type from `./tags` (as above), never from `components.ts`, or the re-export runs `Object.keys` before the map is initialized.
 
 The component kit becomes the editorial set:
 

@@ -243,7 +243,7 @@ The left drawer floats with an 8 px gap, like the prototype sheet:
 }
 ```
 
-- Left `SheetContent`: add `docs-drawer`, remove `w-[var(--docs-sidebar-width)] max-w-[85vw]`. If `SheetContent`'s own side classes (`inset-y-0 left-0 h-full border-r`) win over `docs-drawer`, pass them through `cn` so the drawer classes come last, or add `!` only to the conflicting properties; record which one you used.
+- Left `SheetContent`: add `docs-drawer`, remove `w-[var(--docs-sidebar-width)] max-w-[85vw]`. `SheetContent`'s side classes (`inset-y-0 left-0 h-full border-r`, width) are utilities, and `docs-drawer` lives in `@layer components` (brief 03a), so class order in `cn` cannot make the drawer win. Either pass Tailwind utilities for the conflicting properties in the caller's `class` (tailwind-merge then drops the side utilities) or add `!` only to the conflicting `.docs-drawer` declarations; record which one you used.
 - The drawer header (`SheetTitle` row) gets `docs-drawer-head` and loses `border-b px-4 py-3`. The `DocsSidebar variant="drawer"` inside keeps the sidebar styles from brief 03a.
 - The bottom TOC `SheetContent` gets `docs-sheet-bottom` instead of `rounded-t-2xl`.
 - `SheetOverlay`: use `var(--docs-overlay)` for the background (in `SheetOverlay.vue`, replace the current background class with `bg-[var(--docs-overlay)]`). This also affects the full-screen site menu's overlay; check that it still looks right.

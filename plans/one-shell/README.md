@@ -70,7 +70,7 @@ PORT=3120 node docs/.output/server/index.mjs
 In a second shell:
 
 ```bash
-node plans/one-shell/tools/shots.mjs --base http://localhost:3120 --out .evidence/03a/before
+node plans/one-shell/tools/shots.mjs --base http://localhost:3120 --out .evidence/<brief id>/before
 ```
 
 The script writes screenshots at 375 and 1440 px, light and dark, for the default routes (a docs page, the component showcase, the editorial layouts page, a German page), plus `report.json` with console errors and serious or critical axe violations. Pass `--routes` for other pages and `--full` for full-page screenshots.
