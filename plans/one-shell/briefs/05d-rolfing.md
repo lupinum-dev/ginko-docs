@@ -1,6 +1,6 @@
 # Brief 05d: migrate rolfing
 
-Goal: rolfing (`/Users/matthias/Git/2_sites/rolfing`) uses the released section mode and has no selector into docs markup and no private import.
+Goal: rolfing (its site checkout) uses the released section mode and has no selector into docs markup and no private import.
 
 Depends on: 05c released to npm (a version the maintainer published). Other repository. Size: M.
 

@@ -6,7 +6,7 @@ Depends on: PR #70 merged. Release check: **yes** (`pnpm release:verify`), becau
 
 ## Why
 
-rolfing (`/Users/matthias/Git/2_sites/rolfing`) imports two private files and patches the shell with `:has()` and label-text selectors (see [plan.md](../plan.md), breaking changes). This brief gives it public replacements. Brief 05d later removes rolfing's workarounds.
+rolfing (its site checkout) imports two private files and patches the shell with `:has()` and label-text selectors (see [plan.md](../plan.md), breaking changes). This brief gives it public replacements. Brief 05d later removes rolfing's workarounds.
 
 ## Read first
 

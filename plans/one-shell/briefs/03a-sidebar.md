@@ -252,7 +252,7 @@ One row style for every depth. Apply `.docs-row` to the `NuxtLink` or `Button` r
 ```
 
 - `TabsList` gets `class="docs-seg"` and `:aria-label="t('docs.sections')"`. Remove its default shadcn classes for this use by passing the class and checking the rendered result (if the shadcn `TabsList` forces a background or height through its own classes, use `cn` override or render the Reka `TabsList` primitive directly; record which one you used).
-- Each `TabsTrigger` gets `class="docs-seg-item"`. Remove `min-w-0 flex-1 basis-0` and the `truncate` span (render the title directly). Remove the `:title` attribute (nothing is truncated any more).
+- Each `TabsTrigger` gets `class="docs-seg-item"`. Remove `min-w-0 flex-1 basis-0` and the `truncate` span (render the title directly). Remove the `:title` attribute (nothing is truncated anymore).
 - Add the key `docs.sections` (`Sections` / `Bereiche`) to `layer/i18n/messages/global/docs.ts`.
 
 **List** (`DocsSidebarList.vue`): each button becomes a `.docs-row` with `aria-pressed`; the pressed one uses the current style. Add to `docs-shell.css`:

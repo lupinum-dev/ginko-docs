@@ -8,7 +8,7 @@ Before hand-off: Claude re-reads this brief against `main` after 04e merges and 
 
 ## Read first
 
-- `lupinum-website/changes-needed/ginko-docs-section-mode.md`, sections "Content: `defineDocsSection`" and "Locales" (`/Users/matthias/Git/0_libs/lupinum-website/changes-needed/ginko-docs-section-mode.md`)
+- `lupinum-website/changes-needed/ginko-docs-section-mode.md`, sections "Content: `defineDocsSection`" and "Locales" in the `lupinum-website` checkout next to this repository
 - `layer/content.ts`, `layer/content-collections.ts`, `layer/shared/route-slugs.ts`, `layer/i18n/locales.ts`
 - `layer/package.json` (`exports`, `files`), `layer/content.js` is generated from `content.ts` (`pnpm build:content-entry`)
 - The Ginko Content config types: `node_modules/@lupinum/ginko-content` `dist/config.d.mts` (`defineCollection`, `defineAgentSection`)
