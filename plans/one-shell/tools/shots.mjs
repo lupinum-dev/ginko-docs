@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Evidence for every one-shell brief: screenshots at 375 and 1440 px in light
-// and dark, an axe run per route and width, and console errors.
+// and dark, an axe run per route, width and scheme, and console errors.
 //
 //   node plans/one-shell/tools/shots.mjs --base http://localhost:3120 --out .evidence/03a/after
 //   node plans/one-shell/tools/shots.mjs --base ... --out ... --routes /docs,/de/dokumentation
@@ -13,7 +13,7 @@
 // Exits 1 when a page errors, a console error appears, or axe reports a
 // serious or critical violation.
 
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright-core";
 
@@ -36,11 +36,14 @@ const fullPage = args.includes("--full");
 const widths = [375, 1440];
 const schemes = ["light", "dark"];
 
+// axe-core arrives transitively (no direct dependency), so look in the
+// workspace's pnpm store relative to this file, not the working directory.
 function findAxe() {
-  const store = resolve("node_modules/.pnpm");
+  const store = resolve(import.meta.dirname, "../../../node_modules/.pnpm");
+  if (!existsSync(store)) return null;
   const entry = readdirSync(store).find((name) => name.startsWith("axe-core@"));
-  if (!entry) return null;
-  return readFileSync(join(store, entry, "node_modules/axe-core/axe.min.js"), "utf8");
+  const file = entry && join(store, entry, "node_modules/axe-core/axe.min.js");
+  return file && existsSync(file) ? readFileSync(file, "utf8") : null;
 }
 
 function executablePath() {
@@ -61,11 +64,47 @@ function executablePath() {
 
 mkdirSync(out, { recursive: true });
 const axeSource = findAxe();
-if (!axeSource) console.warn("axe-core not found in node_modules/.pnpm; skipping accessibility checks.");
+if (!axeSource) {
+  // Silent skipping would make passing evidence meaningless.
+  console.error("axe-core not found in the workspace pnpm store; run pnpm install.");
+  process.exit(1);
+}
 
 const browser = await chromium.launch({ executablePath: executablePath(), headless: true });
 const report = [];
 let failed = false;
+
+async function capture(context, route, width, scheme, errors) {
+  const page = await context.newPage();
+  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error" || /hydration/i.test(message.text())) {
+      errors.push(`console ${message.type()}: ${message.text()}`);
+    }
+  });
+
+  const response = await page.goto(`${base}${route}`, { waitUntil: "load" });
+  await page.waitForTimeout(400);
+  const status = response?.status() ?? 0;
+  const name = `${route.replace(/^\//, "").replace(/\//g, "_") || "home"}--${width}-${scheme}.png`;
+  await page.screenshot({ path: join(out, name), fullPage, animations: "disabled" });
+
+  // Run axe in both schemes: dark-mode contrast fails independently.
+  await page.addScriptTag({ content: axeSource });
+  const result = await page.evaluate(async () =>
+    // eslint-disable-next-line no-undef
+    axe.run(document, { resultTypes: ["violations"] }),
+  );
+  const violations = result.violations
+    .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
+    .map((violation) => ({
+      id: violation.id,
+      impact: violation.impact,
+      help: violation.help,
+      targets: violation.nodes.slice(0, 5).map((node) => node.target.join(" ")),
+    }));
+  return { status, screenshot: name, violations };
+}
 
 for (const route of routes) {
   for (const width of widths) {
@@ -75,50 +114,27 @@ for (const route of routes) {
         colorScheme: scheme,
         deviceScaleFactor: 1,
       });
-      const page = await context.newPage();
       const errors = [];
-      page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-      page.on("console", (message) => {
-        if (message.type() === "error" || /hydration/i.test(message.text())) {
-          errors.push(`console ${message.type()}: ${message.text()}`);
-        }
-      });
-
-      const response = await page.goto(`${base}${route}`, { waitUntil: "load" });
-      await page.waitForTimeout(400);
-      const status = response?.status() ?? 0;
-      const name = `${route.replace(/^\//, "").replace(/\//g, "_") || "home"}--${width}-${scheme}.png`;
-      await page.screenshot({ path: join(out, name), fullPage });
-
-      let violations = [];
-      if (axeSource && scheme === "light") {
-        await page.addScriptTag({ content: axeSource });
-        const result = await page.evaluate(async () =>
-          // eslint-disable-next-line no-undef
-          axe.run(document, { resultTypes: ["violations"] }),
-        );
-        violations = result.violations
-          .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
-          .map((violation) => ({
-            id: violation.id,
-            impact: violation.impact,
-            help: violation.help,
-            targets: violation.nodes.slice(0, 5).map((node) => node.target.join(" ")),
-          }));
+      let entry;
+      try {
+        entry = { route, width, scheme, ...(await capture(context, route, width, scheme, errors)), errors };
+      } catch (error) {
+        // Record the failed step and keep going, so report.json is always written.
+        entry = { route, width, scheme, status: 0, errors: [...errors, `run: ${error.message}`], violations: [] };
+      } finally {
+        await context.close();
       }
-
-      const entry = { route, width, scheme, status, screenshot: name, errors, violations };
-      if (status >= 400 || errors.length > 0 || violations.length > 0) failed = true;
+      if (entry.status === 0 || entry.status >= 400 || entry.errors.length > 0 || entry.violations.length > 0)
+        failed = true;
       report.push(entry);
       console.log(
-        `${status} ${route} ${width}px ${scheme}: ${errors.length} errors, ${violations.length} serious/critical axe`,
+        `${entry.status} ${route} ${width}px ${scheme}: ${entry.errors.length} errors, ${entry.violations.length} serious/critical axe`,
       );
-      await context.close();
     }
   }
 }
 
 await browser.close();
 writeFileSync(join(out, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
-console.log(`Wrote ${report.length} screenshots and report.json to ${out}`);
+console.log(`Wrote report.json for ${report.length} runs to ${out}`);
 process.exit(failed ? 1 : 0);
