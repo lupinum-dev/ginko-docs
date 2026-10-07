@@ -41,6 +41,7 @@ const { imageTransition, fadeTransition } = useImageZoomMotion();
           :exit="{ opacity: 0 }"
           :transition="fadeTransition"
           class="image-zoom-backdrop"
+          aria-hidden="true"
         />
 
         <DialogContent v-if="open" class="image-zoom-dialog" @click="open = false">
