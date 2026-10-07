@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Features
+
+- Add stable `data-docs-*` styling hooks and documented layout variables for the
+  sidebar, article, table of contents, breadcrumb and pager.
+- Export `useDocsSearch` to open the search dialog from a host header, and
+  `useDocsNavigation` for sections, breadcrumbs and the current page.
+
 ### Fixes
 
 - Render component-kit figures and image zoom without the full Docs layer, i18n,
