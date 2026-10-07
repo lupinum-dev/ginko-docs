@@ -2,9 +2,9 @@
 import type { HTMLAttributes } from "vue";
 import { Motion } from "motion-v";
 import { computed } from "vue";
-import { useI18n } from "#imports";
-import ImageZoomDialog from "#ginko-docs/components/content/ImageZoomDialog.vue";
-import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
+import { useAppConfig } from "#imports";
+import ImageZoomDialog from "../content/ImageZoomDialog.vue";
+import { useDocsText } from "../../composables/useDocsText";
 import { cn } from "../../utils";
 import { useProseAppearance } from "../../composables/useProseAppearance";
 
@@ -18,6 +18,9 @@ const props = withDefaults(
     bleed?: boolean | string;
     aspect?: "auto" | "video" | "wide" | "square" | "portrait";
     fit?: "cover" | "contain";
+    placement?: "inline" | "start" | "end";
+    frame?: "default" | "none";
+    focus?: "center" | "top" | "bottom" | "left" | "right";
     zoom?: boolean | string;
     class?: HTMLAttributes["class"];
     appearance?: "quiet" | "tint";
@@ -30,28 +33,15 @@ const props = withDefaults(
 );
 const appearance = useProseAppearance("figure", () => props.appearance);
 
-const { t } = useI18n();
-const config = useGinkoDocsConfig();
+const { t } = useDocsText();
+// The component kit runs without the layer, so ginkoDocs app config may be absent.
+const imagesConfig: { zoom?: boolean } | undefined = useAppConfig().ginkoDocs?.images;
 const zoomEnabled = computed(() => {
-  if (props.zoom === "auto") return config.images?.zoom !== false;
+  if (props.zoom === "auto") return imagesConfig?.zoom !== false;
   return props.zoom === true || props.zoom === "true";
 });
 const shouldBleed = computed(
   () => props.bleed === true || props.bleed === "true" || props.bleed === "outside",
-);
-
-const aspectClass = computed(() => {
-  return {
-    auto: "",
-    video: "aspect-video",
-    wide: "aspect-[21/9]",
-    square: "aspect-square",
-    portrait: "aspect-[4/5]",
-  }[props.aspect ?? "auto"];
-});
-
-const imageClass = computed(() =>
-  cn("w-full", aspectClass.value, props.fit === "contain" ? "object-contain" : "object-cover"),
 );
 </script>
 
@@ -60,23 +50,28 @@ const imageClass = computed(() =>
     :class="cn('content-media not-prose', props.class)"
     :data-bleed="shouldBleed ? 'true' : undefined"
     :data-appearance="appearance"
+    :data-placement="placement ?? 'inline'"
+    :data-frame="frame ?? 'default'"
+    :data-focus="focus ?? 'center'"
+    :data-aspect="aspect ?? 'auto'"
+    :data-fit="fit ?? 'cover'"
   >
-    <template v-if="src">
+    <div v-if="src" class="content-media-visual">
       <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">
         <template #trigger="{ layoutId, transition }">
           <button
             type="button"
-            class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            class="content-media-trigger"
             :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
           >
             <Motion as-child :layout-id="layoutId" :transition="transition">
-              <img :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
+              <img :src="src" :alt="alt" :width="width" :height="height" />
             </Motion>
           </button>
         </template>
       </ImageZoomDialog>
-      <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
-    </template>
+      <img v-else :src="src" :alt="alt" :width="width" :height="height" />
+    </div>
     <slot />
     <figcaption v-if="caption || alt">
       {{ caption || alt }}

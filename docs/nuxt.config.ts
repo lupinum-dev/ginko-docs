@@ -23,14 +23,17 @@ export default defineNuxtConfig({
   },
   content: {
     componentPolicy: {
+      version: 2,
       components: {
         "release-status": {
           kind: "block",
           props: {
-            channel: { type: "string", required: true },
-            available: { type: "boolean", required: false },
+            channel: { types: ["string"], required: true, allowedValues: null },
+            available: { types: ["boolean"], required: false, allowedValues: null },
           },
           slots: ["default"],
+          allowedParents: null,
+          allowedChildren: null,
           media: null,
         },
       },

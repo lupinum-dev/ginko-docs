@@ -21,7 +21,13 @@ overrides:
   "hono@<4.13.5": 4.13.7
   "js-yaml@>=4.0.0 <4.3.2": 4.3.2
   "svgo@>=4.0.0 <4.1.0": 4.1.0
-  "@lupinum/ginko-content": 1.0.0-beta.7
+  "@simple-git/argv-parser@<2.0.1": 2.0.1
+  "postcss-selector-parser@<7.1.6": 7.1.6
+  "seroval@<1.6.3": 1.6.3
+  "shell-quote@<1.11.0": 1.11.0
+  "source-map-js@<1.2.2": 1.2.2
+  "tinypool@>=2.0.0 <2.1.2": 2.1.2
+  "@lupinum/ginko-content": 1.0.0-beta.9
   esbuild: 0.28.2
   vite: npm:@voidzero-dev/vite-plus-core@0.1.24
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
@@ -29,7 +35,16 @@ overrides:
 peerDependencyRules:
   allowedVersions:
     # nuxt-og-image has not widened its optional Sharp peer range yet. Ginko
-    # already runs on Sharp 0.35, and 0.35.4 is the patched compatible release.
-    sharp: 0.35.4
+    # already runs on Sharp 0.35, and 0.35.5 is the patched compatible release.
+    sharp: 0.35.5
     vite: 0.1.24
     vitest: 0.1.24
+
+# Dev/build only; MAINTAINING.md lists every approved path. Expiry is enforced by check:dependencies.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-86w9-cpqp-85rv # {"owner": "mat4m0", "reason": "Advertised patched version is unpublished.", "expires": "2026-11-06T00:00:00Z"}
+    - GHSA-vfj7-8cjw-p6xm # {"owner": "mat4m0", "reason": "Advertised patched version is unpublished.", "expires": "2026-11-06T00:00:00Z"}
+    - GHSA-x6jw-m9v5-85vh # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}
+    - GHSA-g4wm-2vf7-vfgr # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}
+    - GHSA-858h-whjf-mvg5 # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}

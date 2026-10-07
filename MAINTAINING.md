@@ -131,6 +131,131 @@ Rolldown and its native bindings on the reviewed workspace version when their
 registry publication times differ. Update that pin with normal dependency updates;
 the fixtures keep the same 24-hour quarantine and check the installed version.
 
+## Dev-only audit exceptions
+
+Fix advisories where a compatible release exists. An advisory that reaches the
+workspace only through Nuxt, Nitro, or Nuxt modules, with no compatible published
+fix, may receive a recorded, time-limited exception by advisory ID and exact
+dependency path. It expires on 2026-11-06 or when a compatible fix is published,
+whichever comes first. Never ignore a severity or a package wholesale. Any other
+path, and any new advisory, blocks merging.
+
+Matthias approved these exceptions on 2026-10-07, including the paths through the
+published layer's Nuxt modules (`layer>`). Those paths end in Nuxt's development
+server and build tooling (`@nuxt/cli`, `@nuxt/devtools`, Nitro, file globbing).
+Consumers already install the same packages through their own `nuxt`. To remove
+the layer's direct path, `nitropack` is a peer dependency that Nuxt provides.
+
+The workspace uses pnpm `auditConfig.ignoreGhsas`. `pnpm check:dependencies`,
+which also runs in the daily CI policy lane, rejects entries without owner, reason
+and UTC expiry, and fails after the expiry. Generated consumer fixtures do not
+inherit the exceptions. Remove an exception and its paths here as soon as a
+compatible fix is published; review upstream versions before each release.
+
+### GHSA-86w9-cpqp-85rv (node-forge, high)
+
+Expires: 2026-11-06T00:00:00Z, or earlier on a compatible published fix.
+Advertised patched version 1.4.1 is unpublished.
+
+Exact approved dev/build dependency paths:
+
+- `.>@lupinum/ginko-content>nitropack>listhen>node-forge`
+- `.>@lupinum/ginko-content>nuxt>@nuxt/cli>listhen>node-forge`
+- `.>@lupinum/ginko-content>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `docs>@lupinum/ginko-content>nitropack>listhen>node-forge`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/cli>listhen>node-forge`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `docs>nuxt>@nuxt/cli>listhen>node-forge`
+- `docs>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>nuxt-og-image>nitropack>listhen>node-forge`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/cli>listhen>node-forge`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge`
+
+### GHSA-vfj7-8cjw-p6xm (braces, high)
+
+Expires: 2026-11-06T00:00:00Z, or earlier on a compatible published fix.
+Advertised patched version 3.0.4 is unpublished.
+
+Exact approved dev/build dependency paths:
+
+- `.>@lupinum/ginko-content>globby>fast-glob>micromatch>braces`
+- `.>@lupinum/ginko-content>nitropack>globby>fast-glob>micromatch>braces`
+- `.>@lupinum/ginko-content>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `docs>@lupinum/ginko-content>globby>fast-glob>micromatch>braces`
+- `docs>@lupinum/ginko-content>nitropack>globby>fast-glob>micromatch>braces`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `docs>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>@nuxtjs/i18n>@intlify/unplugin-vue-i18n>fast-glob>micromatch>braces`
+- `layer>@nuxtjs/mcp-toolkit>vite-plugin-singlefile>micromatch>braces`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>nuxt-og-image>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces`
+
+### GHSA-x6jw-m9v5-85vh (simple-git, critical)
+
+Expires: 2026-11-06T00:00:00Z, or earlier on a compatible published fix.
+Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.
+
+Exact approved dev/build dependency paths:
+
+- `.>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+
+### GHSA-g4wm-2vf7-vfgr (simple-git, high)
+
+Expires: 2026-11-06T00:00:00Z, or earlier on a compatible published fix.
+Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.
+
+Exact approved dev/build dependency paths:
+
+- `.>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+
+### GHSA-858h-whjf-mvg5 (simple-git, high)
+
+Expires: 2026-11-06T00:00:00Z, or earlier on a compatible published fix.
+Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.
+
+Exact approved dev/build dependency paths:
+
+- `.>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>@lupinum/ginko-content>nuxt>@nuxt/devtools>simple-git`
+- `docs>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/robots>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+- `layer>nuxt-og-image>nuxtseo-shared>nuxt>@nuxt/devtools>simple-git`
+
 ## Release preparation
 
 1. Choose the version.

@@ -13,6 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyPackageAgentDocs } from "./package-agent-docs.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = resolve(root, "layer/.pack");
@@ -42,7 +43,7 @@ function packOnce(parent, index) {
   return { filename: archives[0], path, hash: sha256(path) };
 }
 
-function inspectPackage(path, temporaryRoot) {
+async function inspectPackage(path, temporaryRoot) {
   const extract = resolve(temporaryRoot, "extract");
   mkdirSync(extract);
   run("tar", ["-xzf", path, "-C", extract], root, "pipe");
@@ -90,8 +91,12 @@ function inspectPackage(path, temporaryRoot) {
   );
   if (forbidden.length)
     throw new Error(`Packed layer contains forbidden files:\n${forbidden.join("\n")}`);
+  await verifyPackageAgentDocs(resolve(extract, "package"), {
+    sourceRoot: resolve(root, "docs/.output/public/raw"),
+  });
 }
 
+run("pnpm", ["docs:build"]);
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 const temporaryRoot = mkdtempSync(resolve(tmpdir(), "ginko-docs-release-"));
@@ -101,7 +106,7 @@ try {
   if (first.filename !== second.filename || first.hash !== second.hash) {
     throw new Error("Ginko Docs package archives are not byte reproducible.");
   }
-  inspectPackage(first.path, temporaryRoot);
+  await inspectPackage(first.path, temporaryRoot);
   const archive = resolve(output, first.filename);
   copyFileSync(first.path, archive);
   const commit = run("git", ["rev-parse", "HEAD"], root, "pipe").trim();
