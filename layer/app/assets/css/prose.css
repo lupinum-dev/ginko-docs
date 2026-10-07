@@ -902,33 +902,6 @@ html[data-code-blocks="dark"] .content-codeblock.shiki span {
   text-decoration-line: none;
 }
 
-.content-media {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background-color: var(--card);
-  box-shadow: var(--shadow-xs);
-}
-
-.content-media img {
-  display: block;
-  width: 100%;
-}
-
-.content-media figcaption {
-  border-top: 1px solid var(--border);
-  background-color: color-mix(in oklab, var(--muted) 30%, transparent);
-  padding: 0.75rem 1rem;
-}
-
-.content-media-description {
-  display: block;
-  margin-top: 0.25rem;
-  color: var(--muted-foreground);
-}
-
 .content-media[data-bleed="true"] {
   margin-right: 0;
   margin-left: 0;
@@ -1970,32 +1943,6 @@ h3.content-accordion-header,
 .content-files-annotation {
   margin-inline-start: auto;
   padding-inline-start: 0.75rem;
-}
-
-/* --- Figure / media (object; canonical quiet anatomy defined above) --- */
-
-.content-media figcaption {
-  font-size: 0.8125rem;
-  text-align: start;
-}
-
-.content-media[data-appearance="tint"] {
-  border: 0;
-  background-color: var(--secondary);
-  box-shadow: none;
-  padding: 0.25rem;
-}
-
-.content-media[data-appearance="tint"] img {
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
-  border-radius: calc(var(--radius) - 2px);
-  box-shadow: var(--shadow-xs);
-}
-
-.content-media[data-appearance="tint"] figcaption {
-  border-top: 0;
-  background-color: transparent;
-  padding: 0.4rem 0.55rem 0.3rem;
 }
 
 /* --- API (object) — inherits the tabs shell; owns its compact data grammar. */

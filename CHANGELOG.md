@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Render component-kit figures and image zoom without the full Docs layer, i18n,
+  or host utility styles. Full Docs sites retain localized image labels.
+- Spell the default German quiz check label "Antwort prüfen".
+- Require sharp 0.35.5, the patched release.
+
 ## v0.4.0-rc.11
 
 [compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.10...v0.4.0-rc.11)

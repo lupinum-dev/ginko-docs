@@ -43,20 +43,6 @@ const zoomEnabled = computed(() => {
 const shouldBleed = computed(
   () => props.bleed === true || props.bleed === "true" || props.bleed === "outside",
 );
-
-const aspectClass = computed(() => {
-  return {
-    auto: "",
-    video: "aspect-video",
-    wide: "aspect-[21/9]",
-    square: "aspect-square",
-    portrait: "aspect-[4/5]",
-  }[props.aspect ?? "auto"];
-});
-
-const imageClass = computed(() =>
-  cn("w-full", aspectClass.value, props.fit === "contain" ? "object-contain" : "object-cover"),
-);
 </script>
 
 <template>
@@ -67,22 +53,24 @@ const imageClass = computed(() =>
     :data-placement="placement ?? 'inline'"
     :data-frame="frame ?? 'default'"
     :data-focus="focus ?? 'center'"
+    :data-aspect="aspect ?? 'auto'"
+    :data-fit="fit ?? 'cover'"
   >
     <div v-if="src" class="content-media-visual">
       <ImageZoomDialog v-if="zoomEnabled" :src="src" :alt="alt" :label="caption">
         <template #trigger="{ layoutId, transition }">
           <button
             type="button"
-            class="block w-full cursor-zoom-in rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            class="content-media-trigger"
             :aria-label="`${t('docs.zoomImage')}: ${alt ?? ''}`"
           >
             <Motion as-child :layout-id="layoutId" :transition="transition">
-              <img :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
+              <img :src="src" :alt="alt" :width="width" :height="height" />
             </Motion>
           </button>
         </template>
       </ImageZoomDialog>
-      <img v-else :src="src" :alt="alt" :width="width" :height="height" :class="imageClass" />
+      <img v-else :src="src" :alt="alt" :width="width" :height="height" />
     </div>
     <slot />
     <figcaption v-if="caption || alt">
