@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- `nitropack` is a peer dependency; Nuxt installs it.
+
 ### Fixes
 
 - Render component-kit figures and image zoom without the full Docs layer, i18n,
