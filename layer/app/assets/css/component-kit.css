@@ -1,3 +1,103 @@
+/* Component sizes include their own padding in hosts without a CSS reset. */
+.content-callout,
+.content-layout-row,
+.content-layout-column,
+.content-aside,
+.content-excerpt,
+.content-media,
+.content-flow {
+  box-sizing: border-box;
+}
+
+.content-media {
+  margin-inline: 0;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border, #d4d4d4);
+  border-radius: var(--radius, 0.625rem);
+  background-color: var(--card, #fff);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.content-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.content-media figcaption {
+  border-top: 1px solid var(--border, #d4d4d4);
+  background-color: color-mix(in oklab, var(--muted, #f5f5f5) 30%, transparent);
+  padding: 0.75rem 1rem;
+}
+
+.content-media-description {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted-foreground, #666);
+}
+
+/* --- Figure / media (object; canonical quiet anatomy defined above) --- */
+
+.content-media figcaption {
+  font-size: 0.8125rem;
+  text-align: start;
+}
+
+.content-media[data-appearance="tint"] {
+  border: 0;
+  background-color: var(--secondary, #f5f5f5);
+  box-shadow: none;
+  padding: 0.25rem;
+}
+
+.content-media[data-appearance="tint"] img {
+  border: 1px solid color-mix(in oklab, var(--border, #d4d4d4) 80%, transparent);
+  border-radius: calc(var(--radius, 0.625rem) - 2px);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.content-media[data-appearance="tint"] figcaption {
+  border-top: 0;
+  background-color: transparent;
+  padding: 0.4rem 0.55rem 0.3rem;
+}
+
+.content-media img {
+  object-fit: cover;
+}
+.content-media[data-fit="contain"] img {
+  object-fit: contain;
+}
+.content-media[data-aspect="video"] img {
+  aspect-ratio: 16 / 9;
+}
+.content-media[data-aspect="wide"] img {
+  aspect-ratio: 21 / 9;
+}
+.content-media[data-aspect="square"] img {
+  aspect-ratio: 1;
+}
+.content-media[data-aspect="portrait"] img {
+  aspect-ratio: 4 / 5;
+}
+.content-media-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+}
+.content-media-trigger:focus-visible {
+  outline: 2px solid var(--ring, currentColor);
+  /* Inset: .content-media clips overflow, so an outer ring would be cut off. */
+  outline-offset: -2px;
+}
+
 /* Reading flow owns its measure; figures can use the available track without
    escaping the page or a nested column. Floats never escape this body. */
 .content-flow {
@@ -496,6 +596,7 @@
 
 .content-aside,
 .content-excerpt {
+  margin-inline: 0;
   position: relative;
   margin-block: 1.25rem;
   border-radius: var(--radius, 0.625rem);

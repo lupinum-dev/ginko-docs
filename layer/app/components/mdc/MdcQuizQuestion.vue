@@ -49,7 +49,7 @@ const text = computed(() => {
   const isGerman = String(locale.value) === "de";
 
   return {
-    check: props.checkLabel ?? (isGerman ? "Antwort pruefen" : "Check Answer"),
+    check: props.checkLabel ?? (isGerman ? "Antwort prüfen" : "Check Answer"),
     correct: props.correctLabel ?? (isGerman ? "Richtig" : "Correct"),
     incorrect: props.incorrectLabel ?? (isGerman ? "Nicht richtig" : "Incorrect"),
     reset: props.resetLabel ?? (isGerman ? "Erneut versuchen" : "Try Again"),

@@ -15,6 +15,7 @@ export function checkDependencyPolicy(source, now = Date.now()) {
   })) {
     if (document.get(key) !== expected) failures.push(`${key} must be ${expected}.`);
   }
+  failures.push(...checkAuditExceptions(document.get("auditConfig", true), now));
   const exclusions = document.get("minimumReleaseAgeExclude", true);
   if (exclusions === undefined) return failures;
   if (!isSeq(exclusions)) return [...failures, "minimumReleaseAgeExclude must be a list."];
@@ -47,6 +48,43 @@ export function checkDependencyPolicy(source, now = Date.now()) {
       failures.push(`${name}: quarantine exception expired at ${expires}; remove the exclusion and its comment.`);
     } else if (timestamp > now + 24 * 60 * 60 * 1000) {
       failures.push(`${name}: quarantine exception must expire within 24 hours.`);
+    }
+  }
+  return failures;
+}
+
+// Dev-only audit exceptions: GHSA IDs only, each with inline owner, reason and
+// a UTC expiry no later than the approved 2026-11-06 deadline.
+const approvedAuditDeadline = Date.parse("2026-11-06T00:00:00Z");
+function checkAuditExceptions(auditConfig, now) {
+  if (auditConfig === undefined) return [];
+  if (!isMap(auditConfig) || auditConfig.items.some((pair) => pair.key?.value !== "ignoreGhsas"))
+    return ["Audit exceptions may only use auditConfig.ignoreGhsas."];
+  const entries = auditConfig.get("ignoreGhsas", true);
+  if (!isSeq(entries)) return ["auditConfig.ignoreGhsas must be a list."];
+  const failures = [];
+  const ids = new Set();
+  for (const item of entries.items) {
+    const id = isScalar(item) ? item.value : undefined;
+    const segment = "[23456789cfghjmpqrvwx]{4}";
+    if (typeof id !== "string" || !new RegExp(`^GHSA-${segment}-${segment}-${segment}$`).test(id) || ids.has(id)) {
+      failures.push("Each audit exception must name one unique GHSA ID.");
+      continue;
+    }
+    ids.add(id);
+    let metadata;
+    try { metadata = JSON.parse(item.comment ?? ""); } catch { /* Report missing or malformed metadata below. */ }
+    const expires = metadata?.expires;
+    const timestamp = typeof expires === "string" ? Date.parse(expires) : NaN;
+    if (typeof metadata?.reason !== "string" || !metadata.reason.trim()
+      || typeof metadata?.owner !== "string" || !metadata.owner.trim()
+      || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(expires ?? "")
+      || !Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== expires.replace("Z", ".000Z")) {
+      failures.push(`${id}: inline JSON comment must contain a nonempty reason, owner, and UTC expires.`);
+    } else if (timestamp <= now) {
+      failures.push(`${id}: dev-only audit exception expired at ${expires}; remove it.`);
+    } else if (timestamp > approvedAuditDeadline) {
+      failures.push(`${id}: dev-only audit exception must expire by 2026-11-06.`);
     }
   }
   return failures;

@@ -1,3 +1,5 @@
+import { chromium } from "playwright-core";
+import { gzipSync } from "node:zlib";
 import { spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
@@ -64,6 +66,7 @@ async function availablePort() {
 
 const fixture = mkdtempSync(resolve(tmpdir(), "ginko-docs-component-kit-"));
 let server;
+let browser;
 try {
   write(
     resolve(fixture, "package.json"),
@@ -99,7 +102,7 @@ try {
   );
   write(
     resolve(fixture, "app/components/Icon.vue"),
-    '<script setup lang="ts">defineProps<{ name: string }>()</script><template><span data-host-icon>{{ name }}</span></template>\n',
+    '<script setup lang="ts">defineProps<{ name: string }>()</script><template><svg data-host-icon viewBox="0 0 24 24" aria-hidden="true"><title>{{ name }}</title><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" /></svg></template>\n',
   );
   write(
     resolve(fixture, "app/components/LearningObjective.vue"),
@@ -107,7 +110,11 @@ try {
   );
   write(
     resolve(fixture, "app/pages/index.vue"),
-    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><MdcFlow><p>Flow text</p><MdcFigure src="/kit-figure.png" alt="Kit figure" caption="Figure caption" /></MdcFlow><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
+    '<script setup lang="ts">import { ginkoDocsAuthoringKitSource } from "@lupinum/ginko-docs/authoring"; const authoringTags = Object.keys(ginkoDocsAuthoringKitSource.authoring).sort().join(",")</script><template><main :data-authoring-tags="authoringTags"><MdcInfo title="Context">Real Docs info</MdcInfo><MdcNote title="Note title">Note body</MdcNote><MdcWarning title="Warning title">Warning body</MdcWarning><MdcError title="Error title">Error body</MdcError><MdcSuccess title="Success title">Success body</MdcSuccess><MdcIdea title="Idea title">Idea body</MdcIdea><MdcAside label="Aside title">Aside body</MdcAside><MdcExcerpt label="Excerpt title" source="Source name">Excerpt body</MdcExcerpt><MdcLayout type="border"><MdcColumn size="sm">First</MdcColumn><MdcColumn size="lg">Second</MdcColumn></MdcLayout><MdcFlow><p>Standalone reading flow</p><MdcFigure src="/figure.svg" alt="A green canopy" caption="A figure without the Docs shell" /></MdcFlow><LearningObjective title="Host renderer" assessed>Main<template #tip>Named tip</template></LearningObjective></main></template>\n',
+  );
+  write(
+    resolve(fixture, "public/figure.svg"),
+    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640"><rect width="960" height="640" fill="#306e44" /></svg>',
   );
   run("pnpm", ["install", "--ignore-scripts"], fixture);
   const entry = createRequire(resolve(fixture, "package.json")).resolve(
@@ -129,7 +136,23 @@ try {
   ) {
     throw new Error("The component-only production build dropped its styles.");
   }
-  if (css.includes("Public Sans"))
+  const assets = readdirSync(publicAssets).filter((name) => /\.(?:css|js)$/.test(name));
+  const sizes = assets.map((name) => {
+    const bytes = readFileSync(resolve(publicAssets, name));
+    return { name, bytes: bytes.length, gzip: gzipSync(bytes).length };
+  });
+  console.log(
+    JSON.stringify({
+      componentKitClientAssets: sizes,
+      totalBytes: sizes.reduce((sum, item) => sum + item.bytes, 0),
+      totalGzipBytes: sizes.reduce((sum, item) => sum + item.gzip, 0),
+    }),
+  );
+  if (
+    css.includes("Public Sans") ||
+    css.includes("@font-face") ||
+    readdirSync(publicAssets).some((name) => /\.(?:woff2?|ttf|otf)$/.test(name))
+  )
     throw new Error("The component-only module installed host fonts.");
 
   const port = await availablePort();
@@ -149,14 +172,16 @@ try {
   }
   if (!home?.ok) throw new Error("The component-only fixture did not start.");
   const html = await home.text();
+  if (/<(?:header|nav)\b/.test(html) || /docs-sidebar|docs-toc-shell/.test(css))
+    throw new Error("The component-only module installed the Docs shell.");
   for (const text of [
     'data-authoring-tags="aside,column,error,excerpt,figure,flow,idea,info,layout,note,success,warning"',
-    "Flow text",
-    "Figure caption",
-    // English fallback from useDocsText: the fixture has no @nuxtjs/i18n.
-    'aria-label="Zoom image: Kit figure"',
     'class="content-flow',
     "Real Docs info",
+    "Standalone reading flow",
+    "A figure without the Docs shell",
+    // English fallback from useDocsText: the fixture has no @nuxtjs/i18n.
+    'aria-label="Zoom image: A green canopy"',
     "First",
     "Second",
     "Host renderer",
@@ -177,7 +202,60 @@ try {
   const unintendedRoute = await fetch(`http://127.0.0.1:${port}/docs`);
   if (unintendedRoute.status !== 404)
     throw new Error("The component-only module installed a Docs route.");
+  browser = await chromium.launch({
+    executablePath: [
+      process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+      chromium.executablePath(),
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/usr/bin/google-chrome",
+      "/usr/bin/chromium",
+    ].find((path) => path && existsSync(path)),
+    headless: true,
+  });
+  const page = await browser.newPage();
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`http://127.0.0.1:${port}/`);
+    const figure = page.locator("figure.content-media");
+    const image = figure.getByRole("img", { name: "A green canopy" });
+    await image.waitFor({ state: "visible" });
+    await page.screenshot({
+      path: resolve(root, "layer/.pack", `component-kit-${width}.png`),
+      fullPage: true,
+    });
+    const [frame, media] = await Promise.all([figure.boundingBox(), image.boundingBox()]);
+    if (
+      !frame ||
+      !media ||
+      media.x < frame.x - 1 ||
+      media.x + media.width > frame.x + frame.width + 1
+    )
+      throw new Error("Standalone figure escapes its frame.");
+    const trigger = page.getByRole("button", { name: "Zoom image: A green canopy" });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog", { name: "A figure without the Docs shell" });
+    await dialog.waitFor({ state: "visible" });
+    if ((await dialog.evaluate((node) => getComputedStyle(node).position)) !== "fixed")
+      throw new Error("Standalone image zoom is missing its overlay styles.");
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+    if (!(await trigger.evaluate((node) => node === document.activeElement)))
+      throw new Error("Image zoom does not restore keyboard focus.");
+    if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1))
+      throw new Error(
+        `Component-only fixture overflows the viewport: ${JSON.stringify(await page.locator("body *").evaluateAll((nodes) => nodes.filter((node) => node.getBoundingClientRect().right > window.innerWidth + 1).map((node) => ({ tag: node.tagName, class: node.className, right: node.getBoundingClientRect().right }))))}`,
+      );
+    await page.screenshot({
+      path: resolve(root, "layer/.pack", `component-kit-${width}.png`),
+      fullPage: true,
+    });
+  }
+  if (errors.length) throw new Error(`Component-only browser errors: ${errors.join("; ")}`);
 } finally {
+  await browser?.close();
   server?.kill("SIGTERM");
   rmSync(fixture, { recursive: true, force: true });
 }
