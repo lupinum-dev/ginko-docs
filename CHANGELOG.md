@@ -1,10 +1,21 @@
 # Changelog
 
-## Unreleased
+## v0.4.0-rc.12
+
+[compare changes](https://github.com/lupinum-dev/ginko-docs/compare/v0.4.0-rc.11...v0.4.0-rc.12)
 
 ### Breaking changes
 
+- Require Ginko Content 1.0.0-beta.11 or later in the 1.x line.
 - `nitropack` is a peer dependency; Nuxt installs it.
+- Require Vue Router ^5.2.0, the range Ginko Content 1.0.0-beta.11 requires.
+
+### Features
+
+- Add stable `data-docs-*` styling hooks and documented layout variables for the
+  sidebar, article, table of contents, breadcrumb and pager.
+- Export `useDocsSearch` to open the search dialog from a host header, and
+  `useDocsNavigation` for sections, breadcrumbs and the current page.
 
 ### Features
 

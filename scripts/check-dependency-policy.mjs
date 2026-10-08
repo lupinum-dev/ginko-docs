@@ -2,6 +2,8 @@ import { readFile, realpath } from "node:fs/promises";
 import { pathToFileURL, URL } from "node:url";
 import { isMap, isScalar, isSeq, parseDocument } from "yaml";
 
+export const ownScopeExclusion = "@lupinum/*";
+
 // Metadata stays on the install exclusion itself, not in a second inventory.
 export function checkDependencyPolicy(source, now = Date.now()) {
   const document = parseDocument(source);
@@ -22,6 +24,13 @@ export function checkDependencyPolicy(source, now = Date.now()) {
   const seen = new Set();
   for (const item of exclusions.items) {
     const name = isScalar(item) ? item.value : undefined;
+    // Lupinum OSS D14: our own scope is the one standing exclusion. Only our
+    // protected release workflows publish it.
+    if (name === ownScopeExclusion) {
+      if (seen.has(name)) failures.push(`${name}: duplicate quarantine exclusion.`);
+      seen.add(name);
+      continue;
+    }
     // Exact npm semver only; ranges, tags, globs and version groups bypass review.
     const identifier = "(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)";
     const version = `(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-${identifier}(?:\\.${identifier})*)?(?:\\+[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*)?`;

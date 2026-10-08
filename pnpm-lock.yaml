@@ -15,7 +15,7 @@ overrides:
   shell-quote@<1.11.0: 1.11.0
   source-map-js@<1.2.2: 1.2.2
   tinypool@>=2.0.0 <2.1.2: 2.1.2
-  '@lupinum/ginko-content': 1.0.0-beta.9
+  '@lupinum/ginko-content': 1.0.0-beta.11
   esbuild: 0.28.2
   vite: npm:@voidzero-dev/vite-plus-core@0.1.24
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
@@ -31,8 +31,8 @@ importers:
         specifier: ^1.2.123
         version: 1.2.123
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.9
-        version: 1.0.0-beta.9(ce71f0d8e63a9ababd4470cc3ac481f9)
+        specifier: 1.0.0-beta.11
+        version: 1.0.0-beta.11(462777f32cca11f66be84d48955d306e)
       '@nuxt/a11y':
         specifier: 1.0.0-alpha.1
         version: 1.0.0-alpha.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(magicast@0.5.5)(oxc-parser@0.151.0)(rolldown@1.2.3)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
@@ -103,8 +103,8 @@ importers:
   docs:
     dependencies:
       '@lupinum/ginko-content':
-        specifier: 1.0.0-beta.9
-        version: 1.0.0-beta.9(494b89c29cc85ce6cb5989e2e59b5798)
+        specifier: 1.0.0-beta.11
+        version: 1.0.0-beta.11(47ca1766a61882bc558d46a1894682a9)
       '@lupinum/ginko-docs':
         specifier: workspace:*
         version: link:../layer
@@ -939,17 +939,21 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lupinum/ginko-content@1.0.0-beta.9':
-    resolution: {integrity: sha512-hnmrgqCv87BghCbrwzolBqASYzBkMgP9PbsTI2kkAZLTsaer6MFgw1yadVqdGcMdx8vWt/dn1+TaKkH21+M23g==}
+  '@lupinum/ginko-content@1.0.0-beta.11':
+    resolution: {integrity: sha512-ROOZiAbhZkEUBymb0UtxZd5ei0TOW/+LaU5EK+k6eWgLIEdNyBIo5HaHUXURW0gGu3W0q7eCc2cmEv0QAb3wSQ==}
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
       beautiful-mermaid: ^1.1.3
+      h3: ^1.15.11
       katex: ^0.17.0
+      nitropack: ^2.13.4
       nuxt: '>=4.5.1 <5'
       pagefind: ^1.5.2
+      unstorage: ^1.17.5
       vitest: '>=4.1.6 <5'
       vue: ^3.5.40
+      vue-router: ^5.2.0
     peerDependenciesMeta:
       beautiful-mermaid:
         optional: true
@@ -7114,7 +7118,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lupinum/ginko-content@1.0.0-beta.9(494b89c29cc85ce6cb5989e2e59b5798)':
+  '@lupinum/ginko-content@1.0.0-beta.11(462777f32cca11f66be84d48955d306e)':
     dependencies:
       '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
       '@nuxt/kit': 4.5.2(magic-string@1.4.2)(magicast@0.5.5)(oxc-parser@0.151.0)(rolldown@1.2.3)(unplugin@3.4.0(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0))
@@ -7123,106 +7127,6 @@ snapshots:
       defu: 6.1.7
       destr: 2.0.5
       entities: 7.0.1
-      globby: 16.2.3
-      h3: 1.15.11
-      jiti: 2.7.0
-      js-yaml: 4.3.2
-      json5: 2.2.3
-      knitwork: 1.3.0
-      minisearch: 7.2.0
-      nitropack: 2.13.4(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(oxc-parser@0.151.0)(rolldown@1.2.3)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
-      nuxt: 4.5.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.151.0)(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(@vue/compiler-sfc@3.5.42)(db0@0.3.4)(esbuild@0.28.2)(eslint@10.8.1(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(oxc-parser@0.151.0)(oxlint@1.67.0(oxlint-tsgolint@0.23.0)(vite-plus@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)))(rolldown@1.2.3)(rollup-plugin-visualizer@7.0.1(rolldown@1.2.3)(rollup@4.62.4))(rollup@4.62.4)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(vue-tsc@3.3.9(typescript@5.9.3))(yaml@2.9.0)
-      ohash: 2.0.12
-      pathe: 2.0.3
-      picomatch: 4.0.7
-      scule: 1.3.0
-      shiki: 4.4.3
-      ufo: 1.6.4
-      unstorage: 1.17.5(@vercel/functions@3.9.5(ws@8.21.3))(db0@0.3.4)(ioredis@5.11.1(supports-color@10.2.2))
-      vue: 3.5.42(typescript@5.9.3)
-      vue-router: 5.3.0(@types/node@25.9.5)(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(vue@3.5.42(typescript@5.9.3))(yaml@2.9.0)
-      zod: 4.4.3
-    optionalDependencies:
-      vitest: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)'
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@electric-sql/pglite'
-      - '@farmfe/core'
-      - '@libsql/client'
-      - '@netlify/blobs'
-      - '@parcel/watcher'
-      - '@pinia/colada'
-      - '@planetscale/database'
-      - '@rsbuild/core'
-      - '@rspack/core'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@types/node'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - '@vitejs/devtools'
-      - '@vue/compiler-sfc'
-      - aws4fetch
-      - bare-abort-controller
-      - bare-buffer
-      - better-sqlite3
-      - bun-types-no-globals
-      - db0
-      - drizzle-orm
-      - encoding
-      - esbuild
-      - idb-keyval
-      - ioredis
-      - less
-      - magic-string
-      - magicast
-      - mysql2
-      - oxc-parser
-      - pinia
-      - publint
-      - rangi
-      - react-native-b4a
-      - rolldown
-      - rollup
-      - sass
-      - sass-embedded
-      - sqlite3
-      - srvx
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typescript
-      - unloader
-      - unplugin
-      - unplugin-unused
-      - unrun
-      - uploadthing
-      - webpack
-      - xml2js
-      - yaml
-
-  '@lupinum/ginko-content@1.0.0-beta.9(ce71f0d8e63a9ababd4470cc3ac481f9)':
-    dependencies:
-      '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
-      '@nuxt/kit': 4.5.2(magic-string@1.4.2)(magicast@0.5.5)(oxc-parser@0.151.0)(rolldown@1.2.3)(unplugin@3.4.0(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0))
-      '@shikijs/transformers': 4.4.3
-      comark: 0.6.2(shiki@4.4.3)
-      defu: 6.1.7
-      destr: 2.0.5
-      entities: 7.0.1
-      globby: 16.2.3
       h3: 1.15.11
       jiti: 2.7.0
       js-yaml: 4.3.2
@@ -7236,6 +7140,7 @@ snapshots:
       picomatch: 4.0.7
       scule: 1.3.0
       shiki: 4.4.3
+      tinyglobby: 0.2.17
       ufo: 1.6.4
       unstorage: 1.17.5(@vercel/functions@3.9.5(ws@8.21.3))(db0@0.3.4)(ioredis@5.11.1(supports-color@10.2.2))
       vue: 3.5.42(typescript@5.9.3)
@@ -7244,73 +7149,50 @@ snapshots:
     optionalDependencies:
       vitest: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)'
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@electric-sql/pglite'
-      - '@farmfe/core'
-      - '@libsql/client'
-      - '@netlify/blobs'
-      - '@parcel/watcher'
-      - '@pinia/colada'
-      - '@planetscale/database'
-      - '@rsbuild/core'
-      - '@rspack/core'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@types/node'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - '@vitejs/devtools'
-      - '@vue/compiler-sfc'
-      - aws4fetch
-      - bare-abort-controller
-      - bare-buffer
-      - better-sqlite3
-      - bun-types-no-globals
-      - db0
-      - drizzle-orm
-      - encoding
-      - esbuild
-      - idb-keyval
-      - ioredis
-      - less
       - magic-string
       - magicast
-      - mysql2
       - oxc-parser
-      - pinia
-      - publint
       - rangi
-      - react-native-b4a
       - rolldown
-      - rollup
-      - sass
-      - sass-embedded
-      - sqlite3
-      - srvx
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typescript
-      - unloader
       - unplugin
-      - unplugin-unused
-      - unrun
-      - uploadthing
-      - webpack
-      - xml2js
-      - yaml
+
+  '@lupinum/ginko-content@1.0.0-beta.11(47ca1766a61882bc558d46a1894682a9)':
+    dependencies:
+      '@comark/vue': 0.6.2(shiki@4.4.3)(vue@3.5.42(typescript@5.9.3))
+      '@nuxt/kit': 4.5.2(magic-string@1.4.2)(magicast@0.5.5)(oxc-parser@0.151.0)(rolldown@1.2.3)(unplugin@3.4.0(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0))
+      '@shikijs/transformers': 4.4.3
+      comark: 0.6.2(shiki@4.4.3)
+      defu: 6.1.7
+      destr: 2.0.5
+      entities: 7.0.1
+      h3: 1.15.11
+      jiti: 2.7.0
+      js-yaml: 4.3.2
+      json5: 2.2.3
+      knitwork: 1.3.0
+      minisearch: 7.2.0
+      nitropack: 2.13.4(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(oxc-parser@0.151.0)(rolldown@1.2.3)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)
+      nuxt: 4.5.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.151.0)(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.3))(@vue/compiler-sfc@3.5.42)(db0@0.3.4)(esbuild@0.28.2)(eslint@10.8.1(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(oxc-parser@0.151.0)(oxlint@1.67.0(oxlint-tsgolint@0.23.0)(vite-plus@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)))(rolldown@1.2.3)(rollup-plugin-visualizer@7.0.1(rolldown@1.2.3)(rollup@4.62.4))(rollup@4.62.4)(srvx@0.12.5)(supports-color@10.2.2)(terser@5.50.0)(typescript@5.9.3)(vue-tsc@3.3.9(typescript@5.9.3))(yaml@2.9.0)
+      ohash: 2.0.12
+      pathe: 2.0.3
+      picomatch: 4.0.7
+      scule: 1.3.0
+      shiki: 4.4.3
+      tinyglobby: 0.2.17
+      ufo: 1.6.4
+      unstorage: 1.17.5(@vercel/functions@3.9.5(ws@8.21.3))(db0@0.3.4)(ioredis@5.11.1(supports-color@10.2.2))
+      vue: 3.5.42(typescript@5.9.3)
+      vue-router: 5.3.0(@types/node@25.9.5)(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(vue@3.5.42(typescript@5.9.3))(yaml@2.9.0)
+      zod: 4.4.3
+    optionalDependencies:
+      vitest: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)'
+    transitivePeerDependencies:
+      - magic-string
+      - magicast
+      - oxc-parser
+      - rangi
+      - rolldown
+      - unplugin
 
   '@mapbox/node-pre-gyp@2.0.3(supports-color@10.2.2)':
     dependencies:
@@ -11023,10 +10905,6 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fdir@6.5.0(picomatch@4.0.5):
-    optionalDependencies:
-      picomatch: 4.0.5
-
   fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
       picomatch: 4.0.7
@@ -13716,8 +13594,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   tinypool@2.1.2: {}
 
@@ -13954,7 +13832,7 @@ snapshots:
   unplugin-utils@0.3.2:
     dependencies:
       pathe: 2.0.3
-      picomatch: 4.0.5
+      picomatch: 4.0.7
 
   unplugin@2.3.11:
     dependencies:
@@ -13966,7 +13844,7 @@ snapshots:
   unplugin@3.3.0(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.3)(rollup@4.62.4)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0):
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      picomatch: 4.0.5
+      picomatch: 4.0.7
       vite: '@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(typescript@5.9.3)(yaml@2.9.0)'
       webpack-virtual-modules: 0.6.2
     optionalDependencies:

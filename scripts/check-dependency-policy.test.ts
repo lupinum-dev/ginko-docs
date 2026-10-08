@@ -28,4 +28,11 @@ describe("dev-only audit exceptions", () => {
       "GHSA-86w9-cpqp-85rv: inline JSON comment must contain a nonempty reason, owner, and UTC expires.",
     );
   });
+
+  it("allows only our own scope as a standing quarantine exclusion", () => {
+    const now = Date.parse("2026-10-07T00:00:00Z");
+    expect(checkDependencyPolicy(source.replace('- "@lupinum/*"', '- "@other/*"'), now)).toContain(
+      "Each quarantine exclusion must name one exact package@version.",
+    );
+  });
 });
