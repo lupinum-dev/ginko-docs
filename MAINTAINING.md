@@ -121,8 +121,11 @@ and the daily CI policy lane. The packed certifier validates the policy of each
 generated install before installation. Temporary exclusions must name one exact
 package/version with an inline JSON comment containing `reason`, `owner`, and
 `expires` in UTC; expiry must be within 24 hours. Remove the exclusion and comment
-together after expiry. The checker is a repository-owned copy of the reviewed
-Lupinum OSS shared asset; update it from that source, including its review evidence.
+together after expiry. The one standing exclusion is `@lupinum/*` (Lupinum OSS
+D14): only our protected release workflows publish that scope, so Ginko releases
+reach this repository and its packed fixtures the same day. The checker is a
+repository-owned copy of the reviewed Lupinum OSS shared asset; update it from
+that source, including its review evidence.
 
 The root pnpm override keeps `esbuild` on a patched release until `@nuxt/fonts` does so directly. Review this override after 2026-09-01. Remove it when the resolved dependency graph remains secure without it.
 

@@ -98,6 +98,11 @@ const { imageTransition, fadeTransition } = useImageZoomMotion();
   cursor: zoom-out;
   outline: none;
 }
+/* The dialog fills the viewport, so show its keyboard focus on the image instead. */
+.image-zoom-dialog:focus-visible .image-zoom-image {
+  outline: 2px solid var(--ring, currentColor);
+  outline-offset: 4px;
+}
 .image-zoom-sr-only {
   position: absolute;
   width: 1px;
