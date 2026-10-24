@@ -18,7 +18,7 @@ overrides:
   # Security floors for transitive build dependencies. Remove each override
   # when its direct parent resolves a patched version without it.
   "fflate@>=0.7.0 <0.7.5": 0.7.5
-  "hono@<4.13.5": 4.13.7
+  "hono@<4.13.5": 4.13.11
   "js-yaml@>=4.0.0 <4.3.2": 4.3.2
   "svgo@>=4.0.0 <4.1.0": 4.1.0
   "@simple-git/argv-parser@<2.0.1": 2.0.1
@@ -48,3 +48,6 @@ auditConfig:
     - GHSA-x6jw-m9v5-85vh # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}
     - GHSA-g4wm-2vf7-vfgr # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}
     - GHSA-858h-whjf-mvg5 # {"owner": "mat4m0", "reason": "Published 4.x lacks the default export consumed by Nuxt DevTools; 3.36.1 is unpublished.", "expires": "2026-11-06T00:00:00Z"}
+minimumReleaseAgeExclude:
+  # Renovate security update: hono@4.13.11
+  - hono@4.13.11
