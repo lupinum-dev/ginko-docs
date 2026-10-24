@@ -12,8 +12,8 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
 </p>
 
-> [!WARNING]
-> Ginko Docs is stable in the 0.3 release line. Because it is pre-1.0, a later minor release can contain breaking changes.
+> [!IMPORTANT]
+> **This repository is retired.** Ginko Docs is now developed in [lupinum-dev/ginko](https://github.com/lupinum-dev/ginko) as [`packages/ginko-docs`](https://github.com/lupinum-dev/ginko/tree/main/packages/ginko-docs), and `npm i @lupinum/ginko-docs` installs that version (0.6 and later). The versions published from this repository (0.2–0.4.0-rc) have a different API and get no more fixes. This repository will be archived.
 
 ## Why use Ginko Docs?
 
