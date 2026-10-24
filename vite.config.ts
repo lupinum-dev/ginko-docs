@@ -31,7 +31,7 @@ export default defineConfig({
     fixedExtension: false,
     hash: false,
     deps: {
-      skipNodeModulesBundle: true,
+      neverBundle: true,
     },
   },
 });

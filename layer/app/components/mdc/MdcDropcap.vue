@@ -21,11 +21,9 @@ const lineCount = computed(() => {
   return 2;
 });
 
-const dropcapStyle = computed(
-  (): CSSProperties => ({
-    "--mdc-dropcap-lines": String(lineCount.value),
-  }),
-);
+const dropcapStyle = computed((): CSSProperties => ({
+  "--mdc-dropcap-lines": String(lineCount.value),
+}));
 </script>
 
 <template>

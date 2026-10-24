@@ -6,7 +6,7 @@ import {
   reference,
 } from "@lupinum/ginko-content/config";
 import { z } from "zod";
-//#region layer/shared/route-slugs.ts
+// layer/shared/route-slugs.ts
 const routeSlugs = {
   home: {
     en: "/",
@@ -21,8 +21,7 @@ const routeSlugs = {
     de: "/blog",
   },
 };
-//#endregion
-//#region layer/content-collections.ts
+// layer/content-collections.ts
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected an ISO date (YYYY-MM-DD)");
 const nonEmptyString = z.string().trim().min(1);
 const redirectFrom = z
@@ -123,8 +122,7 @@ function createGinkoDocsCollections(locales = ["en"], docsMarkdown = true) {
     },
   }).collections;
 }
-//#endregion
-//#region layer/content.ts
+// layer/content.ts
 function defineGinkoDocsConfig(options) {
   const locales = options.locales ?? ["en"];
   if (
@@ -199,5 +197,4 @@ function defineGinkoDocsConfig(options) {
     collections: { docs },
   });
 }
-//#endregion
 export { defineGinkoDocsConfig };

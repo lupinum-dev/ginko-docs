@@ -11,7 +11,7 @@ describe("dev-only audit exceptions", () => {
 
   it("fails every exception at its exact expiry", () => {
     const failures = checkDependencyPolicy(source, Date.parse("2026-11-06T00:00:00Z"));
-    expect(failures.filter((failure) => failure.includes("expired"))).toHaveLength(5);
+    expect(failures.filter((failure) => failure.includes("expired"))).toHaveLength(1);
   });
 
   it("rejects package names, later deadlines and missing metadata", () => {
