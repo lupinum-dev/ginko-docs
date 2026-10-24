@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { cn } from "#ginko-docs/utils";
 import { useDocsNavigation } from "#ginko-docs/composables/useDocsNavigation";
+import { useGinkoDocsConfig } from "#ginko-docs/composables/useGinkoDocsConfig";
 import {
   docsNavigationSectionContainsPath,
   getDocsNavigationGroups,
@@ -14,7 +15,7 @@ import DocsSidebarDropdown from "./DocsSidebarDropdown.vue";
 import DocsSidebarList from "./DocsSidebarList.vue";
 import DocsSidebarTabs from "./DocsSidebarTabs.vue";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { navigateTo, useAppConfig, useI18n, useRoute } from "#imports";
+import { navigateTo, useI18n, useRoute } from "#imports";
 
 const props = withDefaults(
   defineProps<{
@@ -27,7 +28,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const route = useRoute();
-const sidebarSwitcher = useAppConfig().ginkoDocs.site.docsSidebarSwitcher;
+const sidebarSwitcher = useGinkoDocsConfig().site.docsSidebarSwitcher;
 const { sections } = await useDocsNavigation();
 const switcherSections = computed(() =>
   sections.value.filter((section): section is DocsNavigationSection & { title: string } =>
